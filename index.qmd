@@ -4,7 +4,7 @@ title: "My website and data analysis portfolio"
 
 # Hello!
 
-![](IMG_3436.png)
+![Me and my presented poster at IAFP 2023 in Toronto](IMG_3436.png)
 
 # And hello again
 
