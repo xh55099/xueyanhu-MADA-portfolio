@@ -2,14 +2,18 @@
 title: "My website and data analysis portfolio"
 ---
 
-# Hello
+# Hello!
 
-### And hello again
+![](IMG_3436.png)
 
-Welcome to **my website** and _data analysis portfolio._ 
+# And hello again
 
+Welcome to **Xylem Hu's website** and *data analysis portfolio.*
 
-* Please use the `Menu Bar` above to look around.
-* Have fun!
+I am new to most of the softwares and still trying my best to figure out as much as I can.
 
-**Feel free to change this text any way you want 😁!**
+-   Please use the `Menu Bar` above to get to know more about me.
+-   Have fun!
+-   You may see me asking tons of questions in the channel
+
+**Feel free to contact me through emaill (xh55099\@uga.edu) and discord (Xylem Hu).**
