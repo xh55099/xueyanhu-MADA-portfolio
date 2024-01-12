@@ -1,7 +1,26 @@
 ---
 title: "About me"
+bibliography: references.bib
 ---
 
-Add some text and a figure describing myself.
+## Background
 
-For details, see the exercise instructions. 
+My name is Xueyan Hu and I am a second-year PhD student in food science department from Griffin Campus. My research interests is bacterial foodborne pathogens on fresh produce.
+
+## Education
+
+-   PhD in food science and technology at the University of Georgia
+-   MS in food science and technology at the Univeristy of Georgia
+-   BS and BE of food science and technology/engineering from a 3+1 program between Northwest Agricultural and Forestry University and University of Nebraska Lincoln
+
+## Publish
+
+In my first paper that I finished during my master's [@hu2023], I used both R and SAS to analyzed the data collected from my wet lab work and confirmed the effectiveness of a natural chemical in pathogen resistance on sprouts.
+
+## Experience
+
+This is the second stats course that I have even taken in the graduate study. Since I registered ERSH8320 during my master's, I got to know some linear models and basic codes for R. Later, I made them into practice by using them in statistical analysis for my own research project. Also, I learned SAS a little bit from my PI and trited to apply it for my own research data.
+
+## A TMI about this course
+
+My labmate recommended MADA to me because she believed that she learned a lot after the course even if it was so challenging and time consuming for us food microbiology students. Then,I took her advice and now I am here in the class. I do really hope that I won't fall behind my classmates.

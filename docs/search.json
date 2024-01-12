@@ -151,7 +151,7 @@
     "href": "aboutme.html",
     "title": "About me",
     "section": "",
-    "text": "Add some text and a figure describing myself.\nFor details, see the exercise instructions."
+    "text": "My name is Xueyan Hu and I am a second-year PhD student in food science department from Griffin Campus. My research interests is bacterial foodborne pathogens on fresh produce."
   },
   {
     "objectID": "index.html",
@@ -208,5 +208,40 @@
     "title": "YOURNAME Data Analysis Portfolio",
     "section": "",
     "text": "Folder for all tables (generally stored as Rds files) and other files.\nYou can create further sub-folders if that makes sense."
+  },
+  {
+    "objectID": "aboutme.html#background",
+    "href": "aboutme.html#background",
+    "title": "About me",
+    "section": "",
+    "text": "My name is Xueyan Hu and I am a second-year PhD student in food science department from Griffin Campus. My research interests is bacterial foodborne pathogens on fresh produce."
+  },
+  {
+    "objectID": "aboutme.html#education",
+    "href": "aboutme.html#education",
+    "title": "About me",
+    "section": "Education",
+    "text": "Education\n\nPhD in food science and technology at the University of Georgia\nMS in food science and technology at the Univeristy of Georgia\nBS and BE of food science and technology/engineering from a 3+1 program between Northwest Agricultural and Forestry University and University of Nebraska Lincoln"
+  },
+  {
+    "objectID": "aboutme.html#experience",
+    "href": "aboutme.html#experience",
+    "title": "About me",
+    "section": "Experience",
+    "text": "Experience\nThis is the second stats course that I have even taken in the graduate study. Since I registered ERSH8320 during my master’s, I got to know some linear models and basic codes for R. Later, I made them into practice by using them in statistical analysis for my own research project. Also, I learned SAS a little bit from my PI and trited to apply it for my own research data."
+  },
+  {
+    "objectID": "aboutme.html#a-tmi-about-this-course",
+    "href": "aboutme.html#a-tmi-about-this-course",
+    "title": "About me",
+    "section": "A TMI about this course",
+    "text": "A TMI about this course\nMy labmate recommended MADA to me because she believed that she learned a lot after the course even if it was so challenging and time consuming for us food microbiology students. Then,I took her advice and now I am here in the class. I do really hope that I won’t fall behind my classmates."
+  },
+  {
+    "objectID": "aboutme.html#publish",
+    "href": "aboutme.html#publish",
+    "title": "About me",
+    "section": "Publish",
+    "text": "Publish\nIn my first paper that I finished during my master’s (Hu et al. 2023), I used both R and SAS to analyzed the data collected from my wet lab work and confirmed the effectiveness of a natural chemical in pathogen resistance on sprouts."
   }
 ]
