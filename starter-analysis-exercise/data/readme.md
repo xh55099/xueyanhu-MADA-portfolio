@@ -16,3 +16,5 @@ However, CSV is better for sharing with others since it's plain text. If you do 
 See here for some suggestions on how to store your processed data:
 
 http://www.sthda.com/english/wiki/saving-data-into-r-data-format-rds-and-rdata
+Ready for part 3
+Clarke Miller 
