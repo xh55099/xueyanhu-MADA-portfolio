@@ -1,3 +1,5 @@
+Clarke Miller contributed to this exercise
+
 ---
 title: "Manuscript/Report Template for a Data Analysis Project"
 subtitle: ""
@@ -90,7 +92,7 @@ resulttable=readRDS("../../results/tables-files/summarytable.rds")
 knitr::kable(resulttable)
 ```
 
-
+@tbl-
 
 ## Basic statistical analysis
 
