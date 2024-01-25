@@ -3,3 +3,116 @@ title: "R Coding Exercise"
 ---
 
 Placeholder file for the future R coding exercise.
+
+### load packages
+
+```{r}
+library(dslabs) #data source
+library(readxl) #for loading Excel files
+library(dplyr) #for data processing/cleaning
+library(tidyr) #for data processing/cleaning
+library(skimr) #for nice visualization of data 
+library(here) #to set paths
+library(ggplot2) #figures
+```
+
+### data from dslabs package
+
+```{r}
+help(gapminder) #look at help file for gapminder data
+str(gapminder) #get an overview of data structure
+summary(gapminder) #get a summary of data
+class(gapminder) #determine the type of object gapminder is
+```
+
+### new datasets
+
+```{r}
+africadata <- gapminder %>%
+  filter(continent == "Africa") #assigns only the African countries to a new object/variable called africadata
+print(africadata)
+str(africadata) 
+summary(africadata)
+```
+
+```{r}
+d_im_le <- africadata %>%
+  select(infant_mortality, life_expectancy)#create new dataset 1
+d_pl_le <- africadata %>%
+  select(population, life_expectancy)#create new dataset 2
+str(d_im_le) 
+summary(d_im_le)
+str(d_pl_le) 
+summary(d_pl_le)
+```
+
+### scatter plots for 2 new datasets
+
+```{r}
+p1 <- d_im_le %>% ggplot(aes(x=infant_mortality, y=life_expectancy)) + 
+  geom_point() +
+  theme_minimal() +
+  scale_x_log10() +
+  labs(title = "Life Expectancy by Infant Mortality",
+       x = "log10 Infant Mortality",
+       y = "Life Expectancy")
+plot(p1)
+```
+
+```{r}
+p2 <- d_pl_le %>% ggplot(aes(x=population, y=life_expectancy)) + 
+  geom_point() +
+  theme_minimal() +
+  scale_x_log10() +
+  labs(title = "Life Expectancy by Population",
+       x = "log 10 Population",
+       y = "Life Expectancy")
+plot(p2)
+```
+
+***Thought***: I think it is because life expectancy is directly correlated to infant mortality reversely: low infant mortality will lead to high life expectancy and vice versa. But it cannot be applied to population. With the development of the countries, both population and life expectancy can increase which may show as a positive correlation.
+
+### figures out which years have missing data for infant mortality
+
+```{r}
+missing_years <- unique(africadata[is.na(africadata$infant_mortality), "year"])
+print(missing_years)
+```
+
+### new object by extracting only the data for the year 2000
+
+```{r}
+africadata_2000 <- africadata %>%
+  filter(year == "2000")
+print(africadata_2000)
+str(africadata_2000) 
+summary(africadata_2000)
+```
+
+### same scatter plots for new object year 2000
+
+```{r}
+p3 <- africadata_2000 %>% ggplot(aes(x=infant_mortality, y=life_expectancy)) + 
+  geom_point() +
+  theme_minimal() +
+  scale_x_log10() +
+  labs(title = "Life Expectancy by Infant Mortality in the year 2000",
+       x = "log10 Infant Mortality",
+       y = "Life Expectancy")
+plot(p3)
+```
+
+### simple model fits
+
+```{r}
+fit1 <- lm(life_expectancy ~ infant_mortality, data = africadata_2000)
+summary(fit1)
+fit1_file = here("coding-exercise","results", "simple-fits", "fit1.rds")
+saveRDS(fit1, file = fit1_file)
+fit2 <- lm(life_expectancy ~ population, data = africadata_2000)
+summary(fit2)
+fit2_file = here("coding-exercise","results", "simple-fits", "fit2.rds")
+saveRDS(fit2, file = fit2_file)
+```
+
+***Thought***: So the p-value for infant mortality as an independent variable is 2.83e-08 \*\*\*, lower than 0.05, which indicate that infant mortality has a significant effect on life expectancy. While populatioin is not a significant predictor for life expectancy as a outcome since the p-value is larger than 0.05 (0.616).
