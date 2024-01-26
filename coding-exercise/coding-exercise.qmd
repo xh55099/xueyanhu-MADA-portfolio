@@ -105,7 +105,7 @@ plot(p3)
 ### simple model fits
 
 ```{r}
-fit1 <- lm(life_expectancy ~ infant_mortality, data = africadata_2000)
+fit1 = lm(life_expectancy ~ infant_mortality, data = africadata_2000)
 summary(fit1)
 fit1_file = here("coding-exercise","results", "simple-fits", "fit1.rds")
 saveRDS(fit1, file = fit1_file)
@@ -166,7 +166,7 @@ summary(y)
 ```
 And now perform the Welch t-test using the `t.test()` function
 ```{r}
-install.packages("ggpubr")
+
 library("ggpubr")
 t.test(x, y, alternative = "two.sided", var.equal = FALSE)
 ```

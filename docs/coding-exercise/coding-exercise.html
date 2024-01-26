@@ -215,7 +215,7 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr) <span class="co">#for nice visualization of data </span></span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here) <span class="co">#to set paths</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>here() starts at /Users/XylemHu/Desktop/EPID8060E/GitHub/xueyanhu-MADA-portfolio</code></pre>
+<pre><code>here() starts at /Users/XylemHu/Desktop/EPID8060E/GitHub/xueyanhu-MADA-portfolio/coding-exercise</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2) <span class="co">#figures</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -6431,7 +6431,7 @@ Multiple R-squared:  0.4701,    Adjusted R-squared:  0.4593
 F-statistic: 43.48 on 1 and 49 DF,  p-value: 2.826e-08</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>fit1_file <span class="ot">=</span> <span class="fu">here</span>(<span class="st">"coding-exercise"</span>,<span class="st">"results"</span>, <span class="st">"simple-fits"</span>, <span class="st">"fit1.rds"</span>)</span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(fit1, <span class="at">file =</span> fit1_file)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>fit2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(life_expectancy <span class="sc">~</span> population, <span class="at">data =</span> africadata_2000)</span>
 <span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -6454,10 +6454,127 @@ Residual standard error: 8.524 on 49 degrees of freedom
 Multiple R-squared:  0.005176,  Adjusted R-squared:  -0.01513 
 F-statistic: 0.2549 on 1 and 49 DF,  p-value: 0.6159</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>fit2_file <span class="ot">=</span> <span class="fu">here</span>(<span class="st">"coding-exercise"</span>,<span class="st">"results"</span>, <span class="st">"simple-fits"</span>, <span class="st">"fit2.rds"</span>)</span>
-<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(fit2, <span class="at">file =</span> fit2_file)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>fit2_file <span class="ot">=</span> <span class="fu">here</span>(<span class="st">"coding-exercise"</span>,<span class="st">"results"</span>, <span class="st">"simple-fits"</span>, <span class="st">"fit2.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><strong><em>Thought</em></strong>: So the p-value for infant mortality as an independent variable is 2.83e-08 ***, lower than 0.05, which indicate that infant mortality has a significant effect on life expectancy. While populatioin is not a significant predictor for life expectancy as a outcome since the p-value is larger than 0.05 (0.616).</p>
+<p>#This section has been contributed by Arlyn Santiago</p>
+<p>For the next part of this exercise I decided to work on the <code>mice_weights</code> dataset from the <code>dslabs</code> package. The following space has the packages I decided to load just in case I’ll need them.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dslabs)</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Then, I used the <code>str()</code> function to explore the structure of the dataset and <code>summary()</code> to check the summary for each one of the variables of this dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(mice_weights)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   780 obs. of  7 variables:
+ $ body_weight : num  27.6 23 28.7 32.6 28.6 ...
+ $ bone_density: num  0.616 0.769 0.684 0.644 0.53 ...
+ $ percent_fat : num  7.26 4.95 6.02 9.54 6.99 ...
+ $ sex         : Factor w/ 2 levels "F","M": 1 1 1 1 1 1 1 1 1 1 ...
+ $ diet        : Factor w/ 2 levels "chow","hf": 1 1 1 1 1 1 1 1 1 1 ...
+ $ gen         : Factor w/ 5 levels "4","7","8","9",..: 1 1 1 1 1 1 1 1 1 1 ...
+ $ litter      : Factor w/ 2 levels "1","2": 1 1 1 1 1 1 1 1 1 1 ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(mice_weights)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  body_weight     bone_density     percent_fat     sex       diet     gen     
+ Min.   :18.13   Min.   :0.2708   Min.   : 2.552   F:398   chow:394   4 : 97  
+ 1st Qu.:28.09   1st Qu.:0.4888   1st Qu.: 5.566   M:382   hf  :386   7 :195  
+ Median :32.98   Median :0.5643   Median : 8.276                      8 :193  
+ Mean   :34.08   Mean   :0.5697   Mean   : 8.594                      9 : 97  
+ 3rd Qu.:39.37   3rd Qu.:0.6373   3rd Qu.:10.926                      11:198  
+ Max.   :65.15   Max.   :0.9980   Max.   :22.154                              
+                 NA's   :4        NA's   :4                                   
+ litter 
+ 1:442  
+ 2:338  
+        
+        
+        
+        
+        </code></pre>
+</div>
+</div>
+<p>This dataset consists of 780 observations of 7 variables: body weight, bone_density, percent_fat, sex, diet, gen (generation), litter. I am only interested in the bone density of both sexes of mice so I created a new object <code>mice</code> that includes “F” and “M” mice.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Used filter() to select only "M" and "F" from the variable `sex`. To do this I used the | operator which means "OR".</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>mice <span class="ot">&lt;-</span> mice_weights <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"F"</span> <span class="sc">|</span> sex <span class="sc">==</span> <span class="st">"M"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>To explore if there was a difference between sex and bone density, I used <code>ggplot()</code> and <code>geom_histogram()</code> to create a histogram.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mice, <span class="fu">aes</span>(<span class="at">x=</span> bone_density, <span class="at">fill=</span> sex))<span class="sc">+</span></span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_histogram</span>(<span class="at">bins =</span> <span class="dv">30</span>)<span class="sc">+</span></span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">x=</span> <span class="st">"Bone Density"</span>, <span class="at">y=</span> <span class="st">"Sex of Mice"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 4 rows containing non-finite values (`stat_bin()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Based on the histogram above, it is observed that most of the male mice have a bone density of approximately 0.55 to 0.63, and for most of female mice are between 0.51 and 0.53, but there are a few high peaks. So, I decided to explore the relationship between bone density and generation. I created a plot that shows both sexes using both <code>ggplot()</code> and <code>geom_point()</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mice, <span class="fu">aes</span>(<span class="at">x=</span> gen, <span class="at">y=</span> bone_density, <span class="at">color=</span> sex))<span class="sc">+</span></span>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="fu">geom_point</span>()<span class="sc">+</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="fu">labs</span>(<span class="at">x=</span> <span class="st">"Generation"</span>, <span class="at">y=</span> <span class="st">"Bone Density"</span>)<span class="sc">+</span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_linedraw</span>() <span class="co">#Used this theme becuase I wanted to see what it would look like</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 4 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="coding-exercise_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Based on the graph, it is observed that the bone density of both sexes remain constant from generation 7-9. However, around the 11th generation there must have been something to cause the increase in variation. The graph demonstrates that males typically have a higher bone density than females throughout the generations. Bone density increases for both male and female mice in the 11th generation. I wanted to explore if both sexes are correlate so I researched a simple correlation test, and decided to use the t.test() function in r. First I had to seperate the <code>mice</code> object to perform the test.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="co">#First I separated both sexes into separate objects using filter(). I  then used pull() to focus only on bone density.</span></span>
+<span id="cb56-2"><a href="#cb56-2" aria-hidden="true" tabindex="-1"></a>x <span class="ot">&lt;-</span> mice <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"M"</span>) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(bone_density)</span>
+<span id="cb56-3"><a href="#cb56-3" aria-hidden="true" tabindex="-1"></a>y <span class="ot">&lt;-</span> mice <span class="sc">%&gt;%</span> <span class="fu">filter</span>(sex <span class="sc">==</span> <span class="st">"F"</span>) <span class="sc">%&gt;%</span> <span class="fu">pull</span>(bone_density)</span>
+<span id="cb56-4"><a href="#cb56-4" aria-hidden="true" tabindex="-1"></a><span class="co">#Then I used summary()` to see if it ChatGPT was right and if it worked</span></span>
+<span id="cb56-5"><a href="#cb56-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(x)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+ 0.3977  0.5553  0.6113  0.6233  0.6799  0.9980       3 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max.    NA's 
+ 0.2708  0.4531  0.5090  0.5186  0.5793  0.8519       1 </code></pre>
+</div>
+</div>
+<p>And now perform the Welch t-test using the <code>t.test()</code> function</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"ggpubr"</span>)</span>
+<span id="cb60-2"><a href="#cb60-2" aria-hidden="true" tabindex="-1"></a><span class="fu">t.test</span>(x, y, <span class="at">alternative =</span> <span class="st">"two.sided"</span>, <span class="at">var.equal =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Welch Two Sample t-test
+
+data:  x and y
+t = 14.681, df = 768.68, p-value &lt; 2.2e-16
+alternative hypothesis: true difference in means is not equal to 0
+95 percent confidence interval:
+ 0.09073555 0.11874660
+sample estimates:
+mean of x mean of y 
+0.6233147 0.5185736 </code></pre>
+</div>
+</div>
+<p>The p-value of the test is &lt;2.2e-16, which is less than the significance level alpha = 0.05. We can conclude that Male mice’s average bone density is significantly different from Female mice’s average bone density.</p>
 
 
 </section>
