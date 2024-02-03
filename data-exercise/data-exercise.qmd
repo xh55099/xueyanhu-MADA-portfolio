@@ -87,7 +87,7 @@ Treatment_boxplot <- ggplot(bacterial_data, aes(x = Treatment, y = Bacterial_Pop
   labs(title = "Boxplot of Bacterial Population by Treatment",
        x = "Treatment",
        y = "Bacterial Population")
-
+plot(Treatment_boxplot)
 # Save the boxplot
 
 saveRDS(Treatment_boxplot, here("data-exercise","results","figures", "Treatment_boxplot.Rds"))
@@ -112,7 +112,7 @@ Day_pointplot <- ggplot(average_population, aes(x = Day, y = Bacterial_Populatio
        x = "Day",
        y = "Average Bacterial Population") +
   theme_minimal()
-
+plot(Day_pointplot)
 # Save the point plot
 
 saveRDS(Day_pointplot, here("data-exercise","results","figures","Day_pointplot.Rds"))
