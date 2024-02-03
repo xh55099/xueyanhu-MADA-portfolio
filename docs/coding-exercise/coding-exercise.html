@@ -6408,7 +6408,7 @@ Attaching package: 'dplyr'</code></pre>
 <section id="simple-model-fits" class="level3">
 <h3 class="anchored" data-anchor-id="simple-model-fits">simple model fits</h3>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(life_expectancy <span class="sc">~</span> infant_mortality, <span class="at">data =</span> africadata_2000)</span>
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>fit1 <span class="ot">=</span> <span class="fu">lm</span>(life_expectancy <span class="sc">~</span> infant_mortality, <span class="at">data =</span> africadata_2000)</span>
 <span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
@@ -6431,9 +6431,11 @@ Multiple R-squared:  0.4701,    Adjusted R-squared:  0.4593
 F-statistic: 43.48 on 1 and 49 DF,  p-value: 2.826e-08</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>fit1_file <span class="ot">=</span> <span class="fu">here</span>(<span class="st">"coding-exercise"</span>,<span class="st">"results"</span>, <span class="st">"simple-fits"</span>, <span class="st">"fit1.rds"</span>)</span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>fit2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(life_expectancy <span class="sc">~</span> population, <span class="at">data =</span> africadata_2000)</span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Create directory if it doesn't exist</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="fu">dirname</span>(fit1_file), <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(fit1, <span class="at">file =</span> fit1_file)</span>
+<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a>fit2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(life_expectancy <span class="sc">~</span> population, <span class="at">data =</span> africadata_2000)</span>
+<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(fit2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -6454,7 +6456,10 @@ Residual standard error: 8.524 on 49 degrees of freedom
 Multiple R-squared:  0.005176,  Adjusted R-squared:  -0.01513 
 F-statistic: 0.2549 on 1 and 49 DF,  p-value: 0.6159</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>fit2_file <span class="ot">=</span> <span class="fu">here</span>(<span class="st">"coding-exercise"</span>,<span class="st">"results"</span>, <span class="st">"simple-fits"</span>, <span class="st">"fit2.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create directory if it doesn't exist</span></span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">dir.create</span>(<span class="fu">dirname</span>(fit1_file), <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">showWarnings =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>fit2_file <span class="ot">=</span> <span class="fu">here</span>(<span class="st">"coding-exercise"</span>,<span class="st">"results"</span>, <span class="st">"simple-fits"</span>, <span class="st">"fit2.rds"</span>)</span>
+<span id="cb45-4"><a href="#cb45-4" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(fit2, <span class="at">file =</span> fit2_file)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><strong><em>Thought</em></strong>: So the p-value for infant mortality as an independent variable is 2.83e-08 ***, lower than 0.05, which indicate that infant mortality has a significant effect on life expectancy. While populatioin is not a significant predictor for life expectancy as a outcome since the p-value is larger than 0.05 (0.616).</p>
 <p>#This section has been contributed by Arlyn Santiago</p>

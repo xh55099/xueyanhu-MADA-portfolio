@@ -35,20 +35,10 @@ Load the packages.
 
 Load the data.
 
-```{r,loaddata}
-```
-
-
-
-
-
 # Data exploration through tables
 
 Showing a bit of code to produce and save a summary table.
 
-
-```{r,table1}
-```
 
 We are saving the results to the `results` folder. Depending on how many tables/figures you have, it might make sense to have separate folders for each. And/or you could have separate folders for exploratory tables/figures and for final tables/figures. Just choose a setup that makes sense for your project and works for you, and provide enough documentation that someone can understand what you are doing.
 
@@ -57,25 +47,17 @@ We are saving the results to the `results` folder. Depending on how many tables/
 
 Histogram plots for the continuous outcomes. 
 
+
 Height first.
 
-```{r,height}
-```
 
 Now weights.
 
-```{r,weight}
-```
 
 Now height as function of weight.
 
-```{r,fitfig1}
-```
 
 Once more height as function of weight, stratified by gender. Note that there is so little data, it's a bit silly. But we'll plot it anyway.
-
-```{r,fitfig2}
-```
 
 
 

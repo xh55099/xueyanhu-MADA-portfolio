@@ -108,9 +108,13 @@ plot(p3)
 fit1 = lm(life_expectancy ~ infant_mortality, data = africadata_2000)
 summary(fit1)
 fit1_file = here("coding-exercise","results", "simple-fits", "fit1.rds")
+# Create directory if it doesn't exist
+dir.create(dirname(fit1_file), recursive = TRUE, showWarnings = FALSE)
 saveRDS(fit1, file = fit1_file)
 fit2 <- lm(life_expectancy ~ population, data = africadata_2000)
 summary(fit2)
+# Create directory if it doesn't exist
+dir.create(dirname(fit1_file), recursive = TRUE, showWarnings = FALSE)
 fit2_file = here("coding-exercise","results", "simple-fits", "fit2.rds")
 saveRDS(fit2, file = fit2_file)
 ```

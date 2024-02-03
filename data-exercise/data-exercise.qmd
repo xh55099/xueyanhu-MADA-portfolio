@@ -1,0 +1,135 @@
+---
+title: "data exercise"
+---
+
+### Load required packages
+
+```{r}
+library(dplyr)
+library(purrr)
+library(lubridate)
+library(ggplot2)
+library(here)
+library(stringr)
+library(tidyr)
+library(tibble)
+```
+
+I am trying to create a synthetic dataset which mimic the result that I have got from my research, whose real data will be used for my project assessment.
+
+### create synthetic dataset
+
+```{r}
+# Set seed for reproducibility
+set.seed(123)
+
+# Number of observations
+n_observations <- 160
+
+# Seed types: AL and FE
+seed_types <- rep(c("AL", "FE"), each = n_observations / 2)
+
+# Strain types: F and G
+strain_types <- rep(c("F", "G"), each = n_observations / 2)
+
+# Replications: 1 and 2
+replications <- rep(c("1", "2"), times = n_observations / 2)
+
+# Treatment groups: A, B, C, D
+treatments <- rep(c("A", "B", "C", "D"), each = n_observations / 4)
+
+# Observed days: 0, 1, 3, 5, 7
+days <- rep(c(0, 1, 3, 5, 7), times = n_observations / 5)
+
+# Bacterial population with correlation to treatment
+bacterial_population <- days +
+  rnorm(n_observations, 
+  mean = ifelse(treatments == "A", 2, 
+         ifelse(treatments == "B", 5, 
+                ifelse(treatments %in% c("C", "D"), 6, 0))),
+  sd = 2
+)
+
+# Ensure the bacterial population is non-negative
+bacterial_population <- pmax(bacterial_population, 0)
+
+# Ensure the bacterial population fluctuates with a peak on day 3 or 5
+bacterial_population <- ifelse(days %in% c(3,5), bacterial_population + rnorm(n_observations, mean = 5, sd = 1), bacterial_population)
+
+# Ensure the bacterial population is within the range of 0 to 9
+bacterial_population <- pmin(bacterial_population, 9)
+
+# Create a data frame
+bacterial_data <- tibble(
+  Seed_Type = seed_types,
+  Strain_Type = strain_types,
+  Treatment = treatments,
+  Day = days,
+  Replication = replications,
+  Bacterial_Population = bacterial_population
+)
+
+# Display the resulting dataset
+print(bacterial_data)
+
+# save the generated dataset
+
+bacterial_data_file = here("data-exercise","dataset","bacterial_data.Rds")
+saveRDS(bacterial_data, file = bacterial_data_file)
+```
+
+# figures
+
+```{r}
+# Boxplot using ggplot2
+Treatment_boxplot <- ggplot(bacterial_data, aes(x = Treatment, y = Bacterial_Population)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Bacterial Population by Treatment",
+       x = "Treatment",
+       y = "Bacterial Population")
+
+# Save the boxplot
+
+saveRDS(Treatment_boxplot, here("data-exercise","results","figures", "Treatment_boxplot.Rds"))
+
+# scatterplot
+ggplot(bacterial_data, aes(x = Day, y = Bacterial_Population)) +
+  geom_point() +
+  labs(title = "Scatterplot of Bacterial Population by Day",
+       x = "Day",
+       y = "Bacterial Population")
+
+# Draw a point plot
+
+# Calculate the average population for each day
+average_population <- aggregate(Bacterial_Population ~ Day, data = bacterial_data, FUN = mean)
+
+# Draw a point plot
+Day_pointplot <- ggplot(average_population, aes(x = Day, y = Bacterial_Population)) +
+  geom_point(size = 3, color = "blue") +
+  geom_line(aes(group = 1), color = "red") +
+  labs(title = "Average Bacterial Population by Day",
+       x = "Day",
+       y = "Average Bacterial Population") +
+  theme_minimal()
+
+# Save the point plot
+
+saveRDS(Day_pointplot, here("data-exercise","results","figures","Day_pointplot.Rds"))
+```
+
+# fit simple linear models
+
+```{r}
+# Apply some simple models to the data
+
+fit1 <- lm(Bacterial_Population ~ Treatment, data = bacterial_data)
+summary(fit1)
+fit1_file = here("data-exercise","results", "fits","fit1.rds")
+saveRDS(fit1, file = fit1_file)
+
+fit2 <- lm(Bacterial_Population ~ Day, data = bacterial_data)
+summary(fit2)
+fit2_file = here("data-exercise","results", "fits","fit2.rds")
+saveRDS(fit2, file = fit2_file)
+```
