@@ -41,9 +41,9 @@ Load the data.
 
 ```{r}
 #Path to data. Note the use of the here() package and not absolute paths
-data_location <- here::here("starter-analysis-exercise","data","raw-data","exampledata_2.xslx")
+data_location <- here::here("starter-analysis-exercise","data","raw-data","exampledata_2.xlsx")
 #load data
-mydata <- readRDS(data_location)
+mydata <- read_excel(data_location)
 ```
 
 
