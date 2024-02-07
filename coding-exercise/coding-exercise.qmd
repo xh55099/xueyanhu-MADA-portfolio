@@ -121,10 +121,10 @@ saveRDS(fit2, file = fit2_file)
 
 ***Thought***: So the p-value for infant mortality as an independent variable is 2.83e-08 \*\*\*, lower than 0.05, which indicate that infant mortality has a significant effect on life expectancy. While populatioin is not a significant predictor for life expectancy as a outcome since the p-value is larger than 0.05 (0.616).
 
-
 #This section has been contributed by Arlyn Santiago
 
 For the next part of this exercise I decided to work on the `mice_weights` dataset from the `dslabs` package. The following space has the packages I decided to load just in case I'll need them.
+
 ```{r}
 library(dslabs)
 library(readxl)
@@ -134,32 +134,40 @@ library(skimr)
 library(here)
 library(ggplot2)
 ```
+
 Then, I used the `str()` function to explore the structure of the dataset and `summary()` to check the summary for each one of the variables of this dataset.
+
 ```{r}
 str(mice_weights)
 summary(mice_weights)
 ```
-This dataset consists of 780 observations of 7 variables: body weight, bone_density, percent_fat, sex, diet, gen (generation), litter.
-I am only interested in the bone density of both sexes of mice so I created a new object `mice` that includes "F" and "M" mice.
+
+This dataset consists of 780 observations of 7 variables: body weight, bone_density, percent_fat, sex, diet, gen (generation), litter. I am only interested in the bone density of both sexes of mice so I created a new object `mice` that includes "F" and "M" mice.
+
 ```{r}
 #Used filter() to select only "M" and "F" from the variable `sex`. To do this I used the | operator which means "OR".
 mice <- mice_weights %>% filter(sex == "F" | sex == "M")
 ```
+
 To explore if there was a difference between sex and bone density, I used `ggplot()` and `geom_histogram()` to create a histogram.
+
 ```{r}
 ggplot(mice, aes(x= bone_density, fill= sex))+
 geom_histogram(bins = 30)+
 labs(x= "Bone Density", y= "Sex of Mice")
 ```
+
 Based on the histogram above, it is observed that most of the male mice have a bone density of approximately 0.55 to 0.63, and for most of female mice are between 0.51 and 0.53, but there are a few high peaks. So, I decided to explore the relationship between bone density and generation. I created a plot that shows both sexes using both `ggplot()` and `geom_point()`.
+
 ```{r}
 ggplot(mice, aes(x= gen, y= bone_density, color= sex))+
 geom_point()+
 labs(x= "Generation", y= "Bone Density")+
 theme_linedraw() #Used this theme becuase I wanted to see what it would look like
 ```
-Based on the graph, it is observed that the bone density of both sexes remain constant from generation 7-9. However, around the 11th generation there must have been something to cause the increase in variation. The graph demonstrates that males typically have a higher bone density than females throughout the generations. Bone density increases for both male and female mice in the 11th generation.
-I wanted to explore if both sexes are correlate so I researched a simple correlation test, and decided to use the t.test() function in r. First I had to seperate the `mice` object to perform the test.
+
+Based on the graph, it is observed that the bone density of both sexes remain constant from generation 7-9. However, around the 11th generation there must have been something to cause the increase in variation. The graph demonstrates that males typically have a higher bone density than females throughout the generations. Bone density increases for both male and female mice in the 11th generation. I wanted to explore if both sexes are correlate so I researched a simple correlation test, and decided to use the t.test() function in r. First I had to seperate the `mice` object to perform the test.
+
 ```{r}
 #First I separated both sexes into separate objects using filter(). I  then used pull() to focus only on bone density.
 x <- mice %>% filter(sex == "M") %>% pull(bone_density)
@@ -168,10 +176,13 @@ y <- mice %>% filter(sex == "F") %>% pull(bone_density)
 summary(x)
 summary(y)
 ```
+
 And now perform the Welch t-test using the `t.test()` function
+
 ```{r}
 
 library("ggpubr")
 t.test(x, y, alternative = "two.sided", var.equal = FALSE)
 ```
-The p-value of the test is <2.2e-16, which is less than the significance level alpha = 0.05. We can conclude that Male mice’s average bone density is significantly different from Female mice’s average bone density.
+
+The p-value of the test is \<2.2e-16, which is less than the significance level alpha = 0.05. We can conclude that Male mice’s average bone density is significantly different from Female mice’s average bone density.

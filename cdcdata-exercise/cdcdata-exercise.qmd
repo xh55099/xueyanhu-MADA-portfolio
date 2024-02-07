@@ -1,0 +1,90 @@
+---
+title: "cdcdata-exercise"
+format: html
+editor: visual
+---
+
+## Data Discription
+
+This dataset that I have found on [CDC website](Weekly%20Data:%20COVID-19%20vaccination%20among%20pregnant%20people%20ages%2018-49%20years%20before%20and%20during%20pregnancy%20overall,%20by%20race/ethnicity,%20and%20week%20ending%20date%20-%20Vaccine%20Safety%20Datalink,*%20United%20States) has collected the pregnant people along weeks in about 2 years from 18 to 49 years old who has received COVID-19 vaccination before and during the pregnancy overall in the United States sorting by race/ethnicity . The original purpose of this data collection is to test the safety of COVID-19 vaccination among pregnant people.
+
+load packages
+
+```{r}
+library(readxl) #for loading Excel files
+library(dplyr) #for data processing/cleaning
+library(tidyr) #for data processing/cleaning
+library(skimr) #for nice visualization of data 
+library(here) #to set paths
+library(ggplot2) 
+```
+
+load the data
+
+```{r}
+#Path to data
+data_location <- here::here("cdcdata-exercise","Weekly_Data__COVID-19_vaccination_among_pregnant_people_ages_18-49_years_before_and_during_pregnancy_overall__by_race_ethnicity__and_week_ending_date_-_Vaccine_Safety_Datalink___United_States_20240123.csv")
+#load data
+mydata <- read.csv(data_location)
+```
+
+data sorting
+
+```{r}
+filtered_mydata1 <- mydata %>%
+  dplyr::filter(Race.and.Ethnicity == 'All Races/Ethnicity', Pregnancy.Vaccination.Order == "3") #only explore "All Races/Ethnicity and during pregnancy"
+print(filtered_mydata1)
+
+filtered_mydata2 <- mydata %>%
+  dplyr::filter( !(Race.and.Ethnicity %in% c("All Races/Ethnicity")) ) %>% droplevels()#drop "All Races/Ethnicity"
+skimr::skim(filtered_mydata2) 
+print(filtered_mydata2)
+
+filtered_mydata3 <- mydata %>%
+  dplyr::filter(Race.and.Ethnicity != 'All Races/Ethnicity') #want to compare the vaccination coverage percentage among races
+print(filtered_mydata3)
+```
+
+tables and figures
+
+```{r}
+summary_df = skimr::skim(mydata)
+print(summary_df)
+# save to file
+summarytable_file = here("cdcdata-exercise","results", "table-files", "summarytable.rds")
+saveRDS(summary_df, file = summarytable_file)
+```
+
+```{r}
+p1 <- ggplot(filtered_mydata2, aes(x = Race.and.Ethnicity, y = Denominator, fill = Race.and.Ethnicity)) + geom_bar(stat = "identity", position = "dodge") + labs(title = "Distribution of Race and Ethnicity in the investigation",
+     x = "Race and Ethnicity",                                               y = "population") +                                                theme_minimal()                          
+plot(p1)
+figure_file = here("cdcdata-exercise","results","figure-files","population_by_RnE.png")
+ggsave(filename = figure_file, plot=p1) 
+```
+
+```{r}
+p2 <- ggplot(filtered_mydata1, aes(x = Week_Ending_Date, y = Vaccination.Coverage.Percentage....)) + geom_point() + geom_smooth(method='lm') + labs(title = "The trend of pregnant people get vaccinated as weeks going by",
+     x = "week",                                               
+     y = "vaccination coverage.percentage") +                                theme_minimal()                          
+plot(p2)
+figure_file = here("cdcdata-exercise","results","figure-files","vcp_by_week.png")
+ggsave(filename = figure_file, plot=p2) 
+```
+
+```{r}
+average_percentage <- aggregate(Vaccination.Coverage.Percentage.... ~ Race.and.Ethnicity, data = filtered_mydata3, FUN = mean)
+
+# Draw a point plot
+VCP_bar <- ggplot(average_percentage, aes(x = as.factor(Race.and.Ethnicity), y = Vaccination.Coverage.Percentage....)) +
+   geom_bar(stat = "summary", fun = "mean", fill = "lightblue", color = "black", alpha = 0.7) +
+  labs(title = "Vaccination Coverage Percentage by Race and Ethnicity",
+       x = "Race and Ethnicity",
+       y = "Vaccination Coverage Percentage") +
+  theme_minimal()
+plot(VCP_bar)
+
+# Save the point plot
+figure_file = here("cdcdata-exercise","results","figure-files","VCP_by_RnE_bar.png")
+ggsave(filename = figure_file, plot=VCP_bar)
+```
