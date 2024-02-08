@@ -16,7 +16,8 @@ library(dplyr) #for data processing/cleaning
 library(tidyr) #for data processing/cleaning
 library(skimr) #for nice visualization of data 
 library(here) #to set paths
-library(ggplot2) 
+library(ggplot2)
+library(readr)
 ```
 
 load the data
@@ -28,21 +29,21 @@ data_location <- here::here("cdcdata-exercise","Weekly_Data__COVID-19_vaccinatio
 mydata <- read.csv(data_location)
 ```
 
-data sorting
+# data sorting
 
 ```{r}
 filtered_mydata1 <- mydata %>%
   dplyr::filter(Race.and.Ethnicity == 'All Races/Ethnicity', Pregnancy.Vaccination.Order == "3") #only explore "All Races/Ethnicity and during pregnancy"
-print(filtered_mydata1)
+head(filtered_mydata1)
 
 filtered_mydata2 <- mydata %>%
   dplyr::filter( !(Race.and.Ethnicity %in% c("All Races/Ethnicity")) ) %>% droplevels()#drop "All Races/Ethnicity"
 skimr::skim(filtered_mydata2) 
-print(filtered_mydata2)
+head(filtered_mydata2)
 
 filtered_mydata3 <- mydata %>%
   dplyr::filter(Race.and.Ethnicity != 'All Races/Ethnicity') #want to compare the vaccination coverage percentage among races
-print(filtered_mydata3)
+head(filtered_mydata3)
 ```
 
 tables and figures
@@ -87,4 +88,206 @@ plot(VCP_bar)
 # Save the point plot
 figure_file = here("cdcdata-exercise","results","figure-files","VCP_by_RnE_bar.png")
 ggsave(filename = figure_file, plot=VCP_bar)
+```
+
+# **Part 2**
+
+## *Contributed by Andrew Ruiz*
+
+# Create synthetic data
+
+## Before we can create synthetic data based on the original dataset, we must first examine how it is structured and identify the categories and ranges for the variables
+
+```{r}
+# Load the dataset
+file_path <- here("cdcdata-exercise", "Weekly_Data__COVID-19_vaccination_among_pregnant_people_ages_18-49_years_before_and_during_pregnancy_overall__by_race_ethnicity__and_week_ending_date_-_Vaccine_Safety_Datalink___United_States_20240123.csv")
+original_data <- read_csv(file_path)
+```
+
+## Snippets of this code were created using assistance from ChatGPT 4 based on prompts that I wrote.
+
+```{r}
+# Summary statistics for numerical variables
+# First, we are summarizing the numerical variables. This means we are finding the minimum and maximum values for each numerical column in the dataset. This is important because when we generate synthetic data, we want to make sure that the numbers fall within the same range as the original data.
+
+num_summary <- lapply(original_data, function(x) {
+  if(is.numeric(x)) {
+    min_val <- min(x, na.rm = TRUE)
+    max_val <- max(x, na.rm = TRUE)
+    c("Min" = min_val, "Max" = max_val)
+  }
+})
+
+# Frequency table for categorical variables
+# Next, we create frequency tables for each categorical variable. A frequency table shows how often each category appears in the dataset. We will use this to make sure that the synthetic data has a similar distribution of categories as the original data.
+cat_frequency <- lapply(original_data, function(x) {
+  if(is.factor(x) | is.character(x)) {
+    table(x) / length(x)
+  }
+})
+
+# Function to generate synthetic data
+# This function uses the summary statistics and frequency tables to generate synthetic data 
+# with similar statistical properties as the original dataset.
+generate_synthetic_data <- function(num_summary, cat_frequency, nrows) {
+  synthetic_data <- data.frame(matrix(ncol = length(num_summary) + length(cat_frequency), nrow = nrows))
+  
+  # Add numerical data
+  for (var_name in names(num_summary)) {
+    if (!is.null(num_summary[[var_name]])) {
+      synthetic_data[[var_name]] <- runif(nrows, min = num_summary[[var_name]]["Min"], max = num_summary[[var_name]]["Max"])
+    }
+  }
+  
+  # Add categorical data
+    for (var_name in names(cat_frequency)) {
+    if (!is.null(cat_frequency[[var_name]])) {
+      categories <- names(cat_frequency[[var_name]])
+      frequencies <- as.numeric(cat_frequency[[var_name]])
+      synthetic_data[[var_name]] <- sample(categories, nrows, replace = TRUE, prob = frequencies)
+    }
+  }
+  
+  return(synthetic_data)
+}
+
+# Now, let's define a function to generate the synthetic data. This function will use the summary statistics and frequency tables we created above to generate a new dataset with similar statistical properties as the original.
+generate_synthetic_data <- function(num_summary, cat_frequency, nrows) {
+  set.seed(123) # for reproducibility
+  
+  # Initialize an empty list to store synthetic data columns
+  synthetic_data_list <- list()
+  
+  # Generate synthetic numerical variables
+  for(var_name in names(num_summary)) {
+    if (!is.null(num_summary[[var_name]])) {
+      min_val <- num_summary[[var_name]]["Min"]
+      max_val <- num_summary[[var_name]]["Max"]
+      synthetic_data_list[[var_name]] <- runif(nrows, min = min_val, max = max_val)
+    }
+  }
+  
+  # Generate synthetic categorical variables
+  for(var_name in names(cat_frequency)) {
+    if (!is.null(cat_frequency[[var_name]])) {
+      categories <- names(cat_frequency[[var_name]])
+      frequencies <- as.numeric(cat_frequency[[var_name]])
+      synthetic_data_list[[var_name]] <- sample(categories, nrows, replace = TRUE, prob = frequencies)
+    }
+  }
+  
+  # Convert the list to a data frame
+  synthetic_data <- as.data.frame(synthetic_data_list)
+  
+  return(synthetic_data)
+}
+
+# Assume num_summary and cat_frequency have been correctly defined based on your original data
+# For example, you might need to manually define these based on the summary of your data:
+# num_summary <- list("Vaccination Coverage Percentage (%)" = c(Min = 0, Max = 100), ...)
+# cat_frequency <- list("Race and Ethnicity" = c("Hispanic/Latino" = 0.5, "Asian, NH" = 0.5), ...)
+
+# Generate the synthetic data
+synthetic_data <- generate_synthetic_data(num_summary, cat_frequency, nrows = nrow(original_data))
+
+# Print the first few rows of the synthetic data
+head(synthetic_data)
+
+#Now let'sa save this new dataset to the same folder
+# Define the file path for saving the synthetic dataset
+synthetic_file_path <- here("cdcdata-exercise", "synthetic_data.csv")
+
+# Write the synthetic dataset to a CSV file in the same folder as the original
+write.csv(synthetic_data, file = synthetic_file_path, row.names = FALSE)
+```
+
+# Analysing synthetic data
+
+### Now that we have created the new dataset, let's perform similar steps as the original
+
+## Sort data
+
+```{r}
+filtered_synth <- synthetic_data %>%
+  dplyr::filter(Race.and.Ethnicity == 'All Races/Ethnicity', Pregnancy.Vaccination.Order == "3") #only explore "All Races/Ethnicity and during pregnancy"
+head(filtered_synth)
+
+filtered_synth2 <- synthetic_data %>%
+  dplyr::filter( !(Race.and.Ethnicity %in% c("All Races/Ethnicity")) ) %>% droplevels()#drop "All Races/Ethnicity"
+skimr::skim(filtered_mydata2) 
+head(filtered_mydata2)
+
+filtered_synth3 <- synthetic_data %>%
+  dplyr::filter(Race.and.Ethnicity != 'All Races/Ethnicity') #want to compare the vaccination coverage percentage among races
+head(filtered_mydata3)
+```
+
+## Tables and figures for synthetic data
+
+```{r}
+summary_synth_df = skimr::skim(synthetic_data)
+print(summary_synth_df)
+# save to file
+# Define the file path for saving the summary table
+summarytable_synth_file <- here("cdcdata-exercise", "results", "table-files", "summarytable_synth.rds")
+
+# Save summary_synth_df to an RDS file
+saveRDS(summary_synth_df, file = summarytable_synth_file)
+```
+
+```{r}
+# Visualize the data to inspect the distribution of Denominator across different Race.and.Ethnicity categories
+ggplot(filtered_synth2, aes(x = Race.and.Ethnicity, y = Denominator, fill = Race.and.Ethnicity)) +
+  geom_boxplot() + # Use boxplot for continuous data or count() function for categorical data
+  labs(title = "Distribution of Denominator by Race and Ethnicity",
+       x = "Race and Ethnicity",
+       y = "Denominator") +
+  theme_minimal()
+
+
+# Plot creation with explicit summing of Denominator values
+p1_synth <- ggplot(filtered_synth2, aes(x = Race.and.Ethnicity, y = Denominator, fill = Race.and.Ethnicity)) +
+  stat_summary(fun = sum, geom = "bar", position = "dodge") +  # Use stat_summary() with fun = sum
+  labs(title = "Distribution of Race and Ethnicity in the investigation",
+       x = "Race and Ethnicity",
+       y = "Population") +
+  theme_minimal()
+
+# Display the plot
+print(p1_synth)
+
+
+# Define the file path for saving the figure
+figure_file <- here("cdcdata-exercise", "results", "figure-files", "population_by_RnE_synth.png")
+
+# Save the plot as a PNG file
+ggsave(file = figure_file, plot = p1_synth)
+
+```
+
+```{r}
+p2_synth <- ggplot(filtered_synth2, aes(x = Week_Ending_Date, y = Vaccination.Coverage.Percentage....)) + geom_point() + geom_smooth(method='lm') + labs(title = "The trend of pregnant people get vaccinated as weeks going by",
+     x = "week",                                               
+     y = "vaccination coverage.percentage") +                                theme_minimal()                          
+plot(p2_synth)
+figure_file = here("cdcdata-exercise","results","figure-files","vcp_by_week.png")
+ggsave(filename = figure_file, plot=p2_synth)
+
+```
+
+```{r}
+average_percentage <- aggregate(Vaccination.Coverage.Percentage.... ~ Race.and.Ethnicity, data = filtered_synth3, FUN = mean)
+
+# Draw a point plot
+VCP_bar_synth <- ggplot(average_percentage, aes(x = as.factor(Race.and.Ethnicity), y = Vaccination.Coverage.Percentage....)) +
+   geom_bar(stat = "summary", fun = "mean", fill = "lightblue", color = "black", alpha = 0.7) +
+  labs(title = "Vaccination Coverage Percentage by Race and Ethnicity",
+       x = "Race and Ethnicity",
+       y = "Vaccination Coverage Percentage") +
+  theme_minimal()
+plot(VCP_bar_synth)
+
+# Save the point plot
+figure_file = here("cdcdata-exercise","results","figure-files","VCP_by_RnE_bar_synth.png")
+ggsave(filename = figure_file, plot=VCP_bar_synth)
 ```
