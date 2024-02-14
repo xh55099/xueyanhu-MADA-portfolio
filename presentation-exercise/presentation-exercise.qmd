@@ -3,3 +3,170 @@ title: "Presentation Exercise"
 ---
 
 Placeholder file for the future data/results presentation exercise.
+
+## Data and graph Description
+
+The data from [FiveThirtyEight](https://projects.fivethirtyeight.com/coronavirus-polls/) was generated from survey did by different pollsters to reveal how Americans view Trump and Biden's response to the coronavirus crisis. The four graphs indicate their approval rate to Biden's response to COVID crises generally and widely by party, as well as their concerns about the coronavirus’s effect especially in economy.
+
+## load packages
+
+```{r}
+library(ggplot2)
+library(here)
+library(dplyr)
+library(skimr)
+library(ggplot2)
+library(readxl)
+library(scales)
+library(tidyr)
+library(gt)
+```
+
+## load data
+
+```{r}
+data_location <- here::here("presentation-exercise", "covid-19-polls-master", "covid_approval_polls_adjusted.csv")
+data <- read.csv(data_location) 
+data_location1 <- here::here("presentation-exercise", "covid-19-polls-master", "covid_approval_toplines.csv")
+data1 <- read.csv(data_location1)
+```
+
+## regenerate the graph
+
+First I asked chatGPT to generate a similar line graph together with points. It gave me feedback as follow.
+
+ggplot(data, aes(x = enddate)) + geom_line(aes(y = approve_adjusted, color = "approve")) + geom_line(aes(y = disapprove_adjusted, color = "disapprove")) + geom_point(aes(y = approve_adjusted, color = "approve"), size = 3, shape = 16) + geom_point(aes(y = disapprove_adjusted, color = "disapprove"), size = 3, shape = 16) + labs(title = "The proportion of Americans approve of the president’s handling of the coronavirus outbreak", x = "Investigation Time", y = "Percentage") + scale_color_manual(values = c("approve" = "orange", "disapprove" = "purple")) + theme_minimal()
+
+But the result seemed wired. One was that so many points and lines were overlapped and nothing can be seen clearly. The other was that since the geom_line function just connecting the points simply without any adjustment like broken line graph, but the line on the figure is slightly smooth curve. I asked for fixing the problems by replacint with geom_smooth function and found that the reason for the overlapping was that there were some surveys made in the same day. So I also averaged the percentages from the same day and used the new numbers for the scatterplot.
+
+But to be honest, I still cannot figure out how I can make the plot wider so that it will look more like the original graph.
+
+```{r}
+# for figure 1
+
+print(data)
+
+# Convert the date column to Date type
+data$enddate <- as.Date(data$enddate, format = "%m/%d/%Y")
+data1$modeldate <- as.Date(data1$modeldate, format = "%m/%d/%Y")
+
+class(data$enddate)
+class(data1$modeldate)
+
+str(data)
+
+summary(data)
+
+# Group by date and calculate the average value for each date
+data_avg <- data %>%
+  group_by(enddate) %>%
+  summarize(approve_adjusted_avg = mean(approve_adjusted, na.rm = TRUE),
+            disapprove_adjusted_avg = mean(disapprove_adjusted, na.rm = TRUE))
+
+data1_biden <- data1 %>%
+  filter(subject == "Biden" & modeldate > as.Date("2021-01-01"), party == "all")
+
+p1 <- ggplot() + 
+  geom_point(data = data_avg, aes(x = enddate, y = approve_adjusted_avg, color = "orange"), size = 1, alpha = 0.3) +
+  geom_point(data = data_avg, aes(x = enddate, y = disapprove_adjusted_avg, color = "purple"), size = 1, alpha = 0.3) +
+  geom_line(data = data1_biden, aes(x = modeldate, y = approve_estimate), color = "orange", method = "loess", se = FALSE) +
+  geom_line(data = data1_biden, aes(x = modeldate, y = disapprove_estimate), color = "purple", method = "loess", se = FALSE) +
+  labs(title = "The proportion of Americans approve of the Biden’s handling of the coronavirus outbreak",
+       x = "Investigation Date",
+       y = "Percentage") +
+  scale_x_date(
+    breaks = seq(as.Date("2021-01-22"), as.Date("2024-11-27"), by = "3 months"),
+    labels = date_format("%m-%Y"),
+    limits = c(as.Date("2021-01-01"), as.Date("2024-01-01"))
+  ) +
+  scale_color_manual(values = c("orange", "purple")) +
+  theme_minimal()
+plot(p1)
+```
+
+And the original graph is showed below.
+
+![](/P-E-1.png)
+
+```{r}
+# for figure 2
+
+data1_trump <- data1 %>%
+  filter(subject == "Trump") %>%
+  group_by(modeldate) %>%
+  summarize(approve_estimate_avg = mean(approve_estimate, na.rm = TRUE),
+            disapprove_estimate_avg = mean(disapprove_estimate, na.rm = TRUE))
+
+p2 <- ggplot() + 
+  geom_line(data = data1_trump, aes(x = modeldate, y = approve_estimate_avg), color = "orange", method = "loess", se = FALSE) +
+  geom_line(data = data1_trump, aes(x = modeldate, y = disapprove_estimate_avg), color = "purple", method = "loess", se = FALSE) +
+  labs(title = "The proportion of Americans approve of the Trump’s handling of the coronavirus outbreak",
+       x = "Investigation Date",
+       y = "Percentage") +
+  scale_x_date(
+    breaks = seq(as.Date("2020-02-15"), as.Date("2021-01-19"), by = "1 month"),
+    labels = date_format("%m-%Y"),
+    limits = c(as.Date("2020-02-015"), as.Date("2021-01-19"))
+  ) +
+  scale_color_manual(values = c("orange", "purple")) +
+  theme_minimal()
+plot(p2)
+```
+
+And the original graph is here.
+
+![](/P-E-2.png)
+
+## generate a table
+
+```{r}
+data_table <- data1 %>%
+  filter(party != "all") %>%
+  group_by(party, subject) %>%
+  summarize(
+    avg_approve = mean(approve_estimate, na.rm = TRUE),
+    avg_disapprove = mean(disapprove_estimate, na.rm = TRUE),
+    .groups = "drop"  # Add this line to drop the grouping
+  )
+print(data_table)
+
+data_table_pivoted <- data_table %>%
+  pivot_wider(
+    names_from = party,
+    values_from = c(avg_approve, avg_disapprove),
+    names_glue = "{party}_{.value}"
+  )
+print(data_table_pivoted)
+
+data_table_pivoted_reordered <- data_table_pivoted %>%
+  select(subject, D_avg_approve, D_avg_disapprove, I_avg_approve, I_avg_disapprove, R_avg_approve, R_avg_disapprove)
+print(data_table_pivoted_reordered)
+
+data_table_pivoted_reordered %>%
+  gt() %>%
+  tab_spanner(
+    label = md('**Democrats**'),
+    columns = c('D_avg_approve', 'D_avg_disapprove')
+  ) %>%
+  tab_spanner(
+    label = md('**Individuals**'),
+    columns = c('I_avg_approve', 'I_avg_disapprove')
+  ) %>%
+  tab_spanner(
+    label =  md('**Republicans**'),
+    columns = c('R_avg_approve', 'R_avg_disapprove')
+  ) %>%
+  cols_label(
+    D_avg_approve = 'Approve',
+    D_avg_disapprove = 'Disapprove',
+    I_avg_approve = 'Approve',
+    I_avg_disapprove = 'Disapprove',
+    R_avg_approve = 'Approve',
+    R_avg_disapprove = 'Disapprove',
+  ) %>%
+  tab_header(
+    title = '2020-2021 Average Approval and Disapproval Percentages for repsonse to handle the COVID-19',
+    subtitle = 'By Subject and Party'
+  ) %>%
+  opt_stylize(style = 6, color = 'gray')
+```
