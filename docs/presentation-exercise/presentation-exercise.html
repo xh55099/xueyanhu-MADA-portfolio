@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -165,8 +199,792 @@ ul.task-list li input[type="checkbox"] {
 
 
 <p>Placeholder file for the future data/results presentation exercise.</p>
+<section id="data-and-graph-description" class="level2">
+<h2 class="anchored" data-anchor-id="data-and-graph-description">Data and graph Description</h2>
+<p>The data from <a href="https://projects.fivethirtyeight.com/coronavirus-polls/">FiveThirtyEight</a> was generated from survey did by different pollsters to reveal how Americans view Trump and Biden’s response to the coronavirus crisis. The four graphs indicate their approval rate to Biden’s response to COVID crises generally and widely by party, as well as their concerns about the coronavirus’s effect especially in economy.</p>
+</section>
+<section id="load-packages" class="level2">
+<h2 class="anchored" data-anchor-id="load-packages">load packages</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>here() starts at /Users/XylemHu/Desktop/EPID8060E/GitHub/xueyanhu-MADA-portfolio</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="load-data" class="level2">
+<h2 class="anchored" data-anchor-id="load-data">load data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>data_location <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"presentation-exercise"</span>, <span class="st">"covid-19-polls-master"</span>, <span class="st">"covid_approval_polls_adjusted.csv"</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(data_location) </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>data_location1 <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"presentation-exercise"</span>, <span class="st">"covid-19-polls-master"</span>, <span class="st">"covid_approval_toplines.csv"</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>data1 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(data_location1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="regenerate-the-graph" class="level2">
+<h2 class="anchored" data-anchor-id="regenerate-the-graph">regenerate the graph</h2>
+<p>First I asked chatGPT to generate a similar line graph together with points. It gave me feedback as follow.</p>
+<p>ggplot(data, aes(x = enddate)) + geom_line(aes(y = approve_adjusted, color = “approve”)) + geom_line(aes(y = disapprove_adjusted, color = “disapprove”)) + geom_point(aes(y = approve_adjusted, color = “approve”), size = 3, shape = 16) + geom_point(aes(y = disapprove_adjusted, color = “disapprove”), size = 3, shape = 16) + labs(title = “The proportion of Americans approve of the president’s handling of the coronavirus outbreak”, x = “Investigation Time”, y = “Percentage”) + scale_color_manual(values = c(“approve” = “orange”, “disapprove” = “purple”)) + theme_minimal()</p>
+<p>But the result seemed wired. One was that so many points and lines were overlapped and nothing can be seen clearly. The other was that since the geom_line function just connecting the points simply without any adjustment like broken line graph, but the line on the figure is slightly smooth curve. I asked for fixing the problems by replacint with geom_smooth function and found that the reason for the overlapping was that there were some surveys made in the same day. So I also averaged the percentages from the same day and used the new numbers for the scatterplot.</p>
+<p>But to be honest, I still cannot figure out how I can make the plot wider so that it will look more like the original graph.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># for figure 1</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert the date column to Date type</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>enddate <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(data<span class="sc">$</span>enddate, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>data1<span class="sc">$</span>modeldate <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(data1<span class="sc">$</span>modeldate, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(data<span class="sc">$</span>enddate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Date"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(data1<span class="sc">$</span>modeldate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "Date"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   1626 obs. of  19 variables:
+ $ subject            : chr  "Biden" "Biden" "Biden" "Biden" ...
+ $ modeldate          : chr  "11/27/2022" "11/27/2022" "11/27/2022" "11/27/2022" ...
+ $ party              : chr  "D" "D" "D" "D" ...
+ $ startdate          : chr  "1/24/2021" "1/28/2021" "1/29/2021" "1/31/2021" ...
+ $ enddate            : Date, format: "2021-01-26" "2021-02-01" ...
+ $ pollster           : chr  "YouGov" "Quinnipiac" "Morning Consult" "YouGov" ...
+ $ grade              : chr  "B+" "A-" "B" "B+" ...
+ $ samplesize         : num  477 333 808 484 564 ...
+ $ population         : chr  "a" "a" "rv" "a" ...
+ $ weight             : num  0.629 0.632 0.834 0.549 0.888 ...
+ $ influence          : num  0 0 0 0 0 0 0 0 0 0 ...
+ $ multiversions      : chr  "" "" "" "" ...
+ $ tracking           : logi  NA NA NA NA NA NA ...
+ $ approve            : num  84 93 89 88 89.2 ...
+ $ disapprove         : num  3 5 7 7 7.14 8 5 5 2 3 ...
+ $ approve_adjusted   : num  87.1 90.9 90.8 91.1 89.8 ...
+ $ disapprove_adjusted: num  2.6 6.4 5.9 6.6 6.65 ...
+ $ timestamp          : chr  "02:31:11 27 Nov 2022" "02:31:11 27 Nov 2022" "02:31:11 27 Nov 2022" "02:31:11 27 Nov 2022" ...
+ $ url                : chr  "https://docs.cdn.yougov.com/ld46rgtdlz/econTabReport.pdf" "https://poll.qu.edu/national/release-detail?ReleaseID=3688" "https://assets.morningconsult.com/wp-uploads/2021/02/03074817/2101110_crosstabs_POLITICO_RVs_v1.pdf" "https://docs.cdn.yougov.com/460mactkmh/econTabReport.pdf" ...</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   subject           modeldate            party            startdate        
+ Length:1626        Length:1626        Length:1626        Length:1626       
+ Class :character   Class :character   Class :character   Class :character  
+ Mode  :character   Mode  :character   Mode  :character   Mode  :character  
+                                                                            
+                                                                            
+                                                                            
+    enddate             pollster            grade             samplesize     
+ Min.   :2021-01-21   Length:1626        Length:1626        Min.   :   55.0  
+ 1st Qu.:2021-06-24   Class :character   Class :character   1st Qu.:  387.8  
+ Median :2021-11-10   Mode  :character   Mode  :character   Median :  513.0  
+ Mean   :2021-11-21                                         Mean   :  762.1  
+ 3rd Qu.:2022-04-18                                         3rd Qu.: 1000.0  
+ Max.   :2022-11-22                                         Max.   :21079.0  
+  population            weight         influence       multiversions     
+ Length:1626        Min.   :0.1164   Min.   :0.00000   Length:1626       
+ Class :character   1st Qu.:0.4904   1st Qu.:0.00000   Class :character  
+ Mode  :character   Median :0.6668   Median :0.00000   Mode  :character  
+                    Mean   :0.7660   Mean   :0.01213                     
+                    3rd Qu.:0.8480   3rd Qu.:0.00000                     
+                    Max.   :2.8211   Max.   :1.79298                     
+ tracking          approve        disapprove    approve_adjusted
+ Mode:logical   Min.   : 5.00   Min.   : 1.00   Min.   : 8.308  
+ NA's:1626      1st Qu.:35.00   1st Qu.:27.00   1st Qu.:37.469  
+                Median :48.00   Median :43.00   Median :49.544  
+                Mean   :50.88   Mean   :42.15   Mean   :52.143  
+                3rd Qu.:68.00   3rd Qu.:56.00   3rd Qu.:65.804  
+                Max.   :98.00   Max.   :92.00   Max.   :96.815  
+ disapprove_adjusted  timestamp             url           
+ Min.   : 1.059      Length:1626        Length:1626       
+ 1st Qu.:27.441      Class :character   Class :character  
+ Median :43.204      Mode  :character   Mode  :character  
+ Mean   :41.965                                           
+ 3rd Qu.:54.721                                           
+ Max.   :89.173                                           </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Group by date and calculate the average value for each date</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>data_avg <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(enddate) <span class="sc">%&gt;%</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">approve_adjusted_avg =</span> <span class="fu">mean</span>(approve_adjusted, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">disapprove_adjusted_avg =</span> <span class="fu">mean</span>(disapprove_adjusted, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>data1_biden <span class="ot">&lt;-</span> data1 <span class="sc">%&gt;%</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(subject <span class="sc">==</span> <span class="st">"Biden"</span> <span class="sc">&amp;</span> modeldate <span class="sc">&gt;</span> <span class="fu">as.Date</span>(<span class="st">"2021-01-01"</span>), party <span class="sc">==</span> <span class="st">"all"</span>)</span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> data_avg, <span class="fu">aes</span>(<span class="at">x =</span> enddate, <span class="at">y =</span> approve_adjusted_avg, <span class="at">color =</span> <span class="st">"orange"</span>), <span class="at">size =</span> <span class="dv">1</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> data_avg, <span class="fu">aes</span>(<span class="at">x =</span> enddate, <span class="at">y =</span> disapprove_adjusted_avg, <span class="at">color =</span> <span class="st">"purple"</span>), <span class="at">size =</span> <span class="dv">1</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> data1_biden, <span class="fu">aes</span>(<span class="at">x =</span> modeldate, <span class="at">y =</span> approve_estimate), <span class="at">color =</span> <span class="st">"orange"</span>, <span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> data1_biden, <span class="fu">aes</span>(<span class="at">x =</span> modeldate, <span class="at">y =</span> disapprove_estimate), <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"The proportion of Americans approve of the Biden’s handling of the coronavirus outbreak"</span>,</span>
+<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Investigation Date"</span>,</span>
+<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Percentage"</span>) <span class="sc">+</span></span>
+<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(</span>
+<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="fu">as.Date</span>(<span class="st">"2021-01-22"</span>), <span class="fu">as.Date</span>(<span class="st">"2024-11-27"</span>), <span class="at">by =</span> <span class="st">"3 months"</span>),</span>
+<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">date_format</span>(<span class="st">"%m-%Y"</span>),</span>
+<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="fu">as.Date</span>(<span class="st">"2021-01-01"</span>), <span class="fu">as.Date</span>(<span class="st">"2024-01-01"</span>))</span>
+<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"orange"</span>, <span class="st">"purple"</span>)) <span class="sc">+</span></span>
+<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in geom_line(data = data1_biden, aes(x = modeldate, y =
+approve_estimate), : Ignoring unknown parameters: `method` and `se`</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in geom_line(data = data1_biden, aes(x = modeldate, y =
+disapprove_estimate), : Ignoring unknown parameters: `method` and `se`</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(p1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="presentation-exercise_files/figure-html/unnamed-chunk-3-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>And the original graph is showed below.</p>
+<p><img src="../P-E-1.png" class="img-fluid"></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># for figure 2</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>data1_trump <span class="ot">&lt;-</span> data1 <span class="sc">%&gt;%</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(subject <span class="sc">==</span> <span class="st">"Trump"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(modeldate) <span class="sc">%&gt;%</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">approve_estimate_avg =</span> <span class="fu">mean</span>(approve_estimate, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">disapprove_estimate_avg =</span> <span class="fu">mean</span>(disapprove_estimate, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> data1_trump, <span class="fu">aes</span>(<span class="at">x =</span> modeldate, <span class="at">y =</span> approve_estimate_avg), <span class="at">color =</span> <span class="st">"orange"</span>, <span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> data1_trump, <span class="fu">aes</span>(<span class="at">x =</span> modeldate, <span class="at">y =</span> disapprove_estimate_avg), <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"The proportion of Americans approve of the Trump’s handling of the coronavirus outbreak"</span>,</span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Investigation Date"</span>,</span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Percentage"</span>) <span class="sc">+</span></span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="fu">as.Date</span>(<span class="st">"2020-02-15"</span>), <span class="fu">as.Date</span>(<span class="st">"2021-01-19"</span>), <span class="at">by =</span> <span class="st">"1 month"</span>),</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">date_format</span>(<span class="st">"%m-%Y"</span>),</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="fu">as.Date</span>(<span class="st">"2020-02-015"</span>), <span class="fu">as.Date</span>(<span class="st">"2021-01-19"</span>))</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"orange"</span>, <span class="st">"purple"</span>)) <span class="sc">+</span></span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in geom_line(data = data1_trump, aes(x = modeldate, y =
+approve_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in geom_line(data = data1_trump, aes(x = modeldate, y =
+disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(p2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 404 rows containing missing values (`geom_line()`).</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 404 rows containing missing values (`geom_line()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="presentation-exercise_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>And the original graph is here.</p>
+<p><img src="../P-E-2.png" class="img-fluid"></p>
+</section>
+<section id="generate-a-table" class="level2">
+<h2 class="anchored" data-anchor-id="generate-a-table">generate a table</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>data_table <span class="ot">&lt;-</span> data1 <span class="sc">%&gt;%</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(party <span class="sc">!=</span> <span class="st">"all"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(party, subject) <span class="sc">%&gt;%</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_approve =</span> <span class="fu">mean</span>(approve_estimate, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_disapprove =</span> <span class="fu">mean</span>(disapprove_estimate, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span>  <span class="co"># Add this line to drop the grouping</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(data_table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 4
+  party subject avg_approve avg_disapprove
+  &lt;chr&gt; &lt;chr&gt;         &lt;dbl&gt;          &lt;dbl&gt;
+1 D     Biden          85.4           11.0
+2 D     Trump          10.3           86.6
+3 I     Biden          47.5           43.5
+4 I     Trump          36.3           56.6
+5 R     Biden          21.9           73.0
+6 R     Trump          79.0           17.8</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>data_table_pivoted <span class="ot">&lt;-</span> data_table <span class="sc">%&gt;%</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> party,</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> <span class="fu">c</span>(avg_approve, avg_disapprove),</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_glue =</span> <span class="st">"{party}_{.value}"</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(data_table_pivoted)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 7
+  subject D_avg_approve I_avg_approve R_avg_approve D_avg_disapprove
+  &lt;chr&gt;           &lt;dbl&gt;         &lt;dbl&gt;         &lt;dbl&gt;            &lt;dbl&gt;
+1 Biden            85.4          47.5          21.9             11.0
+2 Trump            10.3          36.3          79.0             86.6
+# ℹ 2 more variables: I_avg_disapprove &lt;dbl&gt;, R_avg_disapprove &lt;dbl&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>data_table_pivoted_reordered <span class="ot">&lt;-</span> data_table_pivoted <span class="sc">%&gt;%</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject, D_avg_approve, D_avg_disapprove, I_avg_approve, I_avg_disapprove, R_avg_approve, R_avg_disapprove)</span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(data_table_pivoted_reordered)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 7
+  subject D_avg_approve D_avg_disapprove I_avg_approve I_avg_disapprove
+  &lt;chr&gt;           &lt;dbl&gt;            &lt;dbl&gt;         &lt;dbl&gt;            &lt;dbl&gt;
+1 Biden            85.4             11.0          47.5             43.5
+2 Trump            10.3             86.6          36.3             56.6
+# ℹ 2 more variables: R_avg_approve &lt;dbl&gt;, R_avg_disapprove &lt;dbl&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>data_table_pivoted_reordered <span class="sc">%&gt;%</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_spanner</span>(</span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="fu">md</span>(<span class="st">'**Democrats**'</span>),</span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">'D_avg_approve'</span>, <span class="st">'D_avg_disapprove'</span>)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_spanner</span>(</span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="fu">md</span>(<span class="st">'**Individuals**'</span>),</span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">'I_avg_approve'</span>, <span class="st">'I_avg_disapprove'</span>)</span>
+<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_spanner</span>(</span>
+<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span>  <span class="fu">md</span>(<span class="st">'**Republicans**'</span>),</span>
+<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">'R_avg_approve'</span>, <span class="st">'R_avg_disapprove'</span>)</span>
+<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">D_avg_approve =</span> <span class="st">'Approve'</span>,</span>
+<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">D_avg_disapprove =</span> <span class="st">'Disapprove'</span>,</span>
+<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">I_avg_approve =</span> <span class="st">'Approve'</span>,</span>
+<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">I_avg_disapprove =</span> <span class="st">'Disapprove'</span>,</span>
+<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">R_avg_approve =</span> <span class="st">'Approve'</span>,</span>
+<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">R_avg_disapprove =</span> <span class="st">'Disapprove'</span>,</span>
+<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(</span>
+<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">'2020-2021 Average Approval and Disapproval Percentages for repsonse to handle the COVID-19'</span>,</span>
+<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">'By Subject and Party'</span></span>
+<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_stylize</span>(<span class="at">style =</span> <span class="dv">6</span>, <span class="at">color =</span> <span class="st">'gray'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div id="pkxyepxtwf" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#pkxyepxtwf table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#pkxyepxtwf thead, #pkxyepxtwf tbody, #pkxyepxtwf tfoot, #pkxyepxtwf tr, #pkxyepxtwf td, #pkxyepxtwf th {
+  border-style: none;
+}
+
+#pkxyepxtwf p {
+  margin: 0;
+  padding: 0;
+}
+
+#pkxyepxtwf .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 16px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#pkxyepxtwf .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#pkxyepxtwf .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#pkxyepxtwf .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#pkxyepxtwf .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#pkxyepxtwf .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+}
+
+#pkxyepxtwf .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#pkxyepxtwf .gt_col_heading {
+  color: #FFFFFF;
+  background-color: #5F5F5F;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#pkxyepxtwf .gt_column_spanner_outer {
+  color: #FFFFFF;
+  background-color: #5F5F5F;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#pkxyepxtwf .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#pkxyepxtwf .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#pkxyepxtwf .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#pkxyepxtwf .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#pkxyepxtwf .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#pkxyepxtwf .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+  vertical-align: middle;
+}
+
+#pkxyepxtwf .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#pkxyepxtwf .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#pkxyepxtwf .gt_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: none;
+  border-top-width: 1px;
+  border-top-color: #D5D5D5;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D5D5D5;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D5D5D5;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#pkxyepxtwf .gt_stub {
+  color: #333333;
+  background-color: #D5D5D5;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D5D5D5;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pkxyepxtwf .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#pkxyepxtwf .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#pkxyepxtwf .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#pkxyepxtwf .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pkxyepxtwf .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #5F5F5F;
+}
+
+#pkxyepxtwf .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#pkxyepxtwf .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+}
+
+#pkxyepxtwf .gt_grand_summary_row {
+  color: #333333;
+  background-color: #D5D5D5;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pkxyepxtwf .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #5F5F5F;
+}
+
+#pkxyepxtwf .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #5F5F5F;
+}
+
+#pkxyepxtwf .gt_striped {
+  background-color: #F4F4F4;
+}
+
+#pkxyepxtwf .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #5F5F5F;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #5F5F5F;
+}
+
+#pkxyepxtwf .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#pkxyepxtwf .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pkxyepxtwf .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#pkxyepxtwf .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#pkxyepxtwf .gt_left {
+  text-align: left;
+}
+
+#pkxyepxtwf .gt_center {
+  text-align: center;
+}
+
+#pkxyepxtwf .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#pkxyepxtwf .gt_font_normal {
+  font-weight: normal;
+}
+
+#pkxyepxtwf .gt_font_bold {
+  font-weight: bold;
+}
+
+#pkxyepxtwf .gt_font_italic {
+  font-style: italic;
+}
+
+#pkxyepxtwf .gt_super {
+  font-size: 65%;
+}
+
+#pkxyepxtwf .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#pkxyepxtwf .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#pkxyepxtwf .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#pkxyepxtwf .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#pkxyepxtwf .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#pkxyepxtwf .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#pkxyepxtwf .gt_indent_5 {
+  text-indent: 25px;
+}
+</style>
+
+<table class="gt_table table table-sm table-striped small" data-quarto-postprocess="true" data-quarto-disable-processing="false" data-quarto-bootstrap="false">
+<thead>
+<tr class="header gt_heading">
+<th colspan="7" class="gt_heading gt_title gt_font_normal">2020-2021 Average Approval and Disapproval Percentages for repsonse to handle the COVID-19</th>
+</tr>
+<tr class="odd gt_heading">
+<th colspan="7" class="gt_heading gt_subtitle gt_font_normal gt_bottom_border">By Subject and Party</th>
+</tr>
+<tr class="header gt_col_headings gt_spanner_row">
+<th rowspan="2" id="subject" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" scope="col">subject</th>
+<th colspan="2" id="<strong>Democrats</strong>" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner"><strong>Democrats</strong></span></th>
+<th colspan="2" id="<strong>Individuals</strong>" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner"><strong>Individuals</strong></span></th>
+<th colspan="2" id="<strong>Republicans</strong>" class="gt_center gt_columns_top_border gt_column_spanner_outer" data-quarto-table-cell-role="th" scope="colgroup"><span class="gt_column_spanner"><strong>Republicans</strong></span></th>
+</tr>
+<tr class="odd gt_col_headings">
+<th id="Approve" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Approve</th>
+<th id="Disapprove" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Disapprove</th>
+<th id="Approve" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Approve</th>
+<th id="Disapprove" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Disapprove</th>
+<th id="Approve" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Approve</th>
+<th id="Disapprove" class="gt_col_heading gt_columns_bottom_border gt_right" data-quarto-table-cell-role="th" scope="col">Disapprove</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="subject">Biden</td>
+<td class="gt_row gt_right" headers="D_avg_approve">85.41996</td>
+<td class="gt_row gt_right" headers="D_avg_disapprove">10.98917</td>
+<td class="gt_row gt_right" headers="I_avg_approve">47.49661</td>
+<td class="gt_row gt_right" headers="I_avg_disapprove">43.46244</td>
+<td class="gt_row gt_right" headers="R_avg_approve">21.86708</td>
+<td class="gt_row gt_right" headers="R_avg_disapprove">73.00944</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="subject">Trump</td>
+<td class="gt_row gt_right gt_striped" headers="D_avg_approve">10.33670</td>
+<td class="gt_row gt_right gt_striped" headers="D_avg_disapprove">86.62368</td>
+<td class="gt_row gt_right gt_striped" headers="I_avg_approve">36.31005</td>
+<td class="gt_row gt_right gt_striped" headers="I_avg_disapprove">56.61462</td>
+<td class="gt_row gt_right gt_striped" headers="R_avg_approve">79.02211</td>
+<td class="gt_row gt_right gt_striped" headers="R_avg_disapprove">17.78787</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

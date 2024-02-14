@@ -44,8 +44,6 @@ But to be honest, I still cannot figure out how I can make the plot wider so tha
 ```{r}
 # for figure 1
 
-print(data)
-
 # Convert the date column to Date type
 data$enddate <- as.Date(data$enddate, format = "%m/%d/%Y")
 data1$modeldate <- as.Date(data1$modeldate, format = "%m/%d/%Y")
