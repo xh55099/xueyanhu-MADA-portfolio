@@ -90,7 +90,7 @@ And the original graph is showed below.
 # for figure 2
 
 data1_trump <- data1 %>%
-  filter(subject == "Trump") %>%
+  filter(subject == "Trump", party == "all") %>%
   group_by(modeldate) %>%
   summarize(approve_estimate_avg = mean(approve_estimate, na.rm = TRUE),
             disapprove_estimate_avg = mean(disapprove_estimate, na.rm = TRUE))
