@@ -16,6 +16,7 @@ library(parsnip)
 library(yardstick)
 library(pROC)
 library(caret)
+library(class)
 ```
 
 ### Load the dataset
@@ -141,12 +142,11 @@ p5 <- ggplot(d5_p5, aes(x = RACE, y = mean_Y, fill = RACE)) +
 plot(p5)
 ```
 
-There is not a clear correlation between total drug level and age nor weight. And it is quite obvious that individuals with higher dose level will have higher total drug level. 
-While the mean total drug level for male is higher than female (assumeing odd number represents male and even number represents female). Also, the race identified as number 7 has the lowest mean total drug level among 4 different races.
+There is not a clear correlation between total drug level and age nor weight. And it is quite obvious that individuals with higher dose level will have higher total drug level. While the mean total drug level for male is higher than female (assumeing odd number represents male and even number represents female). Also, the race identified as number 7 has the lowest mean total drug level among 4 different races.
 
 ### Model fitting
 
-#### Linear model to the continuous outcome (Y) 
+#### Linear model to the continuous outcome (Y)
 
 ```{r}
 
@@ -187,8 +187,7 @@ cat("RMSE:", rmse, "\n")
 cat("R-squared:", rsquared, "\n")
 ```
 
-The result of linear model 1 shows that there is significant difference among 3 levels of dose for the sum of drug level. I think it is quite obvious since generally high dose level will lead to high total drug amount received. But I am not so sure how I could compare RMSE and R-squared.
-Linear model 2 suggests that DOSE and WT are statistically significant predictors of sum of drug level, while other variables may not have a significant impact in this model. RMSE and R-squared are both larger than lm1, so I guess lm2 fits the data better than lm1.
+The result of linear model 1 shows that there is significant difference among 3 levels of dose for the sum of drug level. I think it is quite obvious since generally high dose level will lead to high total drug amount received. But I am not so sure how I could compare RMSE and R-squared. Linear model 2 suggests that DOSE and WT are statistically significant predictors of sum of drug level, while other variables may not have a significant impact in this model. RMSE and R-squared are both larger than lm1, so I guess lm2 fits the data better than lm1.
 
 #### Linear model for SEX as the outcome of interest
 
@@ -229,7 +228,6 @@ roc_auc <- auc(roc_curve)
 print(roc_auc)
 ```
 
-
 ```{r}
 # Create a logistic regression model for SEX and all the predictors
 logistic_model2 <- glm(SEX ~ Y + DOSE + RACE + WT + HT, family = "binomial", data = d5) 
@@ -269,5 +267,25 @@ roc_auc2 <- auc(roc_curve2)
 print(roc_auc2)
 ```
 
-The logistic regression model 1 suggests that, based on the provided predictors (DOSE), there isn't strong evidence to support a significant relationship with the outcome variable SEX. I found the accuracy for this model is 0. I tried to fix the code with AI's help but didn't really work. So I guess maybe it's because the model's predictions are not accurate? And AUC is 0.5919 which might not be providing strong discrimination but might distinguish between the positive and negative classes is somewhat better than random chance based on my searching.
-For the rm2, HT is statistically significant predictors of SEX while others aren't. Accuracy at 0.958 indicates the model is well-fitted, and AUC shows the excellent discrimination.
+The logistic regression model 1 suggests that, based on the provided predictors (DOSE), there isn't strong evidence to support a significant relationship with the outcome variable SEX. I found the accuracy for this model is 0. I tried to fix the code with AI's help but didn't really work. So I guess maybe it's because the model's predictions are not accurate? And AUC is 0.5919 which might not be providing strong discrimination but might distinguish between the positive and negative classes is somewhat better than random chance based on my searching. For the rm2, HT is statistically significant predictors of SEX while others aren't. Accuracy at 0.958 indicates the model is well-fitted, and AUC shows the excellent discrimination.
+
+#### try *k*-nearest neighbors model
+
+```{r}
+# Split data into training and testing sets
+set.seed(123)  # for reproducibility
+sample_indices <- sample(nrow(d5), 0.7 * nrow(d5))
+train_data <- d5[sample_indices, ]
+test_data <- d5[-sample_indices, ]
+
+# Fit k-nearest neighbors model
+k_value <- 3  # Set the desired value for k
+knn_model <- knn(train = train_data[, "DOSE", drop = FALSE], 
+                 test = test_data[, "DOSE", drop = FALSE], 
+                 cl = train_data$Y, k = k_value)
+
+# Evaluate the model
+# Assuming 'test_data$Y' contains the true outcomes in the test set
+confusion_matrix <- table(Actual = test_data$Y, Predicted = knn_model)
+print(confusion_matrix)
+```
