@@ -1,0 +1,273 @@
+---
+title: "fitting exercise"
+---
+
+### Load required packages
+
+```{r}
+library(dplyr)
+library(purrr)
+library(ggplot2)
+library(here)
+library(tidyr)
+library(tibble)
+library(tidymodels)
+library(parsnip)
+library(yardstick)
+library(pROC)
+library(caret)
+```
+
+### Load the dataset
+
+```{r}
+data_location <- here::here("fitting-exercise","data","raw-data","Mavoglurant_A2121_nmpk.csv")
+mydata <- read.csv(data_location)
+```
+
+### create plot of DV by time with ID as a group factor
+
+```{r}
+# Plotting using ggplot2
+p1 <- ggplot(mydata, aes(x = TIME, y = DV, group = ID, color = factor(DOSE))) +
+  geom_line() +
+  labs(title = "Line Plot of DY and time by ID Stratified by Dose",
+       x = "Time",
+       y = "DV") +
+  scale_color_manual(values = c("25" = "blue", "37.5" = "green", "50" = "red")) +
+  theme_minimal()
+plot(p1)
+```
+
+### data cleaning
+
+```{r}
+# Filter rows where OCC is equal to 1
+d1 <- mydata %>%
+  filter(OCC == 1)
+
+# Sum DV of each ID
+d2 <- d1 %>%
+  filter(TIME != 0) %>%  # Exclude observations with TIME = 0
+  group_by(ID) %>%
+  summarise(Y = sum(DV))
+
+# Data frame only include TIME == 0
+d3 <- d1 %>%
+  filter(TIME == 0)
+
+# Combine data frames d2 and d3 together
+d4 <- left_join(d2, d3, by = "ID")
+
+# A little bit more data cleaning
+d5 <- d4 %>%
+  mutate(SEX = factor(SEX),
+         RACE = factor(RACE)) %>%
+  select(Y, DOSE, AGE, SEX, RACE, WT, HT)
+
+# Save the cleaned data
+save_data_location <- here::here("fitting-exercise","data","processed-data","processeddata.rds")
+saveRDS(d5, file = save_data_location)
+```
+
+### Do a few more of the exploratory process
+
+```{r}
+# Summary table
+summary_df = skimr::skim(d5)
+print(summary_df)
+
+# A bar chart of total drug by age
+
+d5_p1 <- d5 %>%
+  group_by(AGE) %>%
+  summarize(avg_drug_level = mean(Y))
+
+p1 <- ggplot(d5_p1, aes(x = AGE, y = avg_drug_level)) +
+  geom_bar(stat = "identity", position = "dodge", alpha = 0.7) +
+  labs(title = "Bar chart of Total Drug Level vs Age",
+       x = "Age",
+       y = "Total Drug Level") +
+  theme_minimal()
+plot(p1)
+
+# scatterplot of total drug by weight
+
+p2 <- ggplot(d5, aes(x = WT, y = Y)) +
+  geom_point() +
+  labs(title = "Scatterplot of Total Drug Level vs Weight",
+       x = "Weight",
+       y = "Total Drug Level") +
+  theme_minimal()
+plot(p2)
+
+# boxplot of total drug by dose level
+p3 <- ggplot(d5, aes(x = as.factor(DOSE), y = Y)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Total Drug Level vs Dose",
+       x = "Dose Level",
+       y = "Total Drug Level") +
+  theme_minimal()
+plot(p3)
+
+# boxplot of total drug by sex
+
+p4 <- ggplot(d5, aes(x = as.factor(SEX), y = Y)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of Total Drug Level vs Sex",
+       x = "Sex",
+       y = "Total Drug Level") +
+  theme_minimal()
+plot(p4)
+
+# bar chart of total drug by race
+
+d5_p5 <- d5 %>%
+  group_by(RACE) %>%
+  summarize(
+    mean_Y = mean(Y),
+    sd_Y = sd(Y)
+  )  # Calculate mean and standard deviation for each group
+
+
+p5 <- ggplot(d5_p5, aes(x = RACE, y = mean_Y, fill = RACE)) +
+  geom_bar(stat = "identity", position = "dodge", alpha = 0.7) +
+  geom_errorbar(aes(ymin = mean_Y - sd_Y, ymax = mean_Y + sd_Y),
+                position = position_dodge(width = 0.9), width = 0.2) +
+  labs(title = "Bar Chart with Error Bars of Total Drug Level vs Race",
+       x = "Race",
+       y = "Mean Total Drug Level") +
+  theme_minimal()  # Create the bar chart with error bars
+plot(p5)
+```
+
+There is not a clear correlation between total drug level and age nor weight. And it is quite obvious that individuals with higher dose level will have higher total drug level. 
+While the mean total drug level for male is higher than female (assumeing odd number represents male and even number represents female). Also, the race identified as number 7 has the lowest mean total drug level among 4 different races.
+
+### Model fitting
+
+#### Linear model to the continuous outcome (Y) 
+
+```{r}
+
+# Create a linear regression model with Y and dose
+d5$DOSE <- as.factor(d5$DOSE)
+lm1 <- lm(Y ~ DOSE, data = d5)
+summary(lm1)
+
+# Make predictions on the training data
+predictions1 <- predict(lm1, newdata = d5)
+
+# Calculate RMSE
+rmse <- sqrt(mean((d5$Y - predictions1)^2))
+
+# Calculate R-squared
+rsquared <- cor(d5$Y, predictions1)^2
+
+# Print the results
+cat("RMSE:", rmse, "\n")
+cat("R-squared:", rsquared, "\n")
+
+# Create a linear regression model with Y and all variables
+
+lm2 <- lm(Y ~ DOSE + AGE +SEX + RACE + WT + HT, data = d5)
+summary(lm2)
+
+# Make predictions on the training data
+predictions2 <- predict(lm2, newdata = d5)
+
+# Calculate RMSE
+rmse <- sqrt(mean((d5$Y - predictions2)^2))
+
+# Calculate R-squared
+rsquared <- cor(d5$Y, predictions2)^2
+
+# Print the results
+cat("RMSE:", rmse, "\n")
+cat("R-squared:", rsquared, "\n")
+```
+
+The result of linear model 1 shows that there is significant difference among 3 levels of dose for the sum of drug level. I think it is quite obvious since generally high dose level will lead to high total drug amount received. But I am not so sure how I could compare RMSE and R-squared.
+Linear model 2 suggests that DOSE and WT are statistically significant predictors of sum of drug level, while other variables may not have a significant impact in this model. RMSE and R-squared are both larger than lm1, so I guess lm2 fits the data better than lm1.
+
+#### Linear model for SEX as the outcome of interest
+
+```{r}
+# Create a logistic regression model for SEX and DOSE
+logistic_model1 <- glm(SEX ~ DOSE, family = "binomial", data = d5)
+
+# Print the summary of the model
+summary(logistic_model1)
+
+
+# Make predictions
+predictions <- predict(logistic_model1, newdata = d5, type = "response") 
+
+# Convert predictions to binary (0 or 1)
+binary_predictions <- ifelse(predictions > 0.5, 1, 0)
+
+# Convert truth and estimate to factors
+truth <- factor(d5$SEX, levels = c(0, 1))
+estimate <- factor(binary_predictions, levels = c(0, 1))
+
+# Create a tibble for metrics
+metrics_tbl <- tibble(truth = truth, estimate = estimate)
+
+# Compute accuracy
+accuracy_result <- yardstick::accuracy(data = metrics_tbl, truth = truth, estimate = estimate)
+print(accuracy_result)
+
+
+# Obtain predicted probabilities from the logistic regression model
+predicted_probs <- predict(logistic_model1, type = "response")
+
+# Create ROC curve
+roc_curve <- roc(d5$SEX, predicted_probs)
+
+# Compute AUC
+roc_auc <- auc(roc_curve)
+print(roc_auc)
+```
+
+
+```{r}
+# Create a logistic regression model for SEX and all the predictors
+logistic_model2 <- glm(SEX ~ Y + DOSE + RACE + WT + HT, family = "binomial", data = d5) 
+
+# Print the summary of the model
+summary(logistic_model2)
+
+# Obtain predicted probabilities from the logistic regression model
+predicted_probs2 <- predict(logistic_model2, type = "response")
+
+# Convert predicted probabilities to binary predictions (0 or 1)
+predicted_class2 <- ifelse(predicted_probs2 > 0.5, 1, 0)
+
+# Convert SEX to a binary factor (0 and 1)
+d5$SEX <- as.factor(ifelse(d5$SEX == 1, 0, 1))
+predicted_classes <- factor(predicted_class2)
+
+# Create a tibble for metrics
+metrics_tbl2 <- tibble(truth = d5$SEX, estimate = as.factor(predicted_classes)) 
+
+# Create confusion matrix
+conf_matrix <- confusionMatrix(predicted_classes, d5$SEX)
+
+# Extract accuracy
+accuracy_value2 <- conf_matrix$overall["Accuracy"]
+
+# Print accuracy
+print(accuracy_value2)
+
+# Create ROC curve
+roc_curve2 <- roc(d5$SEX, predicted_probs2)
+
+# Calculate AUC
+roc_auc2 <- auc(roc_curve2)
+
+# Print ROC-AUC
+print(roc_auc2)
+```
+
+The logistic regression model 1 suggests that, based on the provided predictors (DOSE), there isn't strong evidence to support a significant relationship with the outcome variable SEX. I found the accuracy for this model is 0. I tried to fix the code with AI's help but didn't really work. So I guess maybe it's because the model's predictions are not accurate? And AUC is 0.5919 which might not be providing strong discrimination but might distinguish between the positive and negative classes is somewhat better than random chance based on my searching.
+For the rm2, HT is statistically significant predictors of SEX while others aren't. Accuracy at 0.958 indicates the model is well-fitted, and AUC shows the excellent discrimination.
