@@ -17,6 +17,7 @@ library(yardstick)
 library(pROC)
 library(caret)
 library(class)
+library(parsnip)
 ```
 
 ### Load the dataset
@@ -149,83 +150,119 @@ There is not a clear correlation between total drug level and age nor weight. An
 #### Linear model to the continuous outcome (Y)
 
 ```{r}
-
-# Create a linear regression model with Y and dose
+# DOSE as a factor
 d5$DOSE <- as.factor(d5$DOSE)
-lm1 <- lm(Y ~ DOSE, data = d5)
-summary(lm1)
 
-# Make predictions on the training data
-predictions1 <- predict(lm1, newdata = d5)
+# define the linear model specification
+lm_mod_dose <- linear_reg() %>% 
+  set_engine("lm") %>% 
+  set_mode("regression") 
+lm_mod_all <- linear_reg() %>% 
+  set_engine("lm") %>% 
+  set_mode("regression") 
+
+# split the data
+set.seed(123)
+data_split5 <- initial_split(d5, prop = 3/4)
+train_data5 <- training(data_split5)
+test_data5  <- testing(data_split5)
+
+# create recipe
+lm_rec_dose <- recipe(Y ~ DOSE, data=train_data5)
+lm_rec_all <- recipe(Y ~ ., data=train_data5)
+
+# create workflow
+lm_wf_dose <- workflow() %>%
+  add_model(lm_mod_dose) %>%
+  add_recipe(lm_rec_dose)
+
+lm_wf_all <- workflow() %>%
+  add_model(lm_mod_all) %>%
+  add_recipe(lm_rec_all)
+
+# train the model
+lm_fit_dose <- fit(lm_wf_dose, data = train_data5)
+
+lm_fit_all <- fit(lm_wf_all, data = train_data5)
+
+# Make predictions on the test data
+test_predictions_dose <- predict(lm_fit_dose, new_data = test_data5) %>%
+  bind_cols(test_data5)
+test_predictions_all <- predict(lm_fit_all, new_data = test_data5) %>%
+  bind_cols(test_data5)
 
 # Calculate RMSE
-rmse <- sqrt(mean((d5$Y - predictions1)^2))
+rmse_dose <- rmse(test_predictions_dose, truth = Y,estimate = .pred)
+rmse_all <- rmse(test_predictions_all, truth = Y,estimate = .pred)
+cat("RMSE for DOSE:", rmse_dose$.estimate, "\n")
+cat("RMSE for all predictors:", rmse_all$.estimate, "\n")
 
 # Calculate R-squared
-rsquared <- cor(d5$Y, predictions1)^2
-
-# Print the results
-cat("RMSE:", rmse, "\n")
-cat("R-squared:", rsquared, "\n")
-
-# Create a linear regression model with Y and all variables
-
-lm2 <- lm(Y ~ DOSE + AGE +SEX + RACE + WT + HT, data = d5)
-summary(lm2)
-
-# Make predictions on the training data
-predictions2 <- predict(lm2, newdata = d5)
-
-# Calculate RMSE
-rmse <- sqrt(mean((d5$Y - predictions2)^2))
-
-# Calculate R-squared
-rsquared <- cor(d5$Y, predictions2)^2
-
-# Print the results
-cat("RMSE:", rmse, "\n")
-cat("R-squared:", rsquared, "\n")
+rsquared_dose <- rsq(test_predictions_dose, truth = Y, estimate = .pred)
+rsquared_all <- rsq(test_predictions_all, truth = Y, estimate = .pred)
+cat("Rsquare for DOSE:", rsquared_dose$.estimate, "\n")
+cat("Rsquare for all predictors:", rsquared_all$.estimate, "\n")
 ```
 
-The result of linear model 1 shows that there is significant difference among 3 levels of dose for the sum of drug level. I think it is quite obvious since generally high dose level will lead to high total drug amount received. But I am not so sure how I could compare RMSE and R-squared. Linear model 2 suggests that DOSE and WT are statistically significant predictors of sum of drug level, while other variables may not have a significant impact in this model. RMSE and R-squared are both larger than lm1, so I guess lm2 fits the data better than lm1.
+RMSE for dose model is smaller than that for all predictors model, so dose model performs better on metric RMSE. While R-square for dose model is small than all predictors model, and the latter is closer to 1, which means all predictors model performs better on metric R-square. Therefore, the performance of models may be difference based on the chosen metric.
 
 #### Linear model for SEX as the outcome of interest
 
 ```{r}
-# Create a logistic regression model for SEX and DOSE
-logistic_model1 <- glm(SEX ~ DOSE, family = "binomial", data = d5)
+d5$SEX <- as.factor(d5$SEX)
+# logistic specification
+lg_mod_dose <- logistic_reg() %>% 
+  set_engine("glm") %>% 
+  set_mode("classification")
+lg_mod_all <- logistic_reg() %>% 
+  set_engine("glm") %>% 
+  set_mode("classification")
 
-# Print the summary of the model
-summary(logistic_model1)
+# data splitting
+set.seed(123)
+data_split5 <- initial_split(d5, prop = 3/4)
+train_data5 <- training(data_split5)
+test_data5  <- testing(data_split5)
 
+# create workflow
+lg_wf_dose <-
+workflow() %>%
+  add_model(lg_mod_dose) %>%
+  add_formula(SEX ~ DOSE)
+lg_wf_all <-
+workflow() %>%
+  add_model(lg_mod_all) %>%
+  add_formula(SEX ~ .)
 
-# Make predictions
-predictions <- predict(logistic_model1, newdata = d5, type = "response") 
+lg_fit_dose <- fit(lg_wf_dose, data = train_data5)
+lg_fit_all <- fit(lg_wf_all, data = train_data5)
 
-# Convert predictions to binary (0 or 1)
-binary_predictions <- ifelse(predictions > 0.5, 1, 0)
+lg_training_pred_dose <- 
+  predict(lg_fit_dose, train_data5) %>% 
+  bind_cols(predict(lg_fit_dose, train_data5, type = "prob")) %>% 
+  # Add the true outcome data back in
+  bind_cols(train_data5 %>% 
+              select(SEX))
+lg_training_pred_all <- 
+  predict(lg_fit_all, train_data5) %>% 
+  bind_cols(predict(lg_fit_all, train_data5, type = "prob")) %>% 
+  bind_cols(train_data5 %>% 
+              select(SEX))
 
-# Convert truth and estimate to factors
-truth <- factor(d5$SEX, levels = c(0, 1))
-estimate <- factor(binary_predictions, levels = c(0, 1))
+# get roc_auc and accuracy
+roc_auc_dose <- lg_training_pred_dose %>% # training set predictions
+  roc_auc(truth = SEX, .pred_1)
+print(roc_auc_dose)
+roc_auc_all <- lg_training_pred_all %>% # training set predictions
+  roc_auc(truth = SEX, .pred_1)
+print(roc_auc_all)
 
-# Create a tibble for metrics
-metrics_tbl <- tibble(truth = truth, estimate = estimate)
-
-# Compute accuracy
-accuracy_result <- yardstick::accuracy(data = metrics_tbl, truth = truth, estimate = estimate)
-print(accuracy_result)
-
-
-# Obtain predicted probabilities from the logistic regression model
-predicted_probs <- predict(logistic_model1, type = "response")
-
-# Create ROC curve
-roc_curve <- roc(d5$SEX, predicted_probs)
-
-# Compute AUC
-roc_auc <- auc(roc_curve)
-print(roc_auc)
+accuracy_dose <- lg_training_pred_dose %>%  # training set predictions
+  accuracy(truth = SEX, .pred_class)
+print(accuracy_dose)
+accuracy_all <- lg_training_pred_all %>%  # training set predictions
+  accuracy(truth = SEX, .pred_class)
+print(accuracy_all)
 ```
 
 ```{r}
@@ -289,3 +326,159 @@ knn_model <- knn(train = train_data[, "DOSE", drop = FALSE],
 confusion_matrix <- table(Actual = test_data$Y, Predicted = knn_model)
 print(confusion_matrix)
 ```
+
+## Exercise 10
+
+### Part 1
+
+#### data preperation
+
+```{r}
+# select variables
+d6 <- d5 %>%
+  select(Y, DOSE, AGE, SEX, WT, HT)
+
+# set a seed
+rngseed = 1234
+set.seed(rngseed)
+
+# Put 3/4 of the data into the training set 
+data_split <- initial_split(d6, prop = 3/4)
+
+# Create data frames for the two sets:
+train_data <- training(data_split)
+test_data  <- testing(data_split)
+```
+
+#### fit linear model only using training set
+
+```{r}
+# model specification
+lr_mod1 <- linear_reg() %>% 
+  set_engine("lm") %>%
+  set_mode("regression")
+lr_mod2 <- linear_reg() %>% 
+  set_engine("lm") %>%
+  set_mode("regression")
+
+# create recipe
+lm_rec1 <- recipe(Y~DOSE,data=train_data)
+lm_rec2 <- recipe(Y~.,data=train_data)
+
+# combine model and recipe to workflow
+lr_wf1 <- workflow() %>%
+  add_model(lr_mod1) %>%
+  add_recipe(lm_rec1)
+lr_wf2 <- workflow() %>%
+  add_model(lr_mod2) %>%
+  add_recipe(lm_rec2)
+
+# fit the workflows to the training data
+lr_fit1 <- fit(lr_wf1, data = train_data)
+lr_fit2 <- fit(lr_wf2, data = train_data)
+
+# Make predictions and calculate RMSE
+preds1 <- predict(lr_fit1, new_data = train_data) %>%
+  bind_cols(train_data)
+preds2 <- predict(lr_fit2, new_data = train_data) %>%
+  bind_cols(train_data)
+rmse1 <- rmse(preds1, truth = Y, estimate = .pred)
+rmse2 <- rmse(preds2, truth = Y, estimate = .pred)
+
+cat("RMSE for DOSE:", rmse1$.estimate, "\n")
+cat("RMSE for ALL PREDICTORS:", rmse2$.estimate, "\n")
+```
+
+#### Model performance assessment 1
+
+```{r}
+# Calculate the mean outcome
+mean_outcome <- mean(train_data$Y)
+
+# Predict the mean outcome for all observations
+predicted_values <- rep(mean_outcome, nrow(train_data))
+
+# Calculate the RMSE (Root Mean Squared Error)
+rmse <- sqrt(mean((train_data$Y - predicted_values)^2))
+
+# Print the RMSE
+cat("RMSE:", rmse, "\n")
+```
+
+#### Model performance assessment 2
+
+##### use the same seed and run CV
+
+```{r}
+#reset seed
+rngseed = 1234
+set.seed(rngseed)
+
+# create 10-fold cross-validation folds
+new_folds <- vfold_cv(train_data, v = 10)
+
+# define model specification
+linear_spec <- linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode("regression")
+
+# workflow
+linear_wf1 <- workflow() %>%
+  add_model(linear_spec) %>%
+  add_formula(Y ~ DOSE)
+
+linear_wf2 <- workflow() %>%
+  add_model(linear_spec) %>%
+  add_formula(Y ~ .)
+
+# perform CV model training and evaluation
+cv_results1 <- linear_wf1 %>%
+  fit_resamples(new_folds)
+cv_results2 <- linear_wf2 %>%
+  fit_resamples(new_folds)
+
+# collect RMSE values
+collect_metrics(cv_results1)
+collect_metrics(cv_results2)
+```
+For both models, the RMSE calculated after cross-validation is applied to the data is higher than the fitting model at the first time which is obtained without using CV. I think it may means CV could reduce the overfitting of the model using the whole training dataset.
+
+#### set a new seed and re-run CV
+```{r}
+#reset seed
+set.seed(2345)
+
+# create 10-fold cross-validation folds
+re_new_folds <- vfold_cv(train_data, v = 10)
+
+# define model specification
+re_linear_spec <- linear_reg() %>%
+  set_engine("lm") %>%
+  set_mode("regression")
+
+# workflow
+re_linear_wf1 <- workflow() %>%
+  add_model(re_linear_spec) %>%
+  add_formula(Y ~ DOSE)
+
+re_linear_wf2 <- workflow() %>%
+  add_model(linear_spec) %>%
+  add_formula(Y ~ .)
+
+# perform CV model training and evaluation
+re_cv_results1 <- fit_resamples(
+  re_linear_wf1,
+  re_new_folds
+)
+
+re_cv_results2 <- fit_resamples(
+  re_linear_wf2,
+  re_new_folds
+)
+
+# Print the structure of collected metrics
+collect_metrics(re_cv_results1)
+collect_metrics(re_cv_results2)
+```
+Each new RMSE after reseting the seed is lower than first CV is applied but higher than first fitting model. I think it still shows the effect of CV for reducing overfitting. But there is another point that the metrics may change regard how subsets are created by CV.
+
