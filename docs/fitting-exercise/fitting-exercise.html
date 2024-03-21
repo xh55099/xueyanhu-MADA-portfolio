@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.540">
+<meta name="generator" content="quarto-1.4.537">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -224,7 +224,7 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>here() starts at /Users/XylemHu/Desktop/EPID8060E/GitHub/xueyanhu-MADA-portfolio</code></pre>
+<pre><code>here() starts at /Users/andrewruiz/xueyanhu-MADA-portfolio</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
@@ -237,7 +237,7 @@ Attaching package: 'dplyr'</code></pre>
 ✔ dials        1.2.0     ✔ tune         1.1.2
 ✔ infer        1.0.5     ✔ workflows    1.1.3
 ✔ modeldata    1.2.0     ✔ workflowsets 1.0.1
-✔ parsnip      1.2.0     ✔ yardstick    1.2.0
+✔ parsnip      1.1.1     ✔ yardstick    1.2.0
 ✔ recipes      1.0.9     </code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
@@ -246,7 +246,7 @@ Attaching package: 'dplyr'</code></pre>
 ✖ dplyr::filter()   masks stats::filter()
 ✖ dplyr::lag()      masks stats::lag()
 ✖ recipes::step()   masks stats::step()
-• Learn how to get started at https://www.tidymodels.org/start/</code></pre>
+• Search for functions across packages at https://www.tidymodels.org/find/</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(parsnip)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(yardstick)</span>
@@ -1310,6 +1310,309 @@ Actual    4984.57 5606.58
 </div>
 </div>
 <p>Each new RMSE after reseting the seed is lower than first CV is applied but higher than first fitting model. I think it still shows the effect of CV for reducing overfitting. But there is another point that the metrics may change regard how subsets are created by CV.</p>
+</section>
+</section>
+</section>
+<section id="this-section-added-by-andrew-ruiz" class="level1">
+<h1>This section added by Andrew Ruiz</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Null Model Prediction</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>mean_Y <span class="ot">&lt;-</span> <span class="fu">mean</span>(train_data<span class="sc">$</span>Y)</span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>train_data<span class="sc">$</span>null_pred <span class="ot">&lt;-</span> mean_Y</span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a dataframe for null model predictions similar to the other models</span></span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a>null_preds <span class="ot">&lt;-</span> train_data <span class="sc">%&gt;%</span> </span>
+<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">.pred =</span> mean_Y) <span class="sc">%&gt;%</span></span>
+<span id="cb75-8"><a href="#cb75-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Y, .pred) <span class="sc">%&gt;%</span></span>
+<span id="cb75-9"><a href="#cb75-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">Model =</span> <span class="st">"NULL"</span>)</span>
+<span id="cb75-10"><a href="#cb75-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb75-11"><a href="#cb75-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine observed and predicted values for all models into a single dataframe</span></span>
+<span id="cb75-12"><a href="#cb75-12" aria-hidden="true" tabindex="-1"></a>combined_preds <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(</span>
+<span id="cb75-13"><a href="#cb75-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(preds1, Y, .pred) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Model =</span> <span class="st">"DOSE"</span>),</span>
+<span id="cb75-14"><a href="#cb75-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(preds2, Y, .pred) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">Model =</span> <span class="st">"ALL PREDICTORS"</span>),</span>
+<span id="cb75-15"><a href="#cb75-15" aria-hidden="true" tabindex="-1"></a>  null_preds <span class="co"># Use the corrected null_preds dataframe</span></span>
+<span id="cb75-16"><a href="#cb75-16" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb75-17"><a href="#cb75-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Use ggplot to create the figure</span></span>
+<span id="cb75-18"><a href="#cb75-18" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(combined_preds, <span class="fu">aes</span>(<span class="at">x =</span> Y, <span class="at">y =</span> .pred, <span class="at">color =</span> Model)) <span class="sc">+</span></span>
+<span id="cb75-19"><a href="#cb75-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb75-20"><a href="#cb75-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">slope =</span> <span class="dv">1</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span> <span class="co"># 45 degree line</span></span>
+<span id="cb75-21"><a href="#cb75-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">5000</span>)) <span class="sc">+</span></span>
+<span id="cb75-22"><a href="#cb75-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">5000</span>)) <span class="sc">+</span></span>
+<span id="cb75-23"><a href="#cb75-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Observed Values"</span>, <span class="at">y =</span> <span class="st">"Predicted Values"</span>, <span class="at">title =</span> <span class="st">"Observed vs. Predicted Values by Model"</span>) <span class="sc">+</span></span>
+<span id="cb75-24"><a href="#cb75-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 3 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="fitting-exercise_files/figure-html/unnamed-chunk-15-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Use ggplot with facets to create separate plots for each model, with a uniform color for points</span></span>
+<span id="cb77-2"><a href="#cb77-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(combined_preds, <span class="fu">aes</span>(<span class="at">x =</span> Y, <span class="at">y =</span> .pred)) <span class="sc">+</span></span>
+<span id="cb77-3"><a href="#cb77-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"blue"</span>) <span class="sc">+</span> <span class="co"># Apply a uniform color for all points</span></span>
+<span id="cb77-4"><a href="#cb77-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">slope =</span> <span class="dv">1</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span> <span class="co"># 45 degree line</span></span>
+<span id="cb77-5"><a href="#cb77-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span> Model, <span class="at">scales =</span> <span class="st">"free"</span>) <span class="sc">+</span></span>
+<span id="cb77-6"><a href="#cb77-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">5000</span>)) <span class="sc">+</span></span>
+<span id="cb77-7"><a href="#cb77-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">5000</span>)) <span class="sc">+</span></span>
+<span id="cb77-8"><a href="#cb77-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Observed Values"</span>, <span class="at">y =</span> <span class="st">"Predicted Values"</span>, <span class="at">title =</span> <span class="st">"Model Comparisons: Observed vs. Predicted Values"</span>) <span class="sc">+</span></span>
+<span id="cb77-9"><a href="#cb77-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 3 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="fitting-exercise_files/figure-html/unnamed-chunk-15-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming preds2 contains the predicted values for Model 2</span></span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate residuals</span></span>
+<span id="cb79-4"><a href="#cb79-4" aria-hidden="true" tabindex="-1"></a>preds2<span class="sc">$</span>residuals <span class="ot">&lt;-</span> preds2<span class="sc">$</span>Y <span class="sc">-</span> preds2<span class="sc">$</span>.pred</span>
+<span id="cb79-5"><a href="#cb79-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb79-6"><a href="#cb79-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Find the maximum absolute residual to set the y-axis limits</span></span>
+<span id="cb79-7"><a href="#cb79-7" aria-hidden="true" tabindex="-1"></a>max_abs_residual <span class="ot">&lt;-</span> <span class="fu">max</span>(<span class="fu">abs</span>(preds2<span class="sc">$</span>residuals))</span>
+<span id="cb79-8"><a href="#cb79-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb79-9"><a href="#cb79-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot predicted vs residuals for Model 2</span></span>
+<span id="cb79-10"><a href="#cb79-10" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(preds2, <span class="fu">aes</span>(<span class="at">x =</span> .pred, <span class="at">y =</span> residuals)) <span class="sc">+</span></span>
+<span id="cb79-11"><a href="#cb79-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">color =</span> <span class="st">"purple"</span>) <span class="sc">+</span> <span class="co"># Plot points</span></span>
+<span id="cb79-12"><a href="#cb79-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_hline</span>(<span class="at">yintercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"navy"</span>) <span class="sc">+</span> <span class="co"># Add horizontal line at 0</span></span>
+<span id="cb79-13"><a href="#cb79-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="sc">-</span>max_abs_residual, max_abs_residual)) <span class="sc">+</span> <span class="co"># Ensure y-axis is symmetric</span></span>
+<span id="cb79-14"><a href="#cb79-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Predicted Values"</span>, <span class="at">y =</span> <span class="st">"Residuals"</span>, <span class="at">title =</span> <span class="st">"Predicted vs. Residuals for Model 2"</span>) <span class="sc">+</span></span>
+<span id="cb79-15"><a href="#cb79-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="fitting-exercise_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(rsample) <span class="co"># For bootstrapping</span></span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)   <span class="co"># For map functions</span></span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels) <span class="co"># For modeling</span></span>
+<span id="cb80-4"><a href="#cb80-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-5"><a href="#cb80-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the random seed</span></span>
+<span id="cb80-6"><a href="#cb80-6" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(rngseed)</span>
+<span id="cb80-7"><a href="#cb80-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-8"><a href="#cb80-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Create 100 bootstrap samples of the training data</span></span>
+<span id="cb80-9"><a href="#cb80-9" aria-hidden="true" tabindex="-1"></a>boot_samples <span class="ot">&lt;-</span> <span class="fu">bootstraps</span>(train_data, <span class="at">times =</span> <span class="dv">100</span>)</span>
+<span id="cb80-10"><a href="#cb80-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-11"><a href="#cb80-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming you already have a model specification and workflow set up for Model 2</span></span>
+<span id="cb80-12"><a href="#cb80-12" aria-hidden="true" tabindex="-1"></a><span class="co"># For example, lr_mod2 and lr_wf2 from your initial code snippet</span></span>
+<span id="cb80-13"><a href="#cb80-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-14"><a href="#cb80-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the model to each of the bootstrap samples and make predictions</span></span>
+<span id="cb80-15"><a href="#cb80-15" aria-hidden="true" tabindex="-1"></a>predictions_list <span class="ot">&lt;-</span> boot_samples<span class="sc">$</span>splits <span class="sc">%&gt;%</span></span>
+<span id="cb80-16"><a href="#cb80-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">map</span>(<span class="at">.f =</span> <span class="sc">~</span>{</span>
+<span id="cb80-17"><a href="#cb80-17" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Fit the model to the bootstrap sample</span></span>
+<span id="cb80-18"><a href="#cb80-18" aria-hidden="true" tabindex="-1"></a>    boot_data <span class="ot">&lt;-</span> <span class="fu">analysis</span>(.x)</span>
+<span id="cb80-19"><a href="#cb80-19" aria-hidden="true" tabindex="-1"></a>    fitted_model <span class="ot">&lt;-</span> <span class="fu">fit</span>(lr_wf2, <span class="at">data =</span> boot_data)</span>
+<span id="cb80-20"><a href="#cb80-20" aria-hidden="true" tabindex="-1"></a>    </span>
+<span id="cb80-21"><a href="#cb80-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Make predictions on the original training data</span></span>
+<span id="cb80-22"><a href="#cb80-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">predict</span>(fitted_model, <span class="at">new_data =</span> train_data)<span class="sc">$</span>.pred</span>
+<span id="cb80-23"><a href="#cb80-23" aria-hidden="true" tabindex="-1"></a>  })</span>
+<span id="cb80-24"><a href="#cb80-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb80-25"><a href="#cb80-25" aria-hidden="true" tabindex="-1"></a><span class="co"># predictions_list now contains the predictions from each bootstrap sample</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a><span class="co"># predictions_list is the list of prediction vectors from each bootstrap sample</span></span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 1: Convert the list of prediction vectors into a matrix</span></span>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a>bootstrap_predictions_matrix <span class="ot">&lt;-</span> <span class="fu">do.call</span>(rbind, predictions_list)</span>
+<span id="cb81-5"><a href="#cb81-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-6"><a href="#cb81-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Step 2: Compute the median and 89% confidence intervals</span></span>
+<span id="cb81-7"><a href="#cb81-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Adjust the function to work with the matrix structure</span></span>
+<span id="cb81-8"><a href="#cb81-8" aria-hidden="true" tabindex="-1"></a>model2_median_and_CI89 <span class="ot">&lt;-</span> <span class="fu">apply</span>(bootstrap_predictions_matrix, <span class="dv">2</span>, quantile, <span class="fu">c</span>(<span class="fl">0.055</span>, <span class="fl">0.5</span>, <span class="fl">0.945</span>)) <span class="sc">%&gt;%</span> <span class="fu">t</span>()</span>
+<span id="cb81-9"><a href="#cb81-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-10"><a href="#cb81-10" aria-hidden="true" tabindex="-1"></a><span class="co"># model2_bootstrap_quantiles now contains the median and confidence intervals for each observation</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First, ensure that original_predictions and observed_values have the correct values</span></span>
+<span id="cb82-2"><a href="#cb82-2" aria-hidden="true" tabindex="-1"></a>original_predictions <span class="ot">&lt;-</span> preds2<span class="sc">$</span>.pred</span>
+<span id="cb82-3"><a href="#cb82-3" aria-hidden="true" tabindex="-1"></a>observed_values <span class="ot">&lt;-</span> preds2<span class="sc">$</span>Y</span>
+<span id="cb82-4"><a href="#cb82-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-5"><a href="#cb82-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the bootstrap_stats_df from the quantiles obtained previously</span></span>
+<span id="cb82-6"><a href="#cb82-6" aria-hidden="true" tabindex="-1"></a>bootstrap_stats_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb82-7"><a href="#cb82-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Lower_Bound =</span> model2_median_and_CI89[, <span class="st">"5.5%"</span>],</span>
+<span id="cb82-8"><a href="#cb82-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Median =</span> model2_median_and_CI89[, <span class="st">"50%"</span>],</span>
+<span id="cb82-9"><a href="#cb82-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">Upper_Bound =</span> model2_median_and_CI89[, <span class="st">"94.5%"</span>]</span>
+<span id="cb82-10"><a href="#cb82-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb82-11"><a href="#cb82-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-12"><a href="#cb82-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Check that all data frames have the same number of rows</span></span>
+<span id="cb82-13"><a href="#cb82-13" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">nrow</span>(bootstrap_stats_df) <span class="sc">==</span> <span class="fu">length</span>(original_predictions))</span>
+<span id="cb82-14"><a href="#cb82-14" aria-hidden="true" tabindex="-1"></a><span class="fu">stopifnot</span>(<span class="fu">length</span>(original_predictions) <span class="sc">==</span> <span class="fu">length</span>(observed_values))</span>
+<span id="cb82-15"><a href="#cb82-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-16"><a href="#cb82-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Create plot_data with all predictions</span></span>
+<span id="cb82-17"><a href="#cb82-17" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb82-18"><a href="#cb82-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">Observed =</span> observed_values,</span>
+<span id="cb82-19"><a href="#cb82-19" aria-hidden="true" tabindex="-1"></a>  <span class="at">Original_Predictions =</span> original_predictions</span>
+<span id="cb82-20"><a href="#cb82-20" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb82-21"><a href="#cb82-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-22"><a href="#cb82-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine the original predictions with the bootstrap statistics</span></span>
+<span id="cb82-23"><a href="#cb82-23" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> <span class="fu">cbind</span>(plot_data, bootstrap_stats_df)</span>
+<span id="cb82-24"><a href="#cb82-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-25"><a href="#cb82-25" aria-hidden="true" tabindex="-1"></a><span class="co"># Now pivot the plot_data to long format for ggplot2</span></span>
+<span id="cb82-26"><a href="#cb82-26" aria-hidden="true" tabindex="-1"></a>plot_data_long <span class="ot">&lt;-</span> <span class="fu">pivot_longer</span>(</span>
+<span id="cb82-27"><a href="#cb82-27" aria-hidden="true" tabindex="-1"></a>  plot_data,</span>
+<span id="cb82-28"><a href="#cb82-28" aria-hidden="true" tabindex="-1"></a>  <span class="at">cols =</span> <span class="fu">c</span>(<span class="st">"Original_Predictions"</span>, <span class="st">"Lower_Bound"</span>, <span class="st">"Median"</span>, <span class="st">"Upper_Bound"</span>),</span>
+<span id="cb82-29"><a href="#cb82-29" aria-hidden="true" tabindex="-1"></a>  <span class="at">names_to =</span> <span class="st">"name"</span>,</span>
+<span id="cb82-30"><a href="#cb82-30" aria-hidden="true" tabindex="-1"></a>  <span class="at">values_to =</span> <span class="st">"value"</span></span>
+<span id="cb82-31"><a href="#cb82-31" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb82-32"><a href="#cb82-32" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-33"><a href="#cb82-33" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the order for the predictions explicitly</span></span>
+<span id="cb82-34"><a href="#cb82-34" aria-hidden="true" tabindex="-1"></a>prediction_levels <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Lower_Bound"</span>, <span class="st">"Median"</span>, <span class="st">"Upper_Bound"</span>, <span class="st">"Original_Predictions"</span>)</span>
+<span id="cb82-35"><a href="#cb82-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-36"><a href="#cb82-36" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the levels for the 'name' factor based on the desired order</span></span>
+<span id="cb82-37"><a href="#cb82-37" aria-hidden="true" tabindex="-1"></a>plot_data_long<span class="sc">$</span>name <span class="ot">&lt;-</span> <span class="fu">factor</span>(plot_data_long<span class="sc">$</span>name, <span class="at">levels =</span> prediction_levels)</span>
+<span id="cb82-38"><a href="#cb82-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-39"><a href="#cb82-39" aria-hidden="true" tabindex="-1"></a><span class="co"># Define intuitive colors for predictions</span></span>
+<span id="cb82-40"><a href="#cb82-40" aria-hidden="true" tabindex="-1"></a>colors <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"Lower_Bound"</span> <span class="ot">=</span> <span class="st">"red"</span>, <span class="st">"Median"</span> <span class="ot">=</span> <span class="st">"lightblue"</span>, <span class="st">"Upper_Bound"</span> <span class="ot">=</span> <span class="st">"green"</span>, <span class="st">"Original_Predictions"</span> <span class="ot">=</span> <span class="st">"black"</span>)</span>
+<span id="cb82-41"><a href="#cb82-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb82-42"><a href="#cb82-42" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot with ggplot2</span></span>
+<span id="cb82-43"><a href="#cb82-43" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(plot_data_long, <span class="fu">aes</span>(<span class="at">x =</span> Observed, <span class="at">y =</span> value, <span class="at">color =</span> name)) <span class="sc">+</span></span>
+<span id="cb82-44"><a href="#cb82-44" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.2</span>) <span class="sc">+</span></span>
+<span id="cb82-45"><a href="#cb82-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">slope =</span> <span class="dv">1</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb82-46"><a href="#cb82-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> colors, </span>
+<span id="cb82-47"><a href="#cb82-47" aria-hidden="true" tabindex="-1"></a>                     <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"Lower Bound"</span>, <span class="st">"Median"</span>, <span class="st">"Upper Bound"</span>, <span class="st">"Original Predictions"</span>),</span>
+<span id="cb82-48"><a href="#cb82-48" aria-hidden="true" tabindex="-1"></a>                     <span class="at">breaks =</span> prediction_levels) <span class="sc">+</span></span>
+<span id="cb82-49"><a href="#cb82-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Observed Values"</span>, <span class="at">y =</span> <span class="st">"Predicted Values"</span>, <span class="at">color =</span> <span class="st">"Prediction Type"</span>) <span class="sc">+</span></span>
+<span id="cb82-50"><a href="#cb82-50" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb82-51"><a href="#cb82-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">5000</span>), <span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.05</span>))) <span class="sc">+</span></span>
+<span id="cb82-52"><a href="#cb82-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_continuous</span>(<span class="at">limits =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">5000</span>), <span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="fl">0.05</span>))) <span class="sc">+</span></span>
+<span id="cb82-53"><a href="#cb82-53" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_fixed</span>(<span class="at">ratio =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 4 rows containing missing values (`geom_point()`).</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="fitting-exercise_files/figure-html/unnamed-chunk-19-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Assuming 'plot_data' has the columns 'Observed', 'Original_Predictions', 'Median', 'Lower_Bound', and 'Upper_Bound'</span></span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize observed values</span></span>
+<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a>observed_summary <span class="ot">&lt;-</span> <span class="fu">summary</span>(plot_data<span class="sc">$</span>Observed)</span>
+<span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize original model predictions</span></span>
+<span id="cb84-7"><a href="#cb84-7" aria-hidden="true" tabindex="-1"></a>original_pred_summary <span class="ot">&lt;-</span> <span class="fu">summary</span>(plot_data<span class="sc">$</span>Original_Predictions)</span>
+<span id="cb84-8"><a href="#cb84-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-9"><a href="#cb84-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Summarize bootstrap median predictions</span></span>
+<span id="cb84-10"><a href="#cb84-10" aria-hidden="true" tabindex="-1"></a>bootstrap_median_summary <span class="ot">&lt;-</span> <span class="fu">summary</span>(plot_data<span class="sc">$</span>Median)</span>
+<span id="cb84-11"><a href="#cb84-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-12"><a href="#cb84-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a data frame with summary statistics</span></span>
+<span id="cb84-13"><a href="#cb84-13" aria-hidden="true" tabindex="-1"></a>summary_table <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb84-14"><a href="#cb84-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">Observed =</span> <span class="fu">c</span>(observed_summary),</span>
+<span id="cb84-15"><a href="#cb84-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">Original_Predictions =</span> <span class="fu">c</span>(original_pred_summary),</span>
+<span id="cb84-16"><a href="#cb84-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">Bootstrap_Median =</span> <span class="fu">c</span>(bootstrap_median_summary)</span>
+<span id="cb84-17"><a href="#cb84-17" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb84-18"><a href="#cb84-18" aria-hidden="true" tabindex="-1"></a>summary_table</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        Observed Original_Predictions Bootstrap_Median
+Min.     826.430             1267.136         1288.117
+1st Qu. 1803.240             1960.680         1947.415
+Median  2398.295             2412.553         2431.475
+Mean    2509.171             2509.171         2523.091
+3rd Qu. 3104.125             3205.619         3216.833
+Max.    5606.580             3960.909         3987.499</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a><span class="co"># This is a simple vertical table. For a wide format, you can transpose it or reshape as needed.</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="interpreting-the-plottable" class="level3">
+<h3 class="anchored" data-anchor-id="interpreting-the-plottable">Interpreting the plot/table</h3>
+</section>
+<section id="minimum-min.-the-smallest-value-in-each-dataset." class="level3">
+<h3 class="anchored" data-anchor-id="minimum-min.-the-smallest-value-in-each-dataset.">Minimum (Min.): The smallest value in each dataset.</h3>
+<section id="observed-the-smallest-actual-value-recorded-is-approximately-826.43." class="level5">
+<h5 class="anchored" data-anchor-id="observed-the-smallest-actual-value-recorded-is-approximately-826.43.">Observed: The smallest actual value recorded is approximately 826.43.</h5>
+</section>
+<section id="original-predictions-the-smallest-predicted-value-by-the-original-model-is-about-1267.14." class="level5">
+<h5 class="anchored" data-anchor-id="original-predictions-the-smallest-predicted-value-by-the-original-model-is-about-1267.14.">Original Predictions: The smallest predicted value by the original model is about 1267.14.</h5>
+</section>
+<section id="bootstrap-median-the-smallest-median-prediction-across-all-bootstrap-samples-is-roughly-1288.12." class="level5">
+<h5 class="anchored" data-anchor-id="bootstrap-median-the-smallest-median-prediction-across-all-bootstrap-samples-is-roughly-1288.12.">Bootstrap Median: The smallest median prediction across all bootstrap samples is roughly 1288.12.</h5>
+</section>
+</section>
+<section id="first-quartile-1st-qu.-the-value-below-which-25-of-the-data-fall." class="level3">
+<h3 class="anchored" data-anchor-id="first-quartile-1st-qu.-the-value-below-which-25-of-the-data-fall.">First Quartile (1st Qu.): The value below which 25% of the data fall.</h3>
+<section id="observed-25-of-the-actual-values-are-below-approximately-1803.24." class="level5">
+<h5 class="anchored" data-anchor-id="observed-25-of-the-actual-values-are-below-approximately-1803.24.">Observed: 25% of the actual values are below approximately 1803.24.</h5>
+</section>
+<section id="original-predictions-25-of-the-models-predictions-are-below-about-1960.68." class="level5">
+<h5 class="anchored" data-anchor-id="original-predictions-25-of-the-models-predictions-are-below-about-1960.68.">Original Predictions: 25% of the model’s predictions are below about 1960.68.</h5>
+</section>
+<section id="bootstrap-median-for-the-bootstrap-predictions-25-are-below-around-1947.42." class="level5">
+<h5 class="anchored" data-anchor-id="bootstrap-median-for-the-bootstrap-predictions-25-are-below-around-1947.42.">Bootstrap Median: For the bootstrap predictions, 25% are below around 1947.42.</h5>
+</section>
+</section>
+<section id="median-the-middle-value-when-data-are-ordered-from-smallest-to-largest-indicating-that-half-the-data-fall-above-and-half-below-this-value." class="level3">
+<h3 class="anchored" data-anchor-id="median-the-middle-value-when-data-are-ordered-from-smallest-to-largest-indicating-that-half-the-data-fall-above-and-half-below-this-value.">Median: The middle value when data are ordered from smallest to largest, indicating that half the data fall above and half below this value.</h3>
+<section id="observed-the-median-actual-value-is-approximately-2398.30." class="level5">
+<h5 class="anchored" data-anchor-id="observed-the-median-actual-value-is-approximately-2398.30.">Observed: The median actual value is approximately 2398.30.</h5>
+</section>
+<section id="original-predictions-the-median-predicted-value-by-the-original-model-is-close-to-this-at-about-2412.55-suggesting-the-model-has-good-central-accuracy." class="level5">
+<h5 class="anchored" data-anchor-id="original-predictions-the-median-predicted-value-by-the-original-model-is-close-to-this-at-about-2412.55-suggesting-the-model-has-good-central-accuracy.">Original Predictions: The median predicted value by the original model is close to this, at about 2412.55, suggesting the model has good central accuracy.</h5>
+</section>
+<section id="bootstrap-median-the-median-of-the-bootstrap-medians-is-slightly-higher-at-2431.48." class="level5">
+<h5 class="anchored" data-anchor-id="bootstrap-median-the-median-of-the-bootstrap-medians-is-slightly-higher-at-2431.48.">Bootstrap Median: The median of the bootstrap medians is slightly higher at 2431.48.</h5>
+</section>
+</section>
+<section id="mean-the-average-of-all-the-values." class="level3">
+<h3 class="anchored" data-anchor-id="mean-the-average-of-all-the-values.">Mean: The average of all the values.</h3>
+<section id="observed-the-average-actual-value-is-approximately-2509.17." class="level5">
+<h5 class="anchored" data-anchor-id="observed-the-average-actual-value-is-approximately-2509.17.">Observed: The average actual value is approximately 2509.17.</h5>
+</section>
+<section id="original-predictions-the-average-prediction-matches-the-observed-mean-exactly-indicating-that-the-model-on-average-predicts-the-observed-outcome-well." class="level5">
+<h5 class="anchored" data-anchor-id="original-predictions-the-average-prediction-matches-the-observed-mean-exactly-indicating-that-the-model-on-average-predicts-the-observed-outcome-well.">Original Predictions: The average prediction matches the observed mean exactly, indicating that the model, on average, predicts the observed outcome well.</h5>
+</section>
+<section id="bootstrap-median-the-mean-of-the-bootstrap-medians-is-slightly-higher-at-2523.09-suggesting-a-small-positive-bias-in-the-bootstrap-predictions." class="level5">
+<h5 class="anchored" data-anchor-id="bootstrap-median-the-mean-of-the-bootstrap-medians-is-slightly-higher-at-2523.09-suggesting-a-small-positive-bias-in-the-bootstrap-predictions.">Bootstrap Median: The mean of the bootstrap medians is slightly higher at 2523.09, suggesting a small positive bias in the bootstrap predictions.</h5>
+</section>
+</section>
+<section id="third-quartile-3rd-qu.-the-value-below-which-75-of-the-data-fall." class="level3">
+<h3 class="anchored" data-anchor-id="third-quartile-3rd-qu.-the-value-below-which-75-of-the-data-fall.">Third Quartile (3rd Qu.): The value below which 75% of the data fall.</h3>
+<section id="observed-75-of-actual-values-are-below-approximately-3104.13." class="level5">
+<h5 class="anchored" data-anchor-id="observed-75-of-actual-values-are-below-approximately-3104.13.">Observed: 75% of actual values are below approximately 3104.13.</h5>
+</section>
+<section id="original-predictions-75-of-predictions-are-below-about-3205.62." class="level5">
+<h5 class="anchored" data-anchor-id="original-predictions-75-of-predictions-are-below-about-3205.62.">Original Predictions: 75% of predictions are below about 3205.62.</h5>
+</section>
+<section id="bootstrap-median-for-the-bootstrap-predictions-75-are-below-roughly-3216.83." class="level5">
+<h5 class="anchored" data-anchor-id="bootstrap-median-for-the-bootstrap-predictions-75-are-below-roughly-3216.83.">Bootstrap Median: For the bootstrap predictions, 75% are below roughly 3216.83.</h5>
+</section>
+</section>
+<section id="maximum-max.-the-largest-value-in-each-dataset." class="level3">
+<h3 class="anchored" data-anchor-id="maximum-max.-the-largest-value-in-each-dataset.">Maximum (Max.): The largest value in each dataset.</h3>
+<section id="observed-the-largest-actual-value-recorded-is-approximately-5606.58." class="level5">
+<h5 class="anchored" data-anchor-id="observed-the-largest-actual-value-recorded-is-approximately-5606.58.">Observed: The largest actual value recorded is approximately 5606.58.</h5>
+</section>
+<section id="original-predictions-the-largest-predicted-value-by-the-original-model-is-significantly-lower-at-about-3960.91-indicating-the-model-may-underpredict-the-highest-values." class="level5">
+<h5 class="anchored" data-anchor-id="original-predictions-the-largest-predicted-value-by-the-original-model-is-significantly-lower-at-about-3960.91-indicating-the-model-may-underpredict-the-highest-values.">Original Predictions: The largest predicted value by the original model is significantly lower at about 3960.91, indicating the model may underpredict the highest values.</h5>
+</section>
+<section id="bootstrap-median-the-largest-median-prediction-from-the-bootstrap-samples-is-close-to-the-maximum-original-prediction-at-approximately-3987.50-confirming-that-the-model-underpredicts-the-highest-observed-values." class="level5">
+<h5 class="anchored" data-anchor-id="bootstrap-median-the-largest-median-prediction-from-the-bootstrap-samples-is-close-to-the-maximum-original-prediction-at-approximately-3987.50-confirming-that-the-model-underpredicts-the-highest-observed-values.">Bootstrap Median: The largest median prediction from the bootstrap samples is close to the maximum original prediction at approximately 3987.50, confirming that the model underpredicts the highest observed values.</h5>
+</section>
+<section id="in-summary-the-original-model-seems-to-provide-a-central-tendency-median-and-mean-that-closely-matches-the-actual-observed-values." class="level4">
+<h4 class="anchored" data-anchor-id="in-summary-the-original-model-seems-to-provide-a-central-tendency-median-and-mean-that-closely-matches-the-actual-observed-values.">In summary, the original model seems to provide a central tendency (median and mean) that closely matches the actual observed values.</h4>
+</section>
+<section id="however-it-does-not-capture-the-extremes-as-well-particularly-it-underpredicts-the-maximum-values." class="level4">
+<h4 class="anchored" data-anchor-id="however-it-does-not-capture-the-extremes-as-well-particularly-it-underpredicts-the-maximum-values.">However, it does not capture the extremes as well; particularly, it underpredicts the maximum values.</h4>
+</section>
+<section id="the-bootstrap-medians-are-slightly-higher-than-the-original-predictions-on-average-suggesting-a-slight-upward-bias-in-the-resampled-predictions." class="level4">
+<h4 class="anchored" data-anchor-id="the-bootstrap-medians-are-slightly-higher-than-the-original-predictions-on-average-suggesting-a-slight-upward-bias-in-the-resampled-predictions.">The bootstrap medians are slightly higher than the original predictions on average, suggesting a slight upward bias in the resampled predictions.</h4>
+</section>
+<section id="the-fact-that-the-medians-and-means-are-close-together-for-all-three-indicators-suggests-that-the-predictions-are-relatively-symmetrical-and-not-heavily-skewed." class="level4">
+<h4 class="anchored" data-anchor-id="the-fact-that-the-medians-and-means-are-close-together-for-all-three-indicators-suggests-that-the-predictions-are-relatively-symmetrical-and-not-heavily-skewed.">The fact that the medians and means are close together for all three indicators suggests that the predictions are relatively symmetrical and not heavily skewed.</h4>
 
 
 </section>

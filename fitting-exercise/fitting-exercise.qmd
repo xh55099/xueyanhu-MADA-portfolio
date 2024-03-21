@@ -1,10 +1,14 @@
 ---
 title: "fitting exercise"
+editor: 
+  markdown: 
+    wrap: sentence
 ---
 
 ### Load required packages
 
 ```{r}
+
 library(dplyr)
 library(purrr)
 library(ggplot2)
@@ -143,7 +147,10 @@ p5 <- ggplot(d5_p5, aes(x = RACE, y = mean_Y, fill = RACE)) +
 plot(p5)
 ```
 
-There is not a clear correlation between total drug level and age nor weight. And it is quite obvious that individuals with higher dose level will have higher total drug level. While the mean total drug level for male is higher than female (assumeing odd number represents male and even number represents female). Also, the race identified as number 7 has the lowest mean total drug level among 4 different races.
+There is not a clear correlation between total drug level and age nor weight.
+And it is quite obvious that individuals with higher dose level will have higher total drug level.
+While the mean total drug level for male is higher than female (assumeing odd number represents male and even number represents female).
+Also, the race identified as number 7 has the lowest mean total drug level among 4 different races.
 
 ### Model fitting
 
@@ -204,7 +211,9 @@ cat("Rsquare for DOSE:", rsquared_dose$.estimate, "\n")
 cat("Rsquare for all predictors:", rsquared_all$.estimate, "\n")
 ```
 
-RMSE for dose model is smaller than that for all predictors model, so dose model performs better on metric RMSE. While R-square for dose model is small than all predictors model, and the latter is closer to 1, which means all predictors model performs better on metric R-square. Therefore, the performance of models may be difference based on the chosen metric.
+RMSE for dose model is smaller than that for all predictors model, so dose model performs better on metric RMSE.
+While R-square for dose model is small than all predictors model, and the latter is closer to 1, which means all predictors model performs better on metric R-square.
+Therefore, the performance of models may be difference based on the chosen metric.
 
 #### Linear model for SEX as the outcome of interest
 
@@ -304,7 +313,13 @@ roc_auc2 <- auc(roc_curve2)
 print(roc_auc2)
 ```
 
-The logistic regression model 1 suggests that, based on the provided predictors (DOSE), there isn't strong evidence to support a significant relationship with the outcome variable SEX. I found the accuracy for this model is 0. I tried to fix the code with AI's help but didn't really work. So I guess maybe it's because the model's predictions are not accurate? And AUC is 0.5919 which might not be providing strong discrimination but might distinguish between the positive and negative classes is somewhat better than random chance based on my searching. For the rm2, HT is statistically significant predictors of SEX while others aren't. Accuracy at 0.958 indicates the model is well-fitted, and AUC shows the excellent discrimination.
+The logistic regression model 1 suggests that, based on the provided predictors (DOSE), there isn't strong evidence to support a significant relationship with the outcome variable SEX.
+I found the accuracy for this model is 0.
+I tried to fix the code with AI's help but didn't really work.
+So I guess maybe it's because the model's predictions are not accurate?
+And AUC is 0.5919 which might not be providing strong discrimination but might distinguish between the positive and negative classes is somewhat better than random chance based on my searching.
+For the rm2, HT is statistically significant predictors of SEX while others aren't.
+Accuracy at 0.958 indicates the model is well-fitted, and AUC shows the excellent discrimination.
 
 #### try *k*-nearest neighbors model
 
@@ -441,9 +456,12 @@ cv_results2 <- linear_wf2 %>%
 collect_metrics(cv_results1)
 collect_metrics(cv_results2)
 ```
-For both models, the RMSE calculated after cross-validation is applied to the data is higher than the fitting model at the first time which is obtained without using CV. I think it may means CV could reduce the overfitting of the model using the whole training dataset.
+
+For both models, the RMSE calculated after cross-validation is applied to the data is higher than the fitting model at the first time which is obtained without using CV.
+I think it may means CV could reduce the overfitting of the model using the whole training dataset.
 
 #### set a new seed and re-run CV
+
 ```{r}
 #reset seed
 set.seed(2345)
@@ -480,5 +498,248 @@ re_cv_results2 <- fit_resamples(
 collect_metrics(re_cv_results1)
 collect_metrics(re_cv_results2)
 ```
-Each new RMSE after reseting the seed is lower than first CV is applied but higher than first fitting model. I think it still shows the effect of CV for reducing overfitting. But there is another point that the metrics may change regard how subsets are created by CV.
 
+Each new RMSE after reseting the seed is lower than first CV is applied but higher than first fitting model.
+I think it still shows the effect of CV for reducing overfitting.
+But there is another point that the metrics may change regard how subsets are created by CV.
+
+# This section added by Andrew Ruiz
+
+```{r}
+# Null Model Prediction
+mean_Y <- mean(train_data$Y)
+train_data$null_pred <- mean_Y
+
+# Create a dataframe for null model predictions similar to the other models
+null_preds <- train_data %>% 
+  mutate(.pred = mean_Y) %>%
+  select(Y, .pred) %>%
+  mutate(Model = "NULL")
+
+# Combine observed and predicted values for all models into a single dataframe
+combined_preds <- bind_rows(
+  select(preds1, Y, .pred) %>% mutate(Model = "DOSE"),
+  select(preds2, Y, .pred) %>% mutate(Model = "ALL PREDICTORS"),
+  null_preds # Use the corrected null_preds dataframe
+)
+# Use ggplot to create the figure
+ggplot(combined_preds, aes(x = Y, y = .pred, color = Model)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black") + # 45 degree line
+  scale_x_continuous(limits = c(0, 5000)) +
+  scale_y_continuous(limits = c(0, 5000)) +
+  labs(x = "Observed Values", y = "Predicted Values", title = "Observed vs. Predicted Values by Model") +
+  theme_minimal()
+
+
+# Use ggplot with facets to create separate plots for each model, with a uniform color for points
+ggplot(combined_preds, aes(x = Y, y = .pred)) +
+  geom_point(color = "blue") + # Apply a uniform color for all points
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black") + # 45 degree line
+  facet_wrap(~ Model, scales = "free") +
+  scale_x_continuous(limits = c(0, 5000)) +
+  scale_y_continuous(limits = c(0, 5000)) +
+  labs(x = "Observed Values", y = "Predicted Values", title = "Model Comparisons: Observed vs. Predicted Values") +
+  theme_minimal()
+
+```
+
+```{r}
+# Assuming preds2 contains the predicted values for Model 2
+
+# Calculate residuals
+preds2$residuals <- preds2$Y - preds2$.pred
+
+# Find the maximum absolute residual to set the y-axis limits
+max_abs_residual <- max(abs(preds2$residuals))
+
+# Plot predicted vs residuals for Model 2
+ggplot(preds2, aes(x = .pred, y = residuals)) +
+  geom_point(color = "purple") + # Plot points
+  geom_hline(yintercept = 0, linetype = "dashed", color = "navy") + # Add horizontal line at 0
+  scale_y_continuous(limits = c(-max_abs_residual, max_abs_residual)) + # Ensure y-axis is symmetric
+  labs(x = "Predicted Values", y = "Residuals", title = "Predicted vs. Residuals for Model 2") +
+  theme_minimal()
+
+```
+
+```{r}
+library(rsample) # For bootstrapping
+library(purrr)   # For map functions
+library(tidymodels) # For modeling
+
+# Set the random seed
+set.seed(rngseed)
+
+# Create 100 bootstrap samples of the training data
+boot_samples <- bootstraps(train_data, times = 100)
+
+# Assuming you already have a model specification and workflow set up for Model 2
+# For example, lr_mod2 and lr_wf2 from your initial code snippet
+
+# Fit the model to each of the bootstrap samples and make predictions
+predictions_list <- boot_samples$splits %>%
+  map(.f = ~{
+    # Fit the model to the bootstrap sample
+    boot_data <- analysis(.x)
+    fitted_model <- fit(lr_wf2, data = boot_data)
+    
+    # Make predictions on the original training data
+    predict(fitted_model, new_data = train_data)$.pred
+  })
+
+# predictions_list now contains the predictions from each bootstrap sample
+
+```
+
+```{r}
+# predictions_list is the list of prediction vectors from each bootstrap sample
+
+# Step 1: Convert the list of prediction vectors into a matrix
+bootstrap_predictions_matrix <- do.call(rbind, predictions_list)
+
+# Step 2: Compute the median and 89% confidence intervals
+# Adjust the function to work with the matrix structure
+model2_median_and_CI89 <- apply(bootstrap_predictions_matrix, 2, quantile, c(0.055, 0.5, 0.945)) %>% t()
+
+# model2_bootstrap_quantiles now contains the median and confidence intervals for each observation
+```
+
+```{r}
+# First, ensure that original_predictions and observed_values have the correct values
+original_predictions <- preds2$.pred
+observed_values <- preds2$Y
+
+# Create the bootstrap_stats_df from the quantiles obtained previously
+bootstrap_stats_df <- data.frame(
+  Lower_Bound = model2_median_and_CI89[, "5.5%"],
+  Median = model2_median_and_CI89[, "50%"],
+  Upper_Bound = model2_median_and_CI89[, "94.5%"]
+)
+
+# Check that all data frames have the same number of rows
+stopifnot(nrow(bootstrap_stats_df) == length(original_predictions))
+stopifnot(length(original_predictions) == length(observed_values))
+
+# Create plot_data with all predictions
+plot_data <- data.frame(
+  Observed = observed_values,
+  Original_Predictions = original_predictions
+)
+
+# Combine the original predictions with the bootstrap statistics
+plot_data <- cbind(plot_data, bootstrap_stats_df)
+
+# Now pivot the plot_data to long format for ggplot2
+plot_data_long <- pivot_longer(
+  plot_data,
+  cols = c("Original_Predictions", "Lower_Bound", "Median", "Upper_Bound"),
+  names_to = "name",
+  values_to = "value"
+)
+
+# Define the order for the predictions explicitly
+prediction_levels <- c("Lower_Bound", "Median", "Upper_Bound", "Original_Predictions")
+
+# Set the levels for the 'name' factor based on the desired order
+plot_data_long$name <- factor(plot_data_long$name, levels = prediction_levels)
+
+# Define intuitive colors for predictions
+colors <- c("Lower_Bound" = "red", "Median" = "lightblue", "Upper_Bound" = "green", "Original_Predictions" = "black")
+
+# Plot with ggplot2
+ggplot(plot_data_long, aes(x = Observed, y = value, color = name)) +
+  geom_point(size = 1.2) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", color = "black") +
+  scale_color_manual(values = colors, 
+                     labels = c("Lower Bound", "Median", "Upper Bound", "Original Predictions"),
+                     breaks = prediction_levels) +
+  labs(x = "Observed Values", y = "Predicted Values", color = "Prediction Type") +
+  theme_minimal() +
+  scale_x_continuous(limits = c(0, 5000), expand = expansion(mult = c(0, 0.05))) +
+  scale_y_continuous(limits = c(0, 5000), expand = expansion(mult = c(0, 0.05))) +
+  coord_fixed(ratio = 1)
+
+
+```
+
+```{r}
+# Assuming 'plot_data' has the columns 'Observed', 'Original_Predictions', 'Median', 'Lower_Bound', and 'Upper_Bound'
+
+# Summarize observed values
+observed_summary <- summary(plot_data$Observed)
+
+# Summarize original model predictions
+original_pred_summary <- summary(plot_data$Original_Predictions)
+
+# Summarize bootstrap median predictions
+bootstrap_median_summary <- summary(plot_data$Median)
+
+# Create a data frame with summary statistics
+summary_table <- data.frame(
+  Observed = c(observed_summary),
+  Original_Predictions = c(original_pred_summary),
+  Bootstrap_Median = c(bootstrap_median_summary)
+)
+summary_table
+# This is a simple vertical table. For a wide format, you can transpose it or reshape as needed.
+
+```
+
+### Interpreting the plot/table
+
+### Minimum (Min.): The smallest value in each dataset.
+
+##### Observed: The smallest actual value recorded is approximately 826.43.
+
+##### Original Predictions: The smallest predicted value by the original model is about 1267.14.
+
+##### Bootstrap Median: The smallest median prediction across all bootstrap samples is roughly 1288.12.
+
+### First Quartile (1st Qu.): The value below which 25% of the data fall.
+
+##### Observed: 25% of the actual values are below approximately 1803.24.
+
+##### Original Predictions: 25% of the model's predictions are below about 1960.68.
+
+##### Bootstrap Median: For the bootstrap predictions, 25% are below around 1947.42.
+
+### Median: The middle value when data are ordered from smallest to largest, indicating that half the data fall above and half below this value.
+
+##### Observed: The median actual value is approximately 2398.30.
+
+##### Original Predictions: The median predicted value by the original model is close to this, at about 2412.55, suggesting the model has good central accuracy.
+
+##### Bootstrap Median: The median of the bootstrap medians is slightly higher at 2431.48.
+
+### Mean: The average of all the values.
+
+##### Observed: The average actual value is approximately 2509.17.
+
+##### Original Predictions: The average prediction matches the observed mean exactly, indicating that the model, on average, predicts the observed outcome well.
+
+##### Bootstrap Median: The mean of the bootstrap medians is slightly higher at 2523.09, suggesting a small positive bias in the bootstrap predictions.
+
+### Third Quartile (3rd Qu.): The value below which 75% of the data fall.
+
+##### Observed: 75% of actual values are below approximately 3104.13.
+
+##### Original Predictions: 75% of predictions are below about 3205.62.
+
+##### Bootstrap Median: For the bootstrap predictions, 75% are below roughly 3216.83.
+
+### Maximum (Max.): The largest value in each dataset.
+
+##### Observed: The largest actual value recorded is approximately 5606.58.
+
+##### Original Predictions: The largest predicted value by the original model is significantly lower at about 3960.91, indicating the model may underpredict the highest values.
+
+##### Bootstrap Median: The largest median prediction from the bootstrap samples is close to the maximum original prediction at approximately 3987.50, confirming that the model underpredicts the highest observed values.
+
+#### In summary, the original model seems to provide a central tendency (median and mean) that closely matches the actual observed values.
+
+#### However, it does not capture the extremes as well; particularly, it underpredicts the maximum values.
+
+#### The bootstrap medians are slightly higher than the original predictions on average, suggesting a slight upward bias in the resampled predictions.
+
+#### The fact that the medians and means are close together for all three indicators suggests that the predictions are relatively symmetrical and not heavily skewed.
