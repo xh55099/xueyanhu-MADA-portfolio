@@ -743,3 +743,33 @@ summary_table
 #### The bootstrap medians are slightly higher than the original predictions on average, suggesting a slight upward bias in the resampled predictions.
 
 #### The fact that the medians and means are close together for all three indicators suggests that the predictions are relatively symmetrical and not heavily skewed.
+
+### Final evaluation using test data
+```{r}
+# Make predictions on test data using model 2
+test_pred <- predict(lr_fit2, new_data = test_data) %>%
+  bind_cols(test_data)
+
+# Create data frames for training and test data predictions
+train_plot_data <- data.frame(
+  Observed = train_data$Y,
+  Predicted = preds2
+)
+
+test_plot_data <- data.frame(
+  Observed = test_data$Y,
+  Predicted = test_pred
+)
+preds2
+# Plot predicted versus observed for both training and test data
+ggplot() +
+  geom_point(data = preds2, aes(x = Y, y = .pred), color = "blue", shape = 16, alpha = 0.8) +
+  geom_point(data = test_pred, aes(x = Y, y = .pred), color = "red", shape = 17, alpha = 0.8) +
+  geom_abline(slope = 1, intercept = 0, linetype = "dashed", color = "black") +
+  labs(x = "Observed", y = "Predicted", title = "Predicted vs. Observed (Training vs. Test)") +
+  theme_minimal() 
+```
+
+First, I think it is my expectation that other fitting models could have better performance than null model, so that I will tend to choose them. But it should be based on reality, model complexity or other factors that will be less supportive for the models.
+Based on the results above, I think model 1 did improve results over the null model, but it didn't make sense since the outcome is supposed to be related with weight, height and other condition of each person but not only dose, so the model doesn't seem realistic to me. I won't consider model 1 usable for real purpose.
+Model 2 also improve results over the null model, and it did make more sense than model 1 since it includes more predictors that I think necessary for the outcome so I may consider model 2 usable for real purpose.

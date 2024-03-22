@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.537">
+<meta name="generator" content="quarto-1.4.540">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -224,7 +224,7 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(here)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
-<pre><code>here() starts at /Users/andrewruiz/xueyanhu-MADA-portfolio</code></pre>
+<pre><code>here() starts at /Users/XylemHu/Desktop/EPID8060E/GitHub/xueyanhu-MADA-portfolio</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
 <span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
@@ -237,7 +237,7 @@ Attaching package: 'dplyr'</code></pre>
 ✔ dials        1.2.0     ✔ tune         1.1.2
 ✔ infer        1.0.5     ✔ workflows    1.1.3
 ✔ modeldata    1.2.0     ✔ workflowsets 1.0.1
-✔ parsnip      1.1.1     ✔ yardstick    1.2.0
+✔ parsnip      1.2.0     ✔ yardstick    1.2.0
 ✔ recipes      1.0.9     </code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
@@ -246,7 +246,7 @@ Attaching package: 'dplyr'</code></pre>
 ✖ dplyr::filter()   masks stats::filter()
 ✖ dplyr::lag()      masks stats::lag()
 ✖ recipes::step()   masks stats::step()
-• Search for functions across packages at https://www.tidymodels.org/find/</code></pre>
+• Learn how to get started at https://www.tidymodels.org/start/</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(parsnip)</span>
 <span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(yardstick)</span>
@@ -1613,9 +1613,60 @@ Max.    5606.580             3960.909         3987.499</code></pre>
 </section>
 <section id="the-fact-that-the-medians-and-means-are-close-together-for-all-three-indicators-suggests-that-the-predictions-are-relatively-symmetrical-and-not-heavily-skewed." class="level4">
 <h4 class="anchored" data-anchor-id="the-fact-that-the-medians-and-means-are-close-together-for-all-three-indicators-suggests-that-the-predictions-are-relatively-symmetrical-and-not-heavily-skewed.">The fact that the medians and means are close together for all three indicators suggests that the predictions are relatively symmetrical and not heavily skewed.</h4>
-
-
 </section>
+</section>
+<section id="final-evaluation-using-test-data" class="level3">
+<h3 class="anchored" data-anchor-id="final-evaluation-using-test-data">Final evaluation using test data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Make predictions on test data using model 2</span></span>
+<span id="cb87-2"><a href="#cb87-2" aria-hidden="true" tabindex="-1"></a>test_pred <span class="ot">&lt;-</span> <span class="fu">predict</span>(lr_fit2, <span class="at">new_data =</span> test_data) <span class="sc">%&gt;%</span></span>
+<span id="cb87-3"><a href="#cb87-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(test_data)</span>
+<span id="cb87-4"><a href="#cb87-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-5"><a href="#cb87-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Create data frames for training and test data predictions</span></span>
+<span id="cb87-6"><a href="#cb87-6" aria-hidden="true" tabindex="-1"></a>train_plot_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb87-7"><a href="#cb87-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">Observed =</span> train_data<span class="sc">$</span>Y,</span>
+<span id="cb87-8"><a href="#cb87-8" aria-hidden="true" tabindex="-1"></a>  <span class="at">Predicted =</span> preds2</span>
+<span id="cb87-9"><a href="#cb87-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb87-10"><a href="#cb87-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb87-11"><a href="#cb87-11" aria-hidden="true" tabindex="-1"></a>test_plot_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb87-12"><a href="#cb87-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">Observed =</span> test_data<span class="sc">$</span>Y,</span>
+<span id="cb87-13"><a href="#cb87-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">Predicted =</span> test_pred</span>
+<span id="cb87-14"><a href="#cb87-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb87-15"><a href="#cb87-15" aria-hidden="true" tabindex="-1"></a>preds2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 90 × 8
+   .pred     Y DOSE    AGE SEX      WT    HT residuals
+   &lt;dbl&gt; &lt;dbl&gt; &lt;fct&gt; &lt;int&gt; &lt;fct&gt; &lt;dbl&gt; &lt;dbl&gt;     &lt;dbl&gt;
+ 1 3306. 3004. 50       28 0      83.2  1.74    -302. 
+ 2 1960. 1347. 25       41 0      81    1.75    -613. 
+ 3 2697. 2772. 37.5     28 0      78.3  1.72      74.9
+ 4 2083. 2028. 25       28 1      58.9  1.58     -55.4
+ 5 2898. 2353. 50       37 0      99.1  1.78    -545. 
+ 6 1267.  826. 25       30 0     105.   1.88    -441. 
+ 7 2431. 3866. 25       23 0      65.3  1.65    1434. 
+ 8 1981. 3126. 25       41 1      64.3  1.56    1145. 
+ 9 1567. 1108. 25       48 1      79.5  1.62    -459. 
+10 2500. 2815. 37.5     26 0      84.5  1.77     315. 
+# ℹ 80 more rows</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot predicted versus observed for both training and test data</span></span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb89-3"><a href="#cb89-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> preds2, <span class="fu">aes</span>(<span class="at">x =</span> Y, <span class="at">y =</span> .pred), <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">shape =</span> <span class="dv">16</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb89-4"><a href="#cb89-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> test_pred, <span class="fu">aes</span>(<span class="at">x =</span> Y, <span class="at">y =</span> .pred), <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">shape =</span> <span class="dv">17</span>, <span class="at">alpha =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb89-5"><a href="#cb89-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span></span>
+<span id="cb89-6"><a href="#cb89-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Observed"</span>, <span class="at">y =</span> <span class="st">"Predicted"</span>, <span class="at">title =</span> <span class="st">"Predicted vs. Observed (Training vs. Test)"</span>) <span class="sc">+</span></span>
+<span id="cb89-7"><a href="#cb89-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="fitting-exercise_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>First, I think it is my expectation that other fitting models could have better performance than null model, so that I will tend to choose them. But it should be based on reality, model complexity or other factors that will be less supportive for the models. Based on the results above, I think model 1 did improve results over the null model, but it didn’t make sense since the outcome is supposed to be related with weight, height and other condition of each person but not only dose, so the model doesn’t seem realistic to me. I won’t consider model 1 usable for real purpose. Model 2 also improve results over the null model, and it did make more sense than model 1 since it includes more predictors that I think necessary for the outcome so I may consider model 2 usable for real purpose.</p>
+
+
 </section>
 </section>
 
