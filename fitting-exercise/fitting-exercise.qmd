@@ -8,7 +8,6 @@ editor:
 ### Load required packages
 
 ```{r}
-
 library(dplyr)
 library(purrr)
 library(ggplot2)
@@ -321,26 +320,7 @@ And AUC is 0.5919 which might not be providing strong discrimination but might d
 For the rm2, HT is statistically significant predictors of SEX while others aren't.
 Accuracy at 0.958 indicates the model is well-fitted, and AUC shows the excellent discrimination.
 
-#### try *k*-nearest neighbors model
 
-```{r}
-# Split data into training and testing sets
-set.seed(123)  # for reproducibility
-sample_indices <- sample(nrow(d5), 0.7 * nrow(d5))
-train_data <- d5[sample_indices, ]
-test_data <- d5[-sample_indices, ]
-
-# Fit k-nearest neighbors model
-k_value <- 3  # Set the desired value for k
-knn_model <- knn(train = train_data[, "DOSE", drop = FALSE], 
-                 test = test_data[, "DOSE", drop = FALSE], 
-                 cl = train_data$Y, k = k_value)
-
-# Evaluate the model
-# Assuming 'test_data$Y' contains the true outcomes in the test set
-confusion_matrix <- table(Actual = test_data$Y, Predicted = knn_model)
-print(confusion_matrix)
-```
 
 ## Exercise 10
 
@@ -414,10 +394,10 @@ mean_outcome <- mean(train_data$Y)
 predicted_values <- rep(mean_outcome, nrow(train_data))
 
 # Calculate the RMSE (Root Mean Squared Error)
-rmse <- sqrt(mean((train_data$Y - predicted_values)^2))
+rmse_a1 <- sqrt(mean((train_data$Y - predicted_values)^2))
 
 # Print the RMSE
-cat("RMSE:", rmse, "\n")
+cat("RMSE:", rmse_a1, "\n")
 ```
 
 #### Model performance assessment 2

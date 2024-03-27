@@ -1,0 +1,304 @@
+---
+title: "ml-models-exercise"
+author: "Xueyan Hu"
+editor: visual
+---
+
+## Preliminaries
+
+### loading packages
+
+```{r}
+library(tidymodels)
+library(ggplot2)
+library(dplyr)
+library(glmnet)
+library(randomForest)
+library(parsnip)
+library(parameters)
+```
+
+### loading data
+
+```{r}
+data_location <- here::here("ml-models-exercise","data","processeddata.rds")
+mydata <- readRDS(data_location)
+
+# set seed
+set.seed(1234)
+```
+
+## More processing
+
+```{r}
+# Convert RACE to character
+mydata$RACE <- as.character(mydata$RACE)
+
+# Use mutate with if_else
+mydata <- mydata %>%
+  mutate(RACE = if_else(RACE %in% c("7", "88"), "3", RACE))
+```
+
+## Pairwise correlations
+
+```{r}
+# Subset the dataset to include only the continuous variables
+continuous_vars <- mydata[, c("Y", "AGE", "HT", "WT")]
+
+# Compute the correlation matrix
+correlation_matrix <- cor(continuous_vars)
+
+# Convert the correlation matrix to a data frame for plotting
+correlation_df <- as.data.frame(as.table(correlation_matrix))
+colnames(correlation_df) <- c("Variable1", "Variable2", "Correlation")
+
+# Plot correlation heatmap
+ggplot(correlation_df, aes(Variable1, Variable2, fill = Correlation)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red",
+                       midpoint = 0, limits = c(-1, 1),
+                       name = "Correlation") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(title = "Correlation Plot of Continuous Variables")
+```
+
+## Model building
+
+### First model: a linear model with all predictors
+
+```{r}
+# fit linear model with all predictors
+lm_all <- lm(Y ~ ., data = mydata)
+
+#summary the model
+summary(lm_all)
+```
+
+### Second model: LASSO regression
+
+```{r}
+# Prepare data
+outcome <- mydata$Y
+predictors <- mydata[, c("AGE", "SEX", "DOSE", "HT", "WT", "RACE")]
+
+# Fit LASSO regression model
+lasso_model <- glmnet(x = as.matrix(predictors), y = outcome, alpha = 1, lambda = 0)
+
+# Summary of the model
+summary(lasso_model)
+```
+
+### Tthird model: a random forest (RF)
+
+```{r}
+# Define predictors and outcome variable
+predictors <- c("AGE", "SEX", "DOSE", "HT", "WT", "RACE")
+outcome <- "Y"
+
+# Fit the Random Forest model
+rf_model <- randomForest(Y ~ ., data = mydata[, c(predictors, outcome)])
+
+# Summary of the model
+print(rf_model)
+```
+
+## First fit
+
+```{r}
+# set a seed
+rngseed = 1234
+set.seed(rngseed)
+
+# Define predictors and outcome variable
+predictors <- setdiff(names(mydata), "Y")
+outcome <- "Y"
+
+# Define recipe
+data_recipe <- recipe(formula = Y ~ ., data = mydata) %>%
+  step_dummy(all_nominal(), -all_outcomes()) # Convert categorical predictors to dummy variables
+
+
+# linear model
+lm_mod <- linear_reg() %>%
+  set_engine("lm")
+lm_wf <- workflow() %>%
+  add_model(lm_mod) %>%
+  add_recipe(data_recipe)
+lm_fit <- lm_wf %>%
+  fit(data = mydata)
+lm_fit
+
+#lasso model
+lasso_mod <- linear_reg(penalty = 0.1, engine = "glmnet") %>%
+  set_engine("glmnet")
+lasso_wf <- workflow() %>%
+  add_recipe(data_recipe) %>%
+  add_model(lasso_mod)
+lasso_fit <- lasso_wf %>%
+  fit(data = mydata)
+lasso_fit
+
+#random forest model
+rf_mod <- 
+  rand_forest() %>% 
+  set_engine("ranger", seed = rngseed) %>%
+  parsnip::set_mode("regression")
+rf_wf<- workflow() %>%
+  add_model(rf_mod) %>%
+  add_recipe(data_recipe)
+rf_fit <- rf_wf %>% 
+  fit(data = mydata)
+rf_fit
+```
+ 
+```{r}
+# Make predictions for linear model
+lm_pred <- predict(lm_fit, new_data = mydata) %>% 
+  bind_cols(observed = mydata$Y)
+
+# Calculate RMSE for linear model
+lm_rmse <- rmse(lm_pred, truth = observed, estimate = .pred)
+
+# Create observed versus predicted plot for linear model
+lm_plot <- ggplot(lm_pred, aes(x = observed, y = .pred)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, color = "red") +  # Add a 45-degree line for comparison
+  labs(x = "Observed", y = "Predicted", title = "Linear Model")
+
+# Make predictions for LASSO model
+lasso_pred <- predict(lasso_fit, new_data = mydata) %>% 
+  bind_cols(observed = mydata$Y)
+
+# Calculate RMSE for LASSO model
+lasso_rmse <- rmse(lasso_pred, truth = observed, estimate = .pred)
+
+# Create observed versus predicted plot for LASSO model
+lasso_plot <- ggplot(lasso_pred, aes(x = observed, y = .pred)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, color = "red") +  # Add a 45-degree line for comparison
+  labs(x = "Observed", y = "Predicted", title = "LASSO Model")
+
+# Make predictions for random forest model
+rf_pred <- predict(rf_fit, new_data = mydata) %>% 
+  bind_cols(observed = mydata$Y)
+
+# Calculate RMSE for random forest model
+rf_rmse <- rmse(rf_pred, truth = observed, estimate = .pred)
+
+# Create observed versus predicted plot for random forest model
+rf_plot <- ggplot(rf_pred, aes(x = observed, y = .pred)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, color = "red") +  # Add a 45-degree line for comparison
+  labs(x = "Observed", y = "Predicted", title = "Random Forest Model")
+
+# Print RMSE for each model
+print(lm_rmse)
+print(lasso_rmse)
+print(rf_rmse)
+
+# Plot observed versus predicted for each model
+print(lm_plot)
+print(lasso_plot)
+print(rf_plot)
+```
+I think it is because linear model and lasso model share the similar underlying principles. Both of them assume a linear relationship between the predictors and the outcome variable. And there is no penalty set for lasso model.
+
+## Tuning the models
+
+```{r}
+# Define the parameter grid
+param_grid_lasso <- grid_regular(penalty(range = c(1e-5, 1e2)), levels = 50)
+
+# Create a workflow with the LASSO model
+lasso_mod_tune <- linear_reg(penalty = tune()) %>%
+  set_engine("glmnet")
+
+lasso_wf_tune <- workflow() %>%
+  add_recipe(data_recipe) %>%
+  add_model(lasso_mod_tune)
+
+# Tune the model
+lasso_tune <- tune_grid(
+  lasso_wf_tune,
+  resamples = apparent(mydata),
+  grid = param_grid_lasso,
+  metrics = metric_set(rmse) # Adjust metrics as needed
+)
+
+# View the tuning results
+lasso_tune %>% autoplot()
+```
+
+When the penalty parameter is low, LASSO behaves similarly to ordinary linear regression because the penalty for larger coefficients is small. So the RMSE is similar to linear model and even lower. However, as the penalty parameter increases, LASSO becomes more constrained, and the coefficients are increasingly forced towards zero.  This can lead to underfitting, where the model is too simple to capture the complexity of the data, resulting in higher RMSE. In the end, the penalty parameter is so large that make coefficient decrease to 0, thus RMSE will not change anymore.
+
+```{r}
+# Define the random forest model with fixed parameters
+rf_mod_tune <- 
+  rand_forest( mtry = tune(), min_n = tune(), trees = 300) %>% 
+  set_engine("ranger", seed = rngseed) %>%
+  parsnip::set_mode("regression")
+
+# Create a workflow with the random forest model
+rf_wf_tune <- workflow() %>%
+  add_model(rf_mod_tune) %>%
+  add_recipe(data_recipe)
+
+# Define the tuning grid with 7x7 combinations
+mtry_values <- seq(from = 1, to = 7, length.out = 7)
+min_n_values <- seq(from = 1, to = 21, length.out = 7)
+
+param_grid_rf <- expand.grid(
+  mtry = mtry_values,
+  min_n = min_n_values
+)
+
+# Tune the model
+rf_tune <- tune_grid(
+  rf_wf_tune,
+  resamples = apparent(data = mydata),
+  grid = param_grid_rf,
+  metrics = metric_set(rmse) # Adjust metrics as needed
+)
+
+# View the tuning results
+rf_tune %>% autoplot()
+```
+
+## Tuning with CV
+
+```{r}
+# Set the random number seed
+set.seed(rngseed)
+
+# Create 5-fold cross-validation resamples, repeated 5 times
+resamples <- vfold_cv(data = mydata, v = 5, repeats = 5)
+
+# Tune LASSO model again with resamples
+lasso_tune_CV <- tune_grid(
+  lasso_wf_tune,
+  resamples = resamples,
+  grid = param_grid_lasso,
+  metrics = metric_set(rmse) # Adjust metrics as needed
+)
+
+# View the tuning results again
+lasso_tune_CV %>% autoplot()
+```
+
+```{r}
+# Tune RF model again with resamples
+rf_tune_CV <- tune_grid(
+  rf_wf_tune,
+  resamples = resamples,
+  grid = param_grid_rf,
+  metrics = metric_set(rmse) # Adjust metrics as needed
+)
+
+# View the tuning results
+rf_tune_CV %>% autoplot()
+```
+
+After CV is applied, there is not much change on LASSO model, while the pattern of RF model changes. When min_n is higher and mtry is at the middle value between 1 and 7, the RMSE has the lowest value.
+Because CV is applied, which can provide a more realistic estimate of model performance compared to use simplly the whole dataset.
+I think LASSO performs better based on RMSE value. And the reason might because LASSO has penalty to reduce overfit compared to RF.
