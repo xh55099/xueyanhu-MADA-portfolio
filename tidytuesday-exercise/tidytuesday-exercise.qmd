@@ -128,26 +128,60 @@ save_data_location <- here::here("tidytuesday-exercise","data","processeddata","
 saveRDS(cleaned_eclipse_data, file = save_data_location)
 
 # A little bit more data cleaning
-# Define function to classify geographical areas
-classify_geographical_area <- function(latitude, longitude) {
-  if (latitude >= 37 & latitude <= 50 & longitude >= -125 & longitude <= -67) {
-    return("Northeast")
-  } else if (latitude >= 25 & latitude <= 36 & longitude >= -109 & longitude <= -67) {
-    return("Southeast")
-  } else if (latitude >= 35 & latitude <= 41 & longitude >= -109 & longitude <= -93) {
-    return("Midwest")
-  } else if (latitude >= 31 & latitude <= 37 & longitude >= -109 & longitude <= -94) {
-    return("Southwest")
-  } else if (latitude >= 32 & latitude <= 49 & longitude >= -124 & longitude <= -114) {
-    return("West")
-  } else {
-    return("Other")
+# Define a function to classify based on lat/long
+classify_region <- function(longitude, latitude) {
+  # Set Northeast boundary
+  ne_lon_min <- -81  # Adjust these values as needed
+  ne_lon_max <- -67
+  ne_lat_min <- 37
+  ne_lat_max <- 45
+
+  # Set Southeast boundary
+  se_lon_min <- -94
+  se_lon_max <- -75
+  se_lat_min <- 29
+  se_lat_max <- 38
+
+  # Set Midwest boundary
+  mw_lon_min <- -104
+  mw_lon_max <- -85
+  mw_lat_min <- 37
+  mw_lat_max <- 49
+
+  # Set Southwest boundary
+  sw_lon_min <- -114
+  sw_lon_max <- -103
+  sw_lat_min <- 29
+  sw_lat_max <- 41
+
+  # Set West boundary (rest of the US)
+  # Consider adding more specific checks for West sub-regions if needed
+
+  # Check conditions for each region
+  area <- character(length(longitude))
+  for (i in seq_along(longitude)) {
+    if (longitude[i] >= ne_lon_min & longitude[i] <= ne_lon_max &
+        latitude[i] >= ne_lat_min & latitude[i] <= ne_lat_max) {
+      area[i] <- "Northeast"
+    } else if (longitude[i] >= se_lon_min & longitude[i] <= se_lon_max &
+               latitude[i] >= se_lat_min & latitude[i] <= se_lat_max) {
+      area[i] <- "Southeast"
+    } else if (longitude[i] >= mw_lon_min & longitude[i] <= mw_lon_max &
+               latitude[i] >= mw_lat_min & latitude[i] <= mw_lat_max) {
+      area[i] <- "Midwest"
+    } else if (longitude[i] >= sw_lon_min & longitude[i] <= sw_lon_max &
+               latitude[i] >= sw_lat_min & latitude[i] <= sw_lat_max) {
+      area[i] <- "Southwest"
+    } else {
+      area[i] <- "West"  # Rest of the US (can be further classified if needed)
+    }
   }
+  return(area)
 }
 
-# Apply the function to generate the new variable
+# Use mutate to create a new column named "area"
 cleaned_eclipse_data <- cleaned_eclipse_data %>%
-  mutate(area = mapply(classify_geographical_area, lat, lon))
+  mutate(area = classify_region(lon, lat))
 
 # View the updated dataset
 print(cleaned_eclipse_data)

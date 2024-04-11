@@ -1385,43 +1385,77 @@ time (5): eclipse_1, eclipse_2, eclipse_3, eclipse_4, eclipse_5
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(cleaned_eclipse_data, <span class="at">file =</span> save_data_location)</span>
 <span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="co"># A little bit more data cleaning</span></span>
-<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Define function to classify geographical areas</span></span>
-<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>classify_geographical_area <span class="ot">&lt;-</span> <span class="cf">function</span>(latitude, longitude) {</span>
-<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (latitude <span class="sc">&gt;=</span> <span class="dv">37</span> <span class="sc">&amp;</span> latitude <span class="sc">&lt;=</span> <span class="dv">50</span> <span class="sc">&amp;</span> longitude <span class="sc">&gt;=</span> <span class="sc">-</span><span class="dv">125</span> <span class="sc">&amp;</span> longitude <span class="sc">&lt;=</span> <span class="sc">-</span><span class="dv">67</span>) {</span>
-<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="st">"Northeast"</span>)</span>
-<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (latitude <span class="sc">&gt;=</span> <span class="dv">25</span> <span class="sc">&amp;</span> latitude <span class="sc">&lt;=</span> <span class="dv">36</span> <span class="sc">&amp;</span> longitude <span class="sc">&gt;=</span> <span class="sc">-</span><span class="dv">109</span> <span class="sc">&amp;</span> longitude <span class="sc">&lt;=</span> <span class="sc">-</span><span class="dv">67</span>) {</span>
-<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="st">"Southeast"</span>)</span>
-<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (latitude <span class="sc">&gt;=</span> <span class="dv">35</span> <span class="sc">&amp;</span> latitude <span class="sc">&lt;=</span> <span class="dv">41</span> <span class="sc">&amp;</span> longitude <span class="sc">&gt;=</span> <span class="sc">-</span><span class="dv">109</span> <span class="sc">&amp;</span> longitude <span class="sc">&lt;=</span> <span class="sc">-</span><span class="dv">93</span>) {</span>
-<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="st">"Midwest"</span>)</span>
-<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (latitude <span class="sc">&gt;=</span> <span class="dv">31</span> <span class="sc">&amp;</span> latitude <span class="sc">&lt;=</span> <span class="dv">37</span> <span class="sc">&amp;</span> longitude <span class="sc">&gt;=</span> <span class="sc">-</span><span class="dv">109</span> <span class="sc">&amp;</span> longitude <span class="sc">&lt;=</span> <span class="sc">-</span><span class="dv">94</span>) {</span>
-<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="st">"Southwest"</span>)</span>
-<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (latitude <span class="sc">&gt;=</span> <span class="dv">32</span> <span class="sc">&amp;</span> latitude <span class="sc">&lt;=</span> <span class="dv">49</span> <span class="sc">&amp;</span> longitude <span class="sc">&gt;=</span> <span class="sc">-</span><span class="dv">124</span> <span class="sc">&amp;</span> longitude <span class="sc">&lt;=</span> <span class="sc">-</span><span class="dv">114</span>) {</span>
-<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="st">"West"</span>)</span>
-<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
-<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="st">"Other"</span>)</span>
-<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>  }</span>
-<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply the function to generate the new variable</span></span>
-<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>cleaned_eclipse_data <span class="ot">&lt;-</span> cleaned_eclipse_data <span class="sc">%&gt;%</span></span>
-<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">area =</span> <span class="fu">mapply</span>(classify_geographical_area, lat, lon))</span>
-<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a><span class="co"># View the updated dataset</span></span>
-<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(cleaned_eclipse_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Define a function to classify based on lat/long</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>classify_region <span class="ot">&lt;-</span> <span class="cf">function</span>(longitude, latitude) {</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set Northeast boundary</span></span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>  ne_lon_min <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">81</span>  <span class="co"># Adjust these values as needed</span></span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>  ne_lon_max <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">67</span></span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>  ne_lat_min <span class="ot">&lt;-</span> <span class="dv">37</span></span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>  ne_lat_max <span class="ot">&lt;-</span> <span class="dv">45</span></span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set Southeast boundary</span></span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>  se_lon_min <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">94</span></span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>  se_lon_max <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">75</span></span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>  se_lat_min <span class="ot">&lt;-</span> <span class="dv">29</span></span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>  se_lat_max <span class="ot">&lt;-</span> <span class="dv">38</span></span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set Midwest boundary</span></span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>  mw_lon_min <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">104</span></span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a>  mw_lon_max <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">85</span></span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a>  mw_lat_min <span class="ot">&lt;-</span> <span class="dv">37</span></span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>  mw_lat_max <span class="ot">&lt;-</span> <span class="dv">49</span></span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set Southwest boundary</span></span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a>  sw_lon_min <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">114</span></span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a>  sw_lon_max <span class="ot">&lt;-</span> <span class="sc">-</span><span class="dv">103</span></span>
+<span id="cb32-29"><a href="#cb32-29" aria-hidden="true" tabindex="-1"></a>  sw_lat_min <span class="ot">&lt;-</span> <span class="dv">29</span></span>
+<span id="cb32-30"><a href="#cb32-30" aria-hidden="true" tabindex="-1"></a>  sw_lat_max <span class="ot">&lt;-</span> <span class="dv">41</span></span>
+<span id="cb32-31"><a href="#cb32-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-32"><a href="#cb32-32" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set West boundary (rest of the US)</span></span>
+<span id="cb32-33"><a href="#cb32-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Consider adding more specific checks for West sub-regions if needed</span></span>
+<span id="cb32-34"><a href="#cb32-34" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-35"><a href="#cb32-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Check conditions for each region</span></span>
+<span id="cb32-36"><a href="#cb32-36" aria-hidden="true" tabindex="-1"></a>  area <span class="ot">&lt;-</span> <span class="fu">character</span>(<span class="fu">length</span>(longitude))</span>
+<span id="cb32-37"><a href="#cb32-37" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(longitude)) {</span>
+<span id="cb32-38"><a href="#cb32-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> (longitude[i] <span class="sc">&gt;=</span> ne_lon_min <span class="sc">&amp;</span> longitude[i] <span class="sc">&lt;=</span> ne_lon_max <span class="sc">&amp;</span></span>
+<span id="cb32-39"><a href="#cb32-39" aria-hidden="true" tabindex="-1"></a>        latitude[i] <span class="sc">&gt;=</span> ne_lat_min <span class="sc">&amp;</span> latitude[i] <span class="sc">&lt;=</span> ne_lat_max) {</span>
+<span id="cb32-40"><a href="#cb32-40" aria-hidden="true" tabindex="-1"></a>      area[i] <span class="ot">&lt;-</span> <span class="st">"Northeast"</span></span>
+<span id="cb32-41"><a href="#cb32-41" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (longitude[i] <span class="sc">&gt;=</span> se_lon_min <span class="sc">&amp;</span> longitude[i] <span class="sc">&lt;=</span> se_lon_max <span class="sc">&amp;</span></span>
+<span id="cb32-42"><a href="#cb32-42" aria-hidden="true" tabindex="-1"></a>               latitude[i] <span class="sc">&gt;=</span> se_lat_min <span class="sc">&amp;</span> latitude[i] <span class="sc">&lt;=</span> se_lat_max) {</span>
+<span id="cb32-43"><a href="#cb32-43" aria-hidden="true" tabindex="-1"></a>      area[i] <span class="ot">&lt;-</span> <span class="st">"Southeast"</span></span>
+<span id="cb32-44"><a href="#cb32-44" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (longitude[i] <span class="sc">&gt;=</span> mw_lon_min <span class="sc">&amp;</span> longitude[i] <span class="sc">&lt;=</span> mw_lon_max <span class="sc">&amp;</span></span>
+<span id="cb32-45"><a href="#cb32-45" aria-hidden="true" tabindex="-1"></a>               latitude[i] <span class="sc">&gt;=</span> mw_lat_min <span class="sc">&amp;</span> latitude[i] <span class="sc">&lt;=</span> mw_lat_max) {</span>
+<span id="cb32-46"><a href="#cb32-46" aria-hidden="true" tabindex="-1"></a>      area[i] <span class="ot">&lt;-</span> <span class="st">"Midwest"</span></span>
+<span id="cb32-47"><a href="#cb32-47" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> <span class="cf">if</span> (longitude[i] <span class="sc">&gt;=</span> sw_lon_min <span class="sc">&amp;</span> longitude[i] <span class="sc">&lt;=</span> sw_lon_max <span class="sc">&amp;</span></span>
+<span id="cb32-48"><a href="#cb32-48" aria-hidden="true" tabindex="-1"></a>               latitude[i] <span class="sc">&gt;=</span> sw_lat_min <span class="sc">&amp;</span> latitude[i] <span class="sc">&lt;=</span> sw_lat_max) {</span>
+<span id="cb32-49"><a href="#cb32-49" aria-hidden="true" tabindex="-1"></a>      area[i] <span class="ot">&lt;-</span> <span class="st">"Southwest"</span></span>
+<span id="cb32-50"><a href="#cb32-50" aria-hidden="true" tabindex="-1"></a>    } <span class="cf">else</span> {</span>
+<span id="cb32-51"><a href="#cb32-51" aria-hidden="true" tabindex="-1"></a>      area[i] <span class="ot">&lt;-</span> <span class="st">"West"</span>  <span class="co"># Rest of the US (can be further classified if needed)</span></span>
+<span id="cb32-52"><a href="#cb32-52" aria-hidden="true" tabindex="-1"></a>    }</span>
+<span id="cb32-53"><a href="#cb32-53" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb32-54"><a href="#cb32-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(area)</span>
+<span id="cb32-55"><a href="#cb32-55" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb32-56"><a href="#cb32-56" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-57"><a href="#cb32-57" aria-hidden="true" tabindex="-1"></a><span class="co"># Use mutate to create a new column named "area"</span></span>
+<span id="cb32-58"><a href="#cb32-58" aria-hidden="true" tabindex="-1"></a>cleaned_eclipse_data <span class="ot">&lt;-</span> cleaned_eclipse_data <span class="sc">%&gt;%</span></span>
+<span id="cb32-59"><a href="#cb32-59" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">area =</span> <span class="fu">classify_region</span>(lon, lat))</span>
+<span id="cb32-60"><a href="#cb32-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-61"><a href="#cb32-61" aria-hidden="true" tabindex="-1"></a><span class="co"># View the updated dataset</span></span>
+<span id="cb32-62"><a href="#cb32-62" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(cleaned_eclipse_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 4,141 × 6
-   state name                     lat   lon time_duration_minutes area 
-   &lt;chr&gt; &lt;chr&gt;                  &lt;dbl&gt; &lt;dbl&gt;                 &lt;dbl&gt; &lt;chr&gt;
- 1 AZ    Chilchinbito            36.5 -110.                  171. Other
- 2 AZ    Chinle                  36.2 -110.                  172. Other
- 3 AZ    Del Muerto              36.2 -109.                  172. Other
- 4 AZ    Dennehotso              36.8 -110.                  171. Other
- 5 AZ    Fort Defiance           35.7 -109.                  173. Other
- 6 AZ    Kayenta                 36.7 -110.                  171. Other
- 7 AZ    Lukachukai              36.4 -109.                  172. Other
- 8 AZ    Many Farms              36.3 -110.                  172. Other
- 9 AZ    Nazlini                 35.9 -109.                  172. Other
-10 AZ    Oljato-Monument Valley  37.0 -110.                  171. Other
+   state name                     lat   lon time_duration_minutes area     
+   &lt;chr&gt; &lt;chr&gt;                  &lt;dbl&gt; &lt;dbl&gt;                 &lt;dbl&gt; &lt;chr&gt;    
+ 1 AZ    Chilchinbito            36.5 -110.                  171. Southwest
+ 2 AZ    Chinle                  36.2 -110.                  172. Southwest
+ 3 AZ    Del Muerto              36.2 -109.                  172. Southwest
+ 4 AZ    Dennehotso              36.8 -110.                  171. Southwest
+ 5 AZ    Fort Defiance           35.7 -109.                  173. Southwest
+ 6 AZ    Kayenta                 36.7 -110.                  171. Southwest
+ 7 AZ    Lukachukai              36.4 -109.                  172. Southwest
+ 8 AZ    Many Farms              36.3 -110.                  172. Southwest
+ 9 AZ    Nazlini                 35.9 -109.                  172. Southwest
+10 AZ    Oljato-Monument Valley  37.0 -110.                  171. Southwest
 # ℹ 4,131 more rows</code></pre>
 </div>
 </div>
@@ -1809,7 +1843,7 @@ using the resamples with no tuning. Did you want to [tune()] parameters?</code><
 <span id="cb112-27"><a href="#cb112-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Print accuracy</span></span>
 <span id="cb112-28"><a href="#cb112-28" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Mean accuracy of Random Forest Classifier model:"</span>, accuracy, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Mean accuracy of Random Forest Classifier model: 0.9677928 </code></pre>
+<pre><code>Mean accuracy of Random Forest Classifier model: 0.8824406 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Random forest model for lon and lat</span></span>
 <span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the Random Forest model specification</span></span>
