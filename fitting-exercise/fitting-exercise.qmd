@@ -639,8 +639,6 @@ ggplot(plot_data_long, aes(x = Observed, y = value, color = name)) +
   scale_x_continuous(limits = c(0, 5000), expand = expansion(mult = c(0, 0.05))) +
   scale_y_continuous(limits = c(0, 5000), expand = expansion(mult = c(0, 0.05))) +
   coord_fixed(ratio = 1)
-
-
 ```
 
 ```{r}

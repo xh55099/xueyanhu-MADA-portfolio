@@ -2,4 +2,369 @@
 title: "Tidy Tuesday Exercise"
 ---
 
-Placeholder file for the future Tidy Tuesday exercise.
+### load packages
+
+```{r}
+library(ggplot2)
+library(maps)
+library(skimr)
+library(dplyr)
+library(caret)
+library(lattice)
+library(tidymodels)
+library(LiblineaR)
+library(yardstick)
+```
+
+### Load the dataset
+
+```{r}
+data_location1 <- here::here("tidytuesday-exercise","data","rawdata","eclipse_annular_2023.csv")
+eclipse_annular_2023 <- readr::read_csv(data_location1)
+data_location2 <- here::here("tidytuesday-exercise","data","rawdata","eclipse_partial_2023.csv")
+eclipse_partial_2023 <- readr::read_csv(data_location2)
+data_location3 <- here::here("tidytuesday-exercise","data","rawdata","eclipse_total_2024.csv")
+eclipse_total_2024 <- readr::read_csv(data_location3)
+data_location4 <- here::here("tidytuesday-exercise","data","rawdata","eclipse_partial_2024.csv")
+eclipse_partial_2024 <- readr::read_csv(data_location4)
+```
+
+### summarize dataset
+```{r}
+skim(eclipse_annular_2023)
+skim(eclipse_partial_2023)
+skim(eclipse_total_2024)
+skim(eclipse_partial_2024)
+```
+
+### EDA
+Firstly, I am thinking if I can check which States can witness eclipse in each year based on the type of eclipse. So I want to create maps pointing out the locations included in the datasets among the states.
+
+```{r}
+# US map data
+map_data_us <- map_data("usa")
+map_data_states <- map_data("state")
+
+# Plot the map1
+map1 <- ggplot() +
+  geom_polygon(data = map_data_us, aes(x = long, y = lat, group = group), fill = "lightblue") +
+  geom_polygon(data = map_data_states, aes(x = long, y = lat, group = group), fill = NA, color = "black") + # State boundaries
+  geom_point(data = eclipse_annular_2023, aes(x = lon, y = lat), color = "red", size = 1, alpha = 0.5) +  # Annular eclipse points
+  geom_point(data = eclipse_total_2024, aes(x = lon, y = lat), color = "red", size = 1, alpha = 0.5) +  # Total eclipse points
+  labs(title = "Annular Eclipse Cities in 2023 + Total Eclipse Cities in 2024 in the US",
+       x = "Longitude", y = "Latitude")
+
+# Display the plot
+print(map1)
+
+
+# Filter out Alaska data points
+eclipse_partial_2023_contiguous <- subset(eclipse_partial_2023, lat > 23 & lat < 50)
+
+# Plot the map1
+map2 <- ggplot() +
+  geom_polygon(data = map_data_us, aes(x = long, y = lat, group = group), fill = "lightblue") +
+  geom_polygon(data = map_data_states, aes(x = long, y = lat, group = group), fill = NA, color = "black") + # State boundaries
+  geom_point(data = eclipse_partial_2023_contiguous, aes(x = lon, y = lat), color = "blue", size = 1) +   # Partial eclipse points within mainland
+  labs(title = "Eclipse Cities in 2023 in the Contiguous US",
+       x = "Longitude", y = "Latitude") 
+
+# Display the plot
+print(map2)
+```
+So based on the maps, I have found that except for annular eclipse being observed, almost any other locations in the States were regarded as partial witness. And two strips in map1 crosses in Texas, which means living in the south part of Texas could witness both annular and total eclipse in 2023 and 2024.
+
+### data cleaning
+
+I think since annular eclipse and total eclipse are relatvie rare so I would like to explore a little bit more with these 2 dataset.
+
+### raise a question
+
+I wonder if the time duration of the visible eclipse is correlated to the location of the observation.
+
+```{r}
+# eclipse_annular_2023 new variable time duration
+eclipse_annular_2023 <- eclipse_annular_2023 %>%
+  mutate(
+    eclipse_1_posix = as.POSIXct(eclipse_1, format = "%H:%M:%S"),
+    eclipse_6_posix = as.POSIXct(eclipse_6, format = "%H:%M:%S"),
+    time_duration_minutes = as.numeric(difftime(eclipse_6_posix, eclipse_1_posix, units = "mins"))
+  )
+
+# Display the updated dataset
+print(eclipse_annular_2023)
+
+# select only interested variables
+eclipse_annular_2023_S <- eclipse_annular_2023 %>%
+  select("state","name","lat","lon","time_duration_minutes")
+
+# eclipse_total_2024 new variable time duration
+eclipse_total_2024 <- eclipse_total_2024 %>%
+  mutate(
+    eclipse_1_posix = as.POSIXct(eclipse_1, format = "%H:%M:%S"),
+    eclipse_6_posix = as.POSIXct(eclipse_6, format = "%H:%M:%S"),
+    time_duration_minutes = as.numeric(difftime(eclipse_6_posix, eclipse_1_posix, units = "mins"))
+  )
+
+# Display the updated dataset
+print(eclipse_total_2024)
+
+# select only interested variables
+eclipse_total_2024_S <- eclipse_total_2024 %>%
+  select("state","name","lat","lon","time_duration_minutes")
+
+# Combine 2 datasets
+cleaned_eclipse_data <- bind_rows(list(eclipse_annular_2023_S, eclipse_total_2024_S), .id = "dataset")
+
+# Remove the "dataset" variable
+cleaned_eclipse_data <- cleaned_eclipse_data %>%
+  select(-dataset)
+
+# check cleaned dataset
+head(cleaned_eclipse_data)
+
+# save the cleaned data file
+save_data_location <- here::here("tidytuesday-exercise","data","processeddata","processeddata.rds")
+saveRDS(cleaned_eclipse_data, file = save_data_location)
+
+# A little bit more of cleaning
+# Define function to classify geographical areas
+classify_geographical_area <- function(latitude, longitude) {
+  if (latitude >= 25 & latitude <= 50 & longitude >= -125 & longitude <= -67) {
+    return("Northeast")
+  } else if (latitude >= 24 & latitude <= 38 & longitude >= -97 & longitude <= -76) {
+    return("Southeast")
+  } else if (latitude >= 35 & latitude <= 49 & longitude >= -104 & longitude <= -93) {
+    return("Midwest")
+  } else if (latitude >= 31 & latitude <= 45 & longitude >= -107 & longitude <= -94) {
+    return("Southwest")
+  } else if (latitude >= 32 & latitude <= 49 & longitude >= -124 & longitude <= -114) {
+    return("West")
+  } else {
+    return("Other")
+  }
+}
+
+# Apply the function to generate the new variable
+cleaned_eclipse_data <- cleaned_eclipse_data %>%
+  mutate(area = mapply(classify_geographical_area, 
+                                    lat, 
+                                    lon))
+
+# View the updated dataset
+print(cleaned_eclipse_data)
+```
+
+### data splitting and model fitting
+
+Since both predictors and outcome are all continuous variables, I will firstly fit linear model to the dataset.
+
+```{r}
+# Set the seed for reproducibility
+set.seed(123)
+
+# Number of rows in the dataset
+n <- nrow(cleaned_eclipse_data)
+
+# Sample row indices for training data (75%) and test data (25%)
+train_indices <- sample(1:n, 0.75*n, replace = FALSE)
+test_indices <- setdiff(1:n, train_indices)
+
+# Split the data into training and test sets
+trainingData <- cleaned_eclipse_data[train_indices, ]
+testData <- cleaned_eclipse_data[test_indices, ]
+
+# Calculate null model
+mean_outcome <- mean(trainingData$time_duration_minutes)
+pred_null <- rep(mean_outcome, nrow(trainingData))
+
+# Calculate the RMSE (Root Mean Squared Error)
+rmse_null <- sqrt(mean((trainingData$time_duration_minutes - pred_null)^2))
+
+# Print the RMSE
+cat("RMSE for null model:", rmse_null, "\n")
+
+
+# fitting the first model: linear regression
+lm_mod <- linear_reg() %>% 
+  set_engine("lm") %>% 
+  set_mode("regression") 
+
+# create workflow
+lm_wf <- workflow() %>%
+  add_model(lm_mod) %>%
+  add_formula(time_duration_minutes ~ lon + lat)
+
+# Perform k-fold cross-validation
+lm_res <- fit_resamples(
+  lm_wf,
+  resamples = vfold_cv(trainingData, v = 10)  # 10-fold cross-validation
+)
+
+# Get RMSE and R-squared from the resamples
+rmse_lm <- lm_res %>%
+  collect_metrics() %>%
+  filter(.metric == "rmse") %>%
+  pull(mean)  # Access 'mean' column directly
+
+rsquared_lm <- lm_res %>%
+  collect_metrics() %>%
+  filter(.metric == "rsq") %>%
+  pull(mean)  # Access 'mean' column directly
+
+# Print RMSE and R-squared
+cat("Mean RMSE of linear model:", rmse_lm, "\n")
+cat("Mean Rsquared of linear model:", rsquared_lm, "\n")
+```
+
+```{r}
+# Calculate residuals and uncertainty
+
+# Initialize empty list to store bootstrap estimates
+bootstrap_results <- list()
+
+# Number of bootstrap resamples
+num_bootstraps <- 1000
+
+# Loop over each fold of cross-validation
+for (i in seq_along(lm_res)) {
+  # Get the training data for the current fold
+  fold_data <- analysis(lm_res[[i]])
+  
+  # Perform bootstrap resampling
+  boot_results <- boot(data = fold_data, statistic = function(data, indices) {
+    fit <- lm(time_duration_minutes ~ lon + lat, data = data[indices, ])
+    coef(fit)  # Extract model coefficients
+  }, R = num_bootstraps)
+  
+  # Store bootstrap results
+  bootstrap_results[[i]] <- boot_results
+}
+
+# Calculate uncertainty from bootstrap results
+# For example, you can calculate confidence intervals for model coefficients
+# Here, we calculate 95% confidence intervals
+confidence_intervals <- lapply(bootstrap_results, function(boot_results) {
+  apply(boot_results$t, 2, function(coefs) quantile(coefs, c(0.025, 0.975)))
+})
+
+# Print confidence intervals for each coefficient
+for (i in seq_along(confidence_intervals)) {
+  cat("Confidence intervals for fold", i, ":\n")
+  print(confidence_intervals[[i]])
+}
+```
+
+Considering longitude and latitude represent coordinate points on a plane or area, I am reminded support vector machine model which is a multi-dimensional model and also can be used for continuous variables. So I choose SVM as the second fitting model for the dataset.
+
+```{r}
+# Specify the SVM model
+svm_model <- svm_linear() %>%
+  set_mode("regression")
+
+# Define a workflow
+svm_wf <- workflow() %>%
+  add_model(svm_model) %>%
+  add_formula(time_duration_minutes ~ lon + lat)
+
+# Perform k-fold cross-validation
+svm_res <- fit_resamples(
+  svm_wf,
+  resamples = vfold_cv(trainingData, v = 10)  # 10-fold cross-validation
+)
+
+# Get RMSE and R-squared from the resamples
+rmse_svm <- svm_res %>%
+  collect_metrics() %>%
+  filter(.metric == "rmse") %>%
+  pull(mean)
+
+rsquared_svm <- svm_res %>%
+  collect_metrics() %>%
+  filter(.metric == "rsq") %>%
+  pull(mean)
+
+# Print mean RMSE and R-squared
+cat("Mean RMSE of SVM model:", rmse_svm, "\n")
+cat("Mean Rsquared of SVM model:", rsquared_svm, "\n")
+```
+
+I can't think of other proper models for the dataset so far with the current predictors. So I wonder if the time duration of eclipse could be a predictor for states. And I will fit the data with random forest model.
+
+After some trials, I found that I have too many categories so that when I do cross validation, there are a lot of subsets missing some categories which will lead to errors occurring. And the this cleaning part will be moved ahead of data splitting.
+
+
+
+```{r}
+# Define the Random Forest Classifier model specification
+rf_spec <- rand_forest() %>%
+  set_mode("classification") %>%
+  set_engine("ranger", importance = "permutation")
+
+# Define the recipe
+rf_recipe <- recipe(area ~ time_duration_minutes, data = trainingData) %>%
+  step_dummy(all_nominal(), -all_outcomes())
+
+# Combine the model specification and recipe into a workflow
+rf_wf <- workflow() %>%
+  add_recipe(rf_recipe) %>%
+  add_model(rf_spec)
+
+# Perform k-fold cross-validation
+rf_res <- fit_resamples(
+  rf_wf,
+  resamples = vfold_cv(trainingData, v = 10)  # 10-fold cross-validation
+)
+
+# Calculate accuracy from the cross-validated results
+accuracy <- rf_res %>%
+  collect_metrics() %>%
+  filter(.metric == "accuracy") %>%
+  pull(mean)
+
+# Print accuracy
+cat("Mean accuracy of Random Forest Classifier model:", accuracy, "\n")
+
+# Random forest model for lon and lat
+# Define the Random Forest model specification
+rf_spec_O <- rand_forest() %>%
+  set_mode("regression") %>%
+  set_engine("ranger")
+
+# Define the recipe
+rf_recipe_O <- recipe(time_duration_minutes ~ lon + lat, data = trainingData)
+
+# Combine the model specification and recipe into a workflow
+rf_wf_O <- workflow() %>%
+  add_model(rf_spec_O) %>%
+  add_recipe(rf_recipe_O)
+
+# Perform k-fold cross-validation
+rf_res_O <- fit_resamples(
+  rf_wf_O,
+  resamples = vfold_cv(trainingData, v = 10)  # 10-fold cross-validation
+)
+
+# Calculate RMSE and R-squared from the cross-validated results
+rmse_rf_O <- rf_res_O %>%
+  collect_metrics() %>%
+  filter(.metric == "rmse") %>%
+  pull(mean)
+
+rsquared_rf_O <- rf_res_O %>%
+  collect_metrics() %>%
+  filter(.metric == "rsq") %>%
+  pull(mean)
+
+# Print RMSE and R-squared
+cat("Mean RMSE of Random Forest model:", rmse_rf_O, "\n")
+cat("Mean R-squared of Random Forest model:", rsquared_rf_O, "\n")
+```
+
+The random forest model of time duration vs. longitude and latitude has relatively best performance where RMSE is 3.14 and R-square is 0.91. Then it goes with linear model of eclipse time duration vs. longitude and latitude where RMSE is 5.99 and R-square is 0.69. While the SVM model has higher RMSE (12.35) and lower R-square (0.36). RMSE of null model is 10.82 and R-suare is 
+
+### model assessment using test data
+
+```{r}
+
+```
