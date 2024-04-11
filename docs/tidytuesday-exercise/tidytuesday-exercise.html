@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -172,9 +206,1712 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>Placeholder file for the future Tidy Tuesday exercise.</p>
+<section id="load-packages" class="level3">
+<h3 class="anchored" data-anchor-id="load-packages">load packages</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(maps)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(skimr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'dplyr'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:stats':
+
+    filter, lag</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    intersect, setdiff, setequal, union</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(caret)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: lattice</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lattice)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidymodels)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Attaching packages ────────────────────────────────────── tidymodels 1.1.1 ──</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✔ broom        1.0.5     ✔ rsample      1.2.0
+✔ dials        1.2.0     ✔ tibble       3.2.1
+✔ infer        1.0.5     ✔ tidyr        1.3.1
+✔ modeldata    1.2.0     ✔ tune         1.1.2
+✔ parsnip      1.2.0     ✔ workflows    1.1.3
+✔ purrr        1.0.2     ✔ workflowsets 1.0.1
+✔ recipes      1.0.9     ✔ yardstick    1.2.0</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>── Conflicts ───────────────────────────────────────── tidymodels_conflicts() ──
+✖ purrr::discard()         masks scales::discard()
+✖ dplyr::filter()          masks stats::filter()
+✖ dplyr::lag()             masks stats::lag()
+✖ purrr::lift()            masks caret::lift()
+✖ purrr::map()             masks maps::map()
+✖ yardstick::precision()   masks caret::precision()
+✖ yardstick::recall()      masks caret::recall()
+✖ yardstick::sensitivity() masks caret::sensitivity()
+✖ yardstick::specificity() masks caret::specificity()
+✖ recipes::step()          masks stats::step()
+• Learn how to get started at https://www.tidymodels.org/start/</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(LiblineaR)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(yardstick)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="load-the-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="load-the-dataset">Load the dataset</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>data_location1 <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"tidytuesday-exercise"</span>,<span class="st">"data"</span>,<span class="st">"rawdata"</span>,<span class="st">"eclipse_annular_2023.csv"</span>)</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>eclipse_annular_2023 <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(data_location1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 811 Columns: 10
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (2): state, name
+dbl  (2): lat, lon
+time (6): eclipse_1, eclipse_2, eclipse_3, eclipse_4, eclipse_5, eclipse_6
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>data_location2 <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"tidytuesday-exercise"</span>,<span class="st">"data"</span>,<span class="st">"rawdata"</span>,<span class="st">"eclipse_partial_2023.csv"</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>eclipse_partial_2023 <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(data_location2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 31363 Columns: 9
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (2): state, name
+dbl  (2): lat, lon
+time (5): eclipse_1, eclipse_2, eclipse_3, eclipse_4, eclipse_5
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>data_location3 <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"tidytuesday-exercise"</span>,<span class="st">"data"</span>,<span class="st">"rawdata"</span>,<span class="st">"eclipse_total_2024.csv"</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>eclipse_total_2024 <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(data_location3)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 3330 Columns: 10
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (2): state, name
+dbl  (2): lat, lon
+time (6): eclipse_1, eclipse_2, eclipse_3, eclipse_4, eclipse_5, eclipse_6
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>data_location4 <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"tidytuesday-exercise"</span>,<span class="st">"data"</span>,<span class="st">"rawdata"</span>,<span class="st">"eclipse_partial_2024.csv"</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>eclipse_partial_2024 <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(data_location4)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 28844 Columns: 9
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (2): state, name
+dbl  (2): lat, lon
+time (5): eclipse_1, eclipse_2, eclipse_3, eclipse_4, eclipse_5
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+</div>
+</section>
+<section id="summarize-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="summarize-dataset">summarize dataset</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(eclipse_annular_2023)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">eclipse_annular_2023</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">811</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">character</td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">difftime</td>
+<td style="text-align: left;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 13%">
+<col style="width: 19%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">min</th>
+<th style="text-align: right;">max</th>
+<th style="text-align: right;">empty</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: right;">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">state</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">name</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">30</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">795</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: difftime</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 12%">
+<col style="width: 17%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 11%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: left;">min</th>
+<th style="text-align: left;">max</th>
+<th style="text-align: left;">median</th>
+<th style="text-align: right;">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">eclipse_1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">54300 secs</td>
+<td style="text-align: left;">55620 secs</td>
+<td style="text-align: left;">15:13:30</td>
+<td style="text-align: right;">118</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">eclipse_2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">56750 secs</td>
+<td style="text-align: left;">58710 secs</td>
+<td style="text-align: left;">16:00:20</td>
+<td style="text-align: right;">161</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">eclipse_3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">58555 secs</td>
+<td style="text-align: left;">61110 secs</td>
+<td style="text-align: left;">16:34:51</td>
+<td style="text-align: right;">632</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">eclipse_4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">58707 secs</td>
+<td style="text-align: left;">61266 secs</td>
+<td style="text-align: left;">16:38:23</td>
+<td style="text-align: right;">608</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">eclipse_5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">60690 secs</td>
+<td style="text-align: left;">63640 secs</td>
+<td style="text-align: left;">17:15:40</td>
+<td style="text-align: right;">212</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">eclipse_6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">63500 secs</td>
+<td style="text-align: left;">67120 secs</td>
+<td style="text-align: left;">18:09:20</td>
+<td style="text-align: right;">244</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 10%">
+<col style="width: 14%">
+<col style="width: 8%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 8%">
+<col style="width: 7%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">lat</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">35.41</td>
+<td style="text-align: right;">4.96</td>
+<td style="text-align: right;">27.22</td>
+<td style="text-align: right;">31.30</td>
+<td style="text-align: right;">35.42</td>
+<td style="text-align: right;">38.42</td>
+<td style="text-align: right;">44.87</td>
+<td style="text-align: left;">▅▂▇▂▃</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">lon</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-108.05</td>
+<td style="text-align: right;">8.27</td>
+<td style="text-align: right;">-124.45</td>
+<td style="text-align: right;">-111.98</td>
+<td style="text-align: right;">-106.70</td>
+<td style="text-align: right;">-101.36</td>
+<td style="text-align: right;">-96.72</td>
+<td style="text-align: left;">▅▁▆▇▇</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(eclipse_partial_2023)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">eclipse_partial_2023</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">31363</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">character</td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">difftime</td>
+<td style="text-align: left;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 13%">
+<col style="width: 19%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">min</th>
+<th style="text-align: right;">max</th>
+<th style="text-align: right;">empty</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: right;">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">state</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">name</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">20664</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: difftime</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 13%">
+<col style="width: 18%">
+<col style="width: 9%">
+<col style="width: 14%">
+<col style="width: 12%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: left;">min</th>
+<th style="text-align: left;">max</th>
+<th style="text-align: left;">median</th>
+<th style="text-align: right;">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">eclipse_1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">0 secs</td>
+<td style="text-align: left;">62930 secs</td>
+<td style="text-align: left;">15:35:30</td>
+<td style="text-align: right;">674</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">eclipse_2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">0 secs</td>
+<td style="text-align: left;">63230 secs</td>
+<td style="text-align: left;">16:15:30</td>
+<td style="text-align: right;">527</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">eclipse_3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">0 secs</td>
+<td style="text-align: left;">66310 secs</td>
+<td style="text-align: left;">16:59:20</td>
+<td style="text-align: right;">508</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">eclipse_4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">0 secs</td>
+<td style="text-align: left;">69240 secs</td>
+<td style="text-align: left;">17:44:50</td>
+<td style="text-align: right;">635</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">eclipse_5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">0 secs</td>
+<td style="text-align: left;">71550 secs</td>
+<td style="text-align: left;">18:28:10</td>
+<td style="text-align: right;">698</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 10%">
+<col style="width: 15%">
+<col style="width: 7%">
+<col style="width: 6%">
+<col style="width: 8%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">lat</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">38.80</td>
+<td style="text-align: right;">5.83</td>
+<td style="text-align: right;">17.96</td>
+<td style="text-align: right;">35.36</td>
+<td style="text-align: right;">39.56</td>
+<td style="text-align: right;">41.93</td>
+<td style="text-align: right;">71.25</td>
+<td style="text-align: left;">▁▇▇▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">lon</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-91.97</td>
+<td style="text-align: right;">15.70</td>
+<td style="text-align: right;">-176.60</td>
+<td style="text-align: right;">-97.50</td>
+<td style="text-align: right;">-89.26</td>
+<td style="text-align: right;">-81.14</td>
+<td style="text-align: right;">174.11</td>
+<td style="text-align: left;">▂▇▁▁▁</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(eclipse_total_2024)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">eclipse_total_2024</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">3330</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">10</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">character</td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">difftime</td>
+<td style="text-align: left;">6</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 13%">
+<col style="width: 19%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">min</th>
+<th style="text-align: right;">max</th>
+<th style="text-align: right;">empty</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: right;">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">state</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">name</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">33</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">2938</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: difftime</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 12%">
+<col style="width: 17%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 15%">
+<col style="width: 10%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: left;">min</th>
+<th style="text-align: left;">max</th>
+<th style="text-align: left;">median</th>
+<th style="text-align: right;">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">eclipse_1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">61820 secs</td>
+<td style="text-align: left;">66170 secs</td>
+<td style="text-align: left;">64175.0 secs</td>
+<td style="text-align: right;">416</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">eclipse_2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">64520 secs</td>
+<td style="text-align: left;">68660 secs</td>
+<td style="text-align: left;">66840.0 secs</td>
+<td style="text-align: right;">398</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">eclipse_3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">66450 secs</td>
+<td style="text-align: left;">70440 secs</td>
+<td style="text-align: left;">68727.5 secs</td>
+<td style="text-align: right;">2012</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">eclipse_4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">66624 secs</td>
+<td style="text-align: left;">70525 secs</td>
+<td style="text-align: left;">68909.0 secs</td>
+<td style="text-align: right;">2032</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">eclipse_5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">68680 secs</td>
+<td style="text-align: left;">72200 secs</td>
+<td style="text-align: left;">70770.0 secs</td>
+<td style="text-align: right;">340</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">eclipse_6</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">71480 secs</td>
+<td style="text-align: left;">74490 secs</td>
+<td style="text-align: left;">73340.0 secs</td>
+<td style="text-align: right;">293</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 10%">
+<col style="width: 15%">
+<col style="width: 7%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">lat</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">38.33</td>
+<td style="text-align: right;">3.98</td>
+<td style="text-align: right;">28.45</td>
+<td style="text-align: right;">35.42</td>
+<td style="text-align: right;">39.24</td>
+<td style="text-align: right;">41.22</td>
+<td style="text-align: right;">46.91</td>
+<td style="text-align: left;">▂▃▆▇▂</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">lon</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-86.93</td>
+<td style="text-align: right;">7.07</td>
+<td style="text-align: right;">-101.16</td>
+<td style="text-align: right;">-92.41</td>
+<td style="text-align: right;">-86.56</td>
+<td style="text-align: right;">-82.31</td>
+<td style="text-align: right;">-67.43</td>
+<td style="text-align: left;">▃▆▇▃▁</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">skim</span>(eclipse_partial_2024)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<caption>Data summary</caption>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Name</td>
+<td style="text-align: left;">eclipse_partial_2024</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Number of rows</td>
+<td style="text-align: left;">28844</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Number of columns</td>
+<td style="text-align: left;">9</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">_______________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Column type frequency:</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">character</td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">difftime</td>
+<td style="text-align: left;">5</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">numeric</td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">________________________</td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Group variables</td>
+<td style="text-align: left;">None</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: character</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 19%">
+<col style="width: 13%">
+<col style="width: 19%">
+<col style="width: 5%">
+<col style="width: 5%">
+<col style="width: 8%">
+<col style="width: 12%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">min</th>
+<th style="text-align: right;">max</th>
+<th style="text-align: right;">empty</th>
+<th style="text-align: right;">n_unique</th>
+<th style="text-align: right;">whitespace</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">state</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">52</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">name</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">57</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">19576</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: difftime</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 18%">
+<col style="width: 13%">
+<col style="width: 18%">
+<col style="width: 9%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: left;">min</th>
+<th style="text-align: left;">max</th>
+<th style="text-align: left;">median</th>
+<th style="text-align: right;">n_unique</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">eclipse_1</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">0 secs</td>
+<td style="text-align: left;">67380 secs</td>
+<td style="text-align: left;">63930 secs</td>
+<td style="text-align: right;">559</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">eclipse_2</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">0 secs</td>
+<td style="text-align: left;">68660 secs</td>
+<td style="text-align: left;">66260 secs</td>
+<td style="text-align: right;">570</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">eclipse_3</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">0 secs</td>
+<td style="text-align: left;">70480 secs</td>
+<td style="text-align: left;">68460 secs</td>
+<td style="text-align: right;">527</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">eclipse_4</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">0 secs</td>
+<td style="text-align: left;">72260 secs</td>
+<td style="text-align: left;">70620 secs</td>
+<td style="text-align: right;">492</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">eclipse_5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">0 secs</td>
+<td style="text-align: left;">74520 secs</td>
+<td style="text-align: left;">72920 secs</td>
+<td style="text-align: right;">583</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Variable type: numeric</strong></p>
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 10%">
+<col style="width: 15%">
+<col style="width: 7%">
+<col style="width: 6%">
+<col style="width: 8%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 7%">
+<col style="width: 6%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">skim_variable</th>
+<th style="text-align: right;">n_missing</th>
+<th style="text-align: right;">complete_rate</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">p0</th>
+<th style="text-align: right;">p25</th>
+<th style="text-align: right;">p50</th>
+<th style="text-align: right;">p75</th>
+<th style="text-align: right;">p100</th>
+<th style="text-align: left;">hist</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">lat</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">38.76</td>
+<td style="text-align: right;">6.01</td>
+<td style="text-align: right;">17.96</td>
+<td style="text-align: right;">35.24</td>
+<td style="text-align: right;">39.52</td>
+<td style="text-align: right;">42.04</td>
+<td style="text-align: right;">71.25</td>
+<td style="text-align: left;">▁▇▇▁▁</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">lon</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">-93.00</td>
+<td style="text-align: right;">16.35</td>
+<td style="text-align: right;">-176.60</td>
+<td style="text-align: right;">-99.08</td>
+<td style="text-align: right;">-90.30</td>
+<td style="text-align: right;">-81.16</td>
+<td style="text-align: right;">174.11</td>
+<td style="text-align: left;">▂▇▁▁▁</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="eda" class="level3">
+<h3 class="anchored" data-anchor-id="eda">EDA</h3>
+<p>Firstly, I am thinking if I can check which States can witness eclipse in each year based on the type of eclipse. So I want to create maps pointing out the locations included in the datasets among the states.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># US map data</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>map_data_us <span class="ot">&lt;-</span> <span class="fu">map_data</span>(<span class="st">"usa"</span>)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>map_data_states <span class="ot">&lt;-</span> <span class="fu">map_data</span>(<span class="st">"state"</span>)</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the map1</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>map1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_polygon</span>(<span class="at">data =</span> map_data_us, <span class="fu">aes</span>(<span class="at">x =</span> long, <span class="at">y =</span> lat, <span class="at">group =</span> group), <span class="at">fill =</span> <span class="st">"lightblue"</span>) <span class="sc">+</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_polygon</span>(<span class="at">data =</span> map_data_states, <span class="fu">aes</span>(<span class="at">x =</span> long, <span class="at">y =</span> lat, <span class="at">group =</span> group), <span class="at">fill =</span> <span class="cn">NA</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span> <span class="co"># State boundaries</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> eclipse_annular_2023, <span class="fu">aes</span>(<span class="at">x =</span> lon, <span class="at">y =</span> lat), <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span>  <span class="co"># Annular eclipse points</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> eclipse_total_2024, <span class="fu">aes</span>(<span class="at">x =</span> lon, <span class="at">y =</span> lat), <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">size =</span> <span class="dv">1</span>, <span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span>  <span class="co"># Total eclipse points</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Annular Eclipse Cities in 2023 + Total Eclipse Cities in 2024 in the US"</span>,</span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Longitude"</span>, <span class="at">y =</span> <span class="st">"Latitude"</span>)</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the plot</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(map1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="tidytuesday-exercise_files/figure-html/unnamed-chunk-4-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filter out Alaska data points</span></span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>eclipse_partial_2023_contiguous <span class="ot">&lt;-</span> <span class="fu">subset</span>(eclipse_partial_2023, lat <span class="sc">&gt;</span> <span class="dv">23</span> <span class="sc">&amp;</span> lat <span class="sc">&lt;</span> <span class="dv">50</span>)</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the map1</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>map2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_polygon</span>(<span class="at">data =</span> map_data_us, <span class="fu">aes</span>(<span class="at">x =</span> long, <span class="at">y =</span> lat, <span class="at">group =</span> group), <span class="at">fill =</span> <span class="st">"lightblue"</span>) <span class="sc">+</span></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_polygon</span>(<span class="at">data =</span> map_data_states, <span class="fu">aes</span>(<span class="at">x =</span> long, <span class="at">y =</span> lat, <span class="at">group =</span> group), <span class="at">fill =</span> <span class="cn">NA</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span> <span class="co"># State boundaries</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> eclipse_partial_2023_contiguous, <span class="fu">aes</span>(<span class="at">x =</span> lon, <span class="at">y =</span> lat), <span class="at">color =</span> <span class="st">"blue"</span>, <span class="at">size =</span> <span class="dv">1</span>) <span class="sc">+</span>   <span class="co"># Partial eclipse points within mainland</span></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Eclipse Cities in 2023 in the Contiguous US"</span>,</span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Longitude"</span>, <span class="at">y =</span> <span class="st">"Latitude"</span>) </span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the plot</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(map2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="tidytuesday-exercise_files/figure-html/unnamed-chunk-4-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>So based on the maps, I have found that except for annular eclipse being observed, almost any other locations in the States were regarded as partial witness. And two strips in map1 crosses in Texas, which means living in the south part of Texas could witness both annular and total eclipse in 2023 and 2024.</p>
+</section>
+<section id="data-cleaning" class="level3">
+<h3 class="anchored" data-anchor-id="data-cleaning">data cleaning</h3>
+<p>I think since annular eclipse and total eclipse are relatvie rare so I would like to explore a little bit more with these 2 dataset.</p>
+</section>
+<section id="raise-a-question" class="level3">
+<h3 class="anchored" data-anchor-id="raise-a-question">raise a question</h3>
+<p>I wonder if the time duration of the visible eclipse is correlated to the location of the observation.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># eclipse_annular_2023 new variable time duration</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>eclipse_annular_2023 <span class="ot">&lt;-</span> eclipse_annular_2023 <span class="sc">%&gt;%</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">eclipse_1_posix =</span> <span class="fu">as.POSIXct</span>(eclipse_1, <span class="at">format =</span> <span class="st">"%H:%M:%S"</span>),</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">eclipse_6_posix =</span> <span class="fu">as.POSIXct</span>(eclipse_6, <span class="at">format =</span> <span class="st">"%H:%M:%S"</span>),</span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">time_duration_minutes =</span> <span class="fu">as.numeric</span>(<span class="fu">difftime</span>(eclipse_6_posix, eclipse_1_posix, <span class="at">units =</span> <span class="st">"mins"</span>))</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the updated dataset</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(eclipse_annular_2023)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 811 × 13
+   state name        lat   lon eclipse_1 eclipse_2 eclipse_3 eclipse_4 eclipse_5
+   &lt;chr&gt; &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;time&gt;    &lt;time&gt;    &lt;time&gt;    &lt;time&gt;    &lt;time&gt;   
+ 1 AZ    Chilchin…  36.5 -110. 15:10:50  15:56:20  16:30:29  16:33:31  17:09:40 
+ 2 AZ    Chinle     36.2 -110. 15:11:10  15:56:50  16:31:21  16:34:06  17:10:30 
+ 3 AZ    Del Muer…  36.2 -109. 15:11:20  15:57:00  16:31:13  16:34:31  17:10:40 
+ 4 AZ    Dennehot…  36.8 -110. 15:10:50  15:56:20  16:29:50  16:34:07  17:09:40 
+ 5 AZ    Fort Def…  35.7 -109. 15:11:40  15:57:40  16:32:28  16:34:35  17:11:30 
+ 6 AZ    Kayenta    36.7 -110. 15:10:40  15:56:00  16:29:54  16:33:21  17:09:10 
+ 7 AZ    Lukachuk…  36.4 -109. 15:11:20  15:57:10  16:30:50  16:35:05  17:10:50 
+ 8 AZ    Many Far…  36.3 -110. 15:11:10  15:56:50  16:30:50  16:34:16  17:10:20 
+ 9 AZ    Nazlini    35.9 -109. 15:11:20  15:57:10  16:32:24  16:33:30  17:10:50 
+10 AZ    Oljato-M…  37.0 -110. 15:10:40  15:56:00  16:29:25  16:33:38  17:09:10 
+# ℹ 801 more rows
+# ℹ 4 more variables: eclipse_6 &lt;time&gt;, eclipse_1_posix &lt;dttm&gt;,
+#   eclipse_6_posix &lt;dttm&gt;, time_duration_minutes &lt;dbl&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># select only interested variables</span></span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>eclipse_annular_2023_S <span class="ot">&lt;-</span> eclipse_annular_2023 <span class="sc">%&gt;%</span></span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">"state"</span>,<span class="st">"name"</span>,<span class="st">"lat"</span>,<span class="st">"lon"</span>,<span class="st">"time_duration_minutes"</span>)</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a><span class="co"># eclipse_total_2024 new variable time duration</span></span>
+<span id="cb28-6"><a href="#cb28-6" aria-hidden="true" tabindex="-1"></a>eclipse_total_2024 <span class="ot">&lt;-</span> eclipse_total_2024 <span class="sc">%&gt;%</span></span>
+<span id="cb28-7"><a href="#cb28-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb28-8"><a href="#cb28-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">eclipse_1_posix =</span> <span class="fu">as.POSIXct</span>(eclipse_1, <span class="at">format =</span> <span class="st">"%H:%M:%S"</span>),</span>
+<span id="cb28-9"><a href="#cb28-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">eclipse_6_posix =</span> <span class="fu">as.POSIXct</span>(eclipse_6, <span class="at">format =</span> <span class="st">"%H:%M:%S"</span>),</span>
+<span id="cb28-10"><a href="#cb28-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">time_duration_minutes =</span> <span class="fu">as.numeric</span>(<span class="fu">difftime</span>(eclipse_6_posix, eclipse_1_posix, <span class="at">units =</span> <span class="st">"mins"</span>))</span>
+<span id="cb28-11"><a href="#cb28-11" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb28-12"><a href="#cb28-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb28-13"><a href="#cb28-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the updated dataset</span></span>
+<span id="cb28-14"><a href="#cb28-14" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(eclipse_total_2024)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3,330 × 13
+   state name        lat   lon eclipse_1 eclipse_2 eclipse_3 eclipse_4 eclipse_5
+   &lt;chr&gt; &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;time&gt;    &lt;time&gt;    &lt;time&gt;    &lt;time&gt;    &lt;time&gt;   
+ 1 AR    Acorn      34.6 -94.2 17:30:40  18:15:50  18:47:35  18:51:37  19:23:40 
+ 2 AR    Adona      35.0 -92.9 17:33:20  18:18:30  18:50:08  18:54:22  19:26:10 
+ 3 AR    Alexander  34.6 -92.5 17:33:20  18:18:30  18:51:09  18:53:38  19:26:20 
+ 4 AR    Alicia     35.9 -91.1 17:37:30  18:22:40  18:54:29  18:58:05  19:29:50 
+ 5 AR    Alix       35.4 -93.7 17:32:50  18:17:50  18:49:54  18:53:00  19:25:20 
+ 6 AR    Alleene    33.8 -94.3 17:29:10  18:14:20  18:46:15  18:50:16  19:22:30 
+ 7 AR    Alpine     34.2 -93.4 17:31:10  18:16:30  18:48:36  18:52:10  19:24:30 
+ 8 AR    Altus      35.4 -93.8 17:32:50  18:17:40  18:49:58  18:52:54  19:25:10 
+ 9 AR    Amagon     35.6 -91.1 17:37:00  18:22:10  18:54:33  18:57:02  19:29:30 
+10 AR    Amity      34.3 -93.5 17:31:10  18:16:20  18:48:22  18:52:12  19:24:20 
+# ℹ 3,320 more rows
+# ℹ 4 more variables: eclipse_6 &lt;time&gt;, eclipse_1_posix &lt;dttm&gt;,
+#   eclipse_6_posix &lt;dttm&gt;, time_duration_minutes &lt;dbl&gt;</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># select only interested variables</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>eclipse_total_2024_S <span class="ot">&lt;-</span> eclipse_total_2024 <span class="sc">%&gt;%</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">"state"</span>,<span class="st">"name"</span>,<span class="st">"lat"</span>,<span class="st">"lon"</span>,<span class="st">"time_duration_minutes"</span>)</span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine 2 datasets</span></span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>cleaned_eclipse_data <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(<span class="fu">list</span>(eclipse_annular_2023_S, eclipse_total_2024_S), <span class="at">.id =</span> <span class="st">"dataset"</span>)</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove the "dataset" variable</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>cleaned_eclipse_data <span class="ot">&lt;-</span> cleaned_eclipse_data <span class="sc">%&gt;%</span></span>
+<span id="cb30-10"><a href="#cb30-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>dataset)</span>
+<span id="cb30-11"><a href="#cb30-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-12"><a href="#cb30-12" aria-hidden="true" tabindex="-1"></a><span class="co"># check cleaned dataset</span></span>
+<span id="cb30-13"><a href="#cb30-13" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(cleaned_eclipse_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 5
+  state name            lat   lon time_duration_minutes
+  &lt;chr&gt; &lt;chr&gt;         &lt;dbl&gt; &lt;dbl&gt;                 &lt;dbl&gt;
+1 AZ    Chilchinbito   36.5 -110.                  171.
+2 AZ    Chinle         36.2 -110.                  172.
+3 AZ    Del Muerto     36.2 -109.                  172.
+4 AZ    Dennehotso     36.8 -110.                  171.
+5 AZ    Fort Defiance  35.7 -109.                  173.
+6 AZ    Kayenta        36.7 -110.                  171.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># save the cleaned data file</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>save_data_location <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"tidytuesday-exercise"</span>,<span class="st">"data"</span>,<span class="st">"processeddata"</span>,<span class="st">"processeddata.rds"</span>)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(cleaned_eclipse_data, <span class="at">file =</span> save_data_location)</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a><span class="co"># A little bit more data cleaning</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Define function to classify geographical areas</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a>classify_geographical_area <span class="ot">&lt;-</span> <span class="cf">function</span>(latitude, longitude) {</span>
+<span id="cb32-8"><a href="#cb32-8" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> (latitude <span class="sc">&gt;=</span> <span class="dv">37</span> <span class="sc">&amp;</span> latitude <span class="sc">&lt;=</span> <span class="dv">50</span> <span class="sc">&amp;</span> longitude <span class="sc">&gt;=</span> <span class="sc">-</span><span class="dv">125</span> <span class="sc">&amp;</span> longitude <span class="sc">&lt;=</span> <span class="sc">-</span><span class="dv">67</span>) {</span>
+<span id="cb32-9"><a href="#cb32-9" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="st">"Northeast"</span>)</span>
+<span id="cb32-10"><a href="#cb32-10" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (latitude <span class="sc">&gt;=</span> <span class="dv">25</span> <span class="sc">&amp;</span> latitude <span class="sc">&lt;=</span> <span class="dv">36</span> <span class="sc">&amp;</span> longitude <span class="sc">&gt;=</span> <span class="sc">-</span><span class="dv">109</span> <span class="sc">&amp;</span> longitude <span class="sc">&lt;=</span> <span class="sc">-</span><span class="dv">67</span>) {</span>
+<span id="cb32-11"><a href="#cb32-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="st">"Southeast"</span>)</span>
+<span id="cb32-12"><a href="#cb32-12" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (latitude <span class="sc">&gt;=</span> <span class="dv">35</span> <span class="sc">&amp;</span> latitude <span class="sc">&lt;=</span> <span class="dv">41</span> <span class="sc">&amp;</span> longitude <span class="sc">&gt;=</span> <span class="sc">-</span><span class="dv">109</span> <span class="sc">&amp;</span> longitude <span class="sc">&lt;=</span> <span class="sc">-</span><span class="dv">93</span>) {</span>
+<span id="cb32-13"><a href="#cb32-13" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="st">"Midwest"</span>)</span>
+<span id="cb32-14"><a href="#cb32-14" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (latitude <span class="sc">&gt;=</span> <span class="dv">31</span> <span class="sc">&amp;</span> latitude <span class="sc">&lt;=</span> <span class="dv">37</span> <span class="sc">&amp;</span> longitude <span class="sc">&gt;=</span> <span class="sc">-</span><span class="dv">109</span> <span class="sc">&amp;</span> longitude <span class="sc">&lt;=</span> <span class="sc">-</span><span class="dv">94</span>) {</span>
+<span id="cb32-15"><a href="#cb32-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="st">"Southwest"</span>)</span>
+<span id="cb32-16"><a href="#cb32-16" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> <span class="cf">if</span> (latitude <span class="sc">&gt;=</span> <span class="dv">32</span> <span class="sc">&amp;</span> latitude <span class="sc">&lt;=</span> <span class="dv">49</span> <span class="sc">&amp;</span> longitude <span class="sc">&gt;=</span> <span class="sc">-</span><span class="dv">124</span> <span class="sc">&amp;</span> longitude <span class="sc">&lt;=</span> <span class="sc">-</span><span class="dv">114</span>) {</span>
+<span id="cb32-17"><a href="#cb32-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="st">"West"</span>)</span>
+<span id="cb32-18"><a href="#cb32-18" aria-hidden="true" tabindex="-1"></a>  } <span class="cf">else</span> {</span>
+<span id="cb32-19"><a href="#cb32-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="st">"Other"</span>)</span>
+<span id="cb32-20"><a href="#cb32-20" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb32-21"><a href="#cb32-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb32-22"><a href="#cb32-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-23"><a href="#cb32-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Apply the function to generate the new variable</span></span>
+<span id="cb32-24"><a href="#cb32-24" aria-hidden="true" tabindex="-1"></a>cleaned_eclipse_data <span class="ot">&lt;-</span> cleaned_eclipse_data <span class="sc">%&gt;%</span></span>
+<span id="cb32-25"><a href="#cb32-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">area =</span> <span class="fu">mapply</span>(classify_geographical_area, lat, lon))</span>
+<span id="cb32-26"><a href="#cb32-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-27"><a href="#cb32-27" aria-hidden="true" tabindex="-1"></a><span class="co"># View the updated dataset</span></span>
+<span id="cb32-28"><a href="#cb32-28" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(cleaned_eclipse_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4,141 × 6
+   state name                     lat   lon time_duration_minutes area 
+   &lt;chr&gt; &lt;chr&gt;                  &lt;dbl&gt; &lt;dbl&gt;                 &lt;dbl&gt; &lt;chr&gt;
+ 1 AZ    Chilchinbito            36.5 -110.                  171. Other
+ 2 AZ    Chinle                  36.2 -110.                  172. Other
+ 3 AZ    Del Muerto              36.2 -109.                  172. Other
+ 4 AZ    Dennehotso              36.8 -110.                  171. Other
+ 5 AZ    Fort Defiance           35.7 -109.                  173. Other
+ 6 AZ    Kayenta                 36.7 -110.                  171. Other
+ 7 AZ    Lukachukai              36.4 -109.                  172. Other
+ 8 AZ    Many Farms              36.3 -110.                  172. Other
+ 9 AZ    Nazlini                 35.9 -109.                  172. Other
+10 AZ    Oljato-Monument Valley  37.0 -110.                  171. Other
+# ℹ 4,131 more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="data-splitting-and-model-fitting" class="level3">
+<h3 class="anchored" data-anchor-id="data-splitting-and-model-fitting">data splitting and model fitting</h3>
+<p>Since both predictors and outcome are all continuous variables, I will firstly fit linear model to the dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set the seed for reproducibility</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Number of rows in the dataset</span></span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>n <span class="ot">&lt;-</span> <span class="fu">nrow</span>(cleaned_eclipse_data)</span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Sample row indices for training data (75%) and test data (25%)</span></span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>train_indices <span class="ot">&lt;-</span> <span class="fu">sample</span>(<span class="dv">1</span><span class="sc">:</span>n, <span class="fl">0.75</span><span class="sc">*</span>n, <span class="at">replace =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>test_indices <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="dv">1</span><span class="sc">:</span>n, train_indices)</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Split the data into training and test sets</span></span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>trainingData <span class="ot">&lt;-</span> cleaned_eclipse_data[train_indices, ]</span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>testData <span class="ot">&lt;-</span> cleaned_eclipse_data[test_indices, ]</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate null model</span></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>mean_outcome <span class="ot">&lt;-</span> <span class="fu">mean</span>(trainingData<span class="sc">$</span>time_duration_minutes)</span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>pred_null <span class="ot">&lt;-</span> <span class="fu">rep</span>(mean_outcome, <span class="fu">nrow</span>(trainingData))</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate the RMSE (Root Mean Squared Error)</span></span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>rmse_null <span class="ot">&lt;-</span> <span class="fu">sqrt</span>(<span class="fu">mean</span>((trainingData<span class="sc">$</span>time_duration_minutes <span class="sc">-</span> pred_null)<span class="sc">^</span><span class="dv">2</span>))</span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the RMSE</span></span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"RMSE for null model:"</span>, rmse_null, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RMSE for null model: 10.82122 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># fitting the first model: linear regression</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>lm_mod <span class="ot">&lt;-</span> <span class="fu">linear_reg</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"lm"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>) </span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="co"># create workflow</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>lm_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(lm_mod) <span class="sc">%&gt;%</span></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_formula</span>(time_duration_minutes <span class="sc">~</span> lon <span class="sc">+</span> lat)</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform k-fold cross-validation</span></span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>lm_res <span class="ot">&lt;-</span> <span class="fu">fit_resamples</span>(</span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>  lm_wf,</span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>  <span class="at">resamples =</span> <span class="fu">vfold_cv</span>(trainingData, <span class="at">v =</span> <span class="dv">10</span>)  <span class="co"># 10-fold cross-validation</span></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Get RMSE and R-squared from the resamples</span></span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>rmse_lm <span class="ot">&lt;-</span> lm_res <span class="sc">%&gt;%</span></span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rmse"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(mean)  <span class="co"># Access 'mean' column directly</span></span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>rsquared_lm <span class="ot">&lt;-</span> lm_res <span class="sc">%&gt;%</span></span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rsq"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(mean)  <span class="co"># Access 'mean' column directly</span></span>
+<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-28"><a href="#cb36-28" aria-hidden="true" tabindex="-1"></a><span class="co"># Print RMSE and R-squared</span></span>
+<span id="cb36-29"><a href="#cb36-29" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Mean RMSE of linear model:"</span>, rmse_lm, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean RMSE of linear model: 5.993456 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Mean Rsquared of linear model:"</span>, rsquared_lm, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean Rsquared of linear model: 0.6932969 </code></pre>
+</div>
+</div>
+<p>Considering longitude and latitude represent coordinate points on a plane or area, I am reminded support vector machine model which is a multi-dimensional model and also can be used for continuous variables. So I choose SVM as the second fitting model for the dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Specify the SVM model</span></span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>svm_model <span class="ot">&lt;-</span> <span class="fu">svm_linear</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>)</span>
+<span id="cb40-4"><a href="#cb40-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-5"><a href="#cb40-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Define a workflow</span></span>
+<span id="cb40-6"><a href="#cb40-6" aria-hidden="true" tabindex="-1"></a>svm_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb40-7"><a href="#cb40-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(svm_model) <span class="sc">%&gt;%</span></span>
+<span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_formula</span>(time_duration_minutes <span class="sc">~</span> lon <span class="sc">+</span> lat)</span>
+<span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-10"><a href="#cb40-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform k-fold cross-validation</span></span>
+<span id="cb40-11"><a href="#cb40-11" aria-hidden="true" tabindex="-1"></a>svm_res <span class="ot">&lt;-</span> <span class="fu">fit_resamples</span>(</span>
+<span id="cb40-12"><a href="#cb40-12" aria-hidden="true" tabindex="-1"></a>  svm_wf,</span>
+<span id="cb40-13"><a href="#cb40-13" aria-hidden="true" tabindex="-1"></a>  <span class="at">resamples =</span> <span class="fu">vfold_cv</span>(trainingData, <span class="at">v =</span> <span class="dv">10</span>)  <span class="co"># 10-fold cross-validation</span></span>
+<span id="cb40-14"><a href="#cb40-14" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb40-15"><a href="#cb40-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-16"><a href="#cb40-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Get RMSE and R-squared from the resamples</span></span>
+<span id="cb40-17"><a href="#cb40-17" aria-hidden="true" tabindex="-1"></a>rmse_svm <span class="ot">&lt;-</span> svm_res <span class="sc">%&gt;%</span></span>
+<span id="cb40-18"><a href="#cb40-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb40-19"><a href="#cb40-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rmse"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb40-20"><a href="#cb40-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(mean)</span>
+<span id="cb40-21"><a href="#cb40-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-22"><a href="#cb40-22" aria-hidden="true" tabindex="-1"></a>rsquared_svm <span class="ot">&lt;-</span> svm_res <span class="sc">%&gt;%</span></span>
+<span id="cb40-23"><a href="#cb40-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb40-24"><a href="#cb40-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rsq"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb40-25"><a href="#cb40-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(mean)</span>
+<span id="cb40-26"><a href="#cb40-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb40-27"><a href="#cb40-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Print mean RMSE and R-squared</span></span>
+<span id="cb40-28"><a href="#cb40-28" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Mean RMSE of SVM model:"</span>, rmse_svm, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean RMSE of SVM model: 12.40086 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Mean Rsquared of SVM model:"</span>, rsquared_svm, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean Rsquared of SVM model: 0.3463916 </code></pre>
+</div>
+</div>
+<p>I asked chatGPT why SVM model has worse performance even than null model and it told me SVM model has hyperparameters that could be adjust. So I will try to do some tuning here.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define an expanded grid of hyperparameters to search over</span></span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a>svm_grid <span class="ot">&lt;-</span> <span class="fu">expand.grid</span>(</span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">C =</span> <span class="fu">c</span>(<span class="fl">0.01</span>, <span class="fl">0.1</span>, <span class="dv">1</span>, <span class="dv">10</span>, <span class="dv">100</span>),  <span class="co"># Expanded range for regularization parameter</span></span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">kernel =</span> <span class="fu">c</span>(<span class="st">"linear"</span>, <span class="st">"radial"</span>, <span class="st">"polynomial"</span>, <span class="st">"sigmoid"</span>)  <span class="co"># Additional kernel functions</span></span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Define a workflow for hyperparameter tuning</span></span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a>svm_wf_tune <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(svm_model) <span class="sc">%&gt;%</span></span>
+<span id="cb44-10"><a href="#cb44-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_formula</span>(time_duration_minutes <span class="sc">~</span> lon <span class="sc">+</span> lat)</span>
+<span id="cb44-11"><a href="#cb44-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-12"><a href="#cb44-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform grid search cross-validation with hyperparameter tuning</span></span>
+<span id="cb44-13"><a href="#cb44-13" aria-hidden="true" tabindex="-1"></a>svm_res_tune <span class="ot">&lt;-</span> <span class="fu">tune_grid</span>(</span>
+<span id="cb44-14"><a href="#cb44-14" aria-hidden="true" tabindex="-1"></a>  svm_wf_tune,</span>
+<span id="cb44-15"><a href="#cb44-15" aria-hidden="true" tabindex="-1"></a>  <span class="at">resamples =</span> <span class="fu">vfold_cv</span>(trainingData, <span class="at">v =</span> <span class="dv">10</span>),  <span class="co"># 10-fold cross-validation</span></span>
+<span id="cb44-16"><a href="#cb44-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">grid =</span> svm_grid,  <span class="co"># Specify the hyperparameter grid</span></span>
+<span id="cb44-17"><a href="#cb44-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">control =</span> <span class="fu">control_grid</span>(<span class="at">verbose =</span> <span class="cn">TRUE</span>)  <span class="co"># Display progress</span></span>
+<span id="cb44-18"><a href="#cb44-18" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: No tuning parameters have been detected, performance will be evaluated
+using the resamples with no tuning. Did you want to [tune()] parameters?</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold01: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold01: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold01: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold01: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold01: preprocessor 1/1, model 1/1 (extracts)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold01: preprocessor 1/1, model 1/1 (predictions)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold02: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold02: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold02: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold02: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold02: preprocessor 1/1, model 1/1 (extracts)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold02: preprocessor 1/1, model 1/1 (predictions)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold03: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold03: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold03: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold03: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold03: preprocessor 1/1, model 1/1 (extracts)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold03: preprocessor 1/1, model 1/1 (predictions)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold04: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold04: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold04: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold04: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold04: preprocessor 1/1, model 1/1 (extracts)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold04: preprocessor 1/1, model 1/1 (predictions)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold05: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold05: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold05: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold05: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold05: preprocessor 1/1, model 1/1 (extracts)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold05: preprocessor 1/1, model 1/1 (predictions)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold06: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold06: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold06: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold06: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold06: preprocessor 1/1, model 1/1 (extracts)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold06: preprocessor 1/1, model 1/1 (predictions)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold07: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold07: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold07: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold07: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold07: preprocessor 1/1, model 1/1 (extracts)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold07: preprocessor 1/1, model 1/1 (predictions)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold08: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold08: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold08: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold08: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold08: preprocessor 1/1, model 1/1 (extracts)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold08: preprocessor 1/1, model 1/1 (predictions)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold09: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold09: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold09: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold09: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold09: preprocessor 1/1, model 1/1 (extracts)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold09: preprocessor 1/1, model 1/1 (predictions)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold10: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold10: preprocessor 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold10: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>✓ Fold10: preprocessor 1/1, model 1/1</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold10: preprocessor 1/1, model 1/1 (extracts)</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>i Fold10: preprocessor 1/1, model 1/1 (predictions)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the best performing model</span></span>
+<span id="cb106-2"><a href="#cb106-2" aria-hidden="true" tabindex="-1"></a>best_model <span class="ot">&lt;-</span> <span class="fu">select_best</span>(svm_res_tune, <span class="st">"rmse"</span>)</span>
+<span id="cb106-3"><a href="#cb106-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb106-4"><a href="#cb106-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Get the hyperparameters of the best performing model</span></span>
+<span id="cb106-5"><a href="#cb106-5" aria-hidden="true" tabindex="-1"></a>best_params <span class="ot">&lt;-</span> best_model<span class="sc">$</span>workflow<span class="sc">$</span>parameters</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Unknown or uninitialised column: `workflow`.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define a new workflow with the best hyperparameters</span></span>
+<span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a>final_svm_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb108-3"><a href="#cb108-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(svm_model <span class="sc">%&gt;%</span> <span class="fu">set_args</span>(best_params)) <span class="sc">%&gt;%</span></span>
+<span id="cb108-4"><a href="#cb108-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_formula</span>(time_duration_minutes <span class="sc">~</span> lon <span class="sc">+</span> lat)</span>
+<span id="cb108-5"><a href="#cb108-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb108-6"><a href="#cb108-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform k-fold cross-validation with the final model</span></span>
+<span id="cb108-7"><a href="#cb108-7" aria-hidden="true" tabindex="-1"></a>final_svm_res <span class="ot">&lt;-</span> <span class="fu">fit_resamples</span>(</span>
+<span id="cb108-8"><a href="#cb108-8" aria-hidden="true" tabindex="-1"></a>  final_svm_wf,</span>
+<span id="cb108-9"><a href="#cb108-9" aria-hidden="true" tabindex="-1"></a>  <span class="at">resamples =</span> <span class="fu">vfold_cv</span>(trainingData, <span class="at">v =</span> <span class="dv">10</span>)  <span class="co"># 10-fold cross-validation</span></span>
+<span id="cb108-10"><a href="#cb108-10" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb108-11"><a href="#cb108-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb108-12"><a href="#cb108-12" aria-hidden="true" tabindex="-1"></a><span class="co"># Get RMSE and R-squared from the resamples</span></span>
+<span id="cb108-13"><a href="#cb108-13" aria-hidden="true" tabindex="-1"></a>rmse_final <span class="ot">&lt;-</span> final_svm_res <span class="sc">%&gt;%</span></span>
+<span id="cb108-14"><a href="#cb108-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb108-15"><a href="#cb108-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rmse"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb108-16"><a href="#cb108-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(mean)</span>
+<span id="cb108-17"><a href="#cb108-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb108-18"><a href="#cb108-18" aria-hidden="true" tabindex="-1"></a>rsquared_final <span class="ot">&lt;-</span> final_svm_res <span class="sc">%&gt;%</span></span>
+<span id="cb108-19"><a href="#cb108-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb108-20"><a href="#cb108-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rsq"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb108-21"><a href="#cb108-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(mean)</span>
+<span id="cb108-22"><a href="#cb108-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb108-23"><a href="#cb108-23" aria-hidden="true" tabindex="-1"></a><span class="co"># Print mean RMSE and R-squared</span></span>
+<span id="cb108-24"><a href="#cb108-24" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Mean RMSE of SVM model with optimized hyperparameters:"</span>, rmse_final, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean RMSE of SVM model with optimized hyperparameters: 12.38586 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Mean Rsquared of SVM model with optimized hyperparameters:"</span>, rsquared_final, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean Rsquared of SVM model with optimized hyperparameters: 0.3459691 </code></pre>
+</div>
+</div>
+<p>After tuning, RMSE and R-square only have slight changes.</p>
+<p>I can’t think of other proper models for the dataset so far with the current predictors. So I wonder if the time duration of eclipse could be a predictor for states. And I will fit the data with random forest model.</p>
+<p>After some trials, I found that I have too many categories so that when I do cross validation, there are a lot of subsets missing some categories which will lead to errors occurring. And the this cleaning part will be moved ahead of data splitting.</p>
+<p>I found that I cannot get the code work</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb112"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb112-1"><a href="#cb112-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the Random Forest model specification</span></span>
+<span id="cb112-2"><a href="#cb112-2" aria-hidden="true" tabindex="-1"></a>rf_spec <span class="ot">&lt;-</span> <span class="fu">rand_forest</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb112-3"><a href="#cb112-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb112-4"><a href="#cb112-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"ranger"</span>)</span>
+<span id="cb112-5"><a href="#cb112-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb112-6"><a href="#cb112-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the recipe</span></span>
+<span id="cb112-7"><a href="#cb112-7" aria-hidden="true" tabindex="-1"></a>rf_recipe <span class="ot">&lt;-</span> <span class="fu">recipe</span>(area <span class="sc">~</span> time_duration_minutes, <span class="at">data =</span> trainingData) <span class="sc">%&gt;%</span></span>
+<span id="cb112-8"><a href="#cb112-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal</span>(), <span class="sc">-</span><span class="fu">all_outcomes</span>())</span>
+<span id="cb112-9"><a href="#cb112-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb112-10"><a href="#cb112-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine the model specification and recipe into a workflow</span></span>
+<span id="cb112-11"><a href="#cb112-11" aria-hidden="true" tabindex="-1"></a>rf_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb112-12"><a href="#cb112-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(rf_recipe) <span class="sc">%&gt;%</span></span>
+<span id="cb112-13"><a href="#cb112-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(rf_spec)</span>
+<span id="cb112-14"><a href="#cb112-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb112-15"><a href="#cb112-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform k-fold cross-validation</span></span>
+<span id="cb112-16"><a href="#cb112-16" aria-hidden="true" tabindex="-1"></a>rf_res <span class="ot">&lt;-</span> <span class="fu">fit_resamples</span>(</span>
+<span id="cb112-17"><a href="#cb112-17" aria-hidden="true" tabindex="-1"></a>  rf_wf,</span>
+<span id="cb112-18"><a href="#cb112-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">resamples =</span> <span class="fu">vfold_cv</span>(trainingData, <span class="at">v =</span> <span class="dv">10</span>)  <span class="co"># 10-fold cross-validation</span></span>
+<span id="cb112-19"><a href="#cb112-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb112-20"><a href="#cb112-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb112-21"><a href="#cb112-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate accuracy from the cross-validated results</span></span>
+<span id="cb112-22"><a href="#cb112-22" aria-hidden="true" tabindex="-1"></a>accuracy <span class="ot">&lt;-</span> rf_res <span class="sc">%&gt;%</span></span>
+<span id="cb112-23"><a href="#cb112-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb112-24"><a href="#cb112-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"accuracy"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb112-25"><a href="#cb112-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(mean)</span>
+<span id="cb112-26"><a href="#cb112-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb112-27"><a href="#cb112-27" aria-hidden="true" tabindex="-1"></a><span class="co"># Print accuracy</span></span>
+<span id="cb112-28"><a href="#cb112-28" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Mean accuracy of Random Forest Classifier model:"</span>, accuracy, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean accuracy of Random Forest Classifier model: 0.9677928 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Random forest model for lon and lat</span></span>
+<span id="cb114-2"><a href="#cb114-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the Random Forest model specification</span></span>
+<span id="cb114-3"><a href="#cb114-3" aria-hidden="true" tabindex="-1"></a>rf_spec_O <span class="ot">&lt;-</span> <span class="fu">rand_forest</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb114-4"><a href="#cb114-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"regression"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb114-5"><a href="#cb114-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"ranger"</span>)</span>
+<span id="cb114-6"><a href="#cb114-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb114-7"><a href="#cb114-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the recipe</span></span>
+<span id="cb114-8"><a href="#cb114-8" aria-hidden="true" tabindex="-1"></a>rf_recipe_O <span class="ot">&lt;-</span> <span class="fu">recipe</span>(time_duration_minutes <span class="sc">~</span> lon <span class="sc">+</span> lat, <span class="at">data =</span> trainingData)</span>
+<span id="cb114-9"><a href="#cb114-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb114-10"><a href="#cb114-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Combine the model specification and recipe into a workflow</span></span>
+<span id="cb114-11"><a href="#cb114-11" aria-hidden="true" tabindex="-1"></a>rf_wf_O <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb114-12"><a href="#cb114-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(rf_spec_O) <span class="sc">%&gt;%</span></span>
+<span id="cb114-13"><a href="#cb114-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(rf_recipe_O)</span>
+<span id="cb114-14"><a href="#cb114-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb114-15"><a href="#cb114-15" aria-hidden="true" tabindex="-1"></a><span class="co"># Perform k-fold cross-validation</span></span>
+<span id="cb114-16"><a href="#cb114-16" aria-hidden="true" tabindex="-1"></a>rf_res_O <span class="ot">&lt;-</span> <span class="fu">fit_resamples</span>(</span>
+<span id="cb114-17"><a href="#cb114-17" aria-hidden="true" tabindex="-1"></a>  rf_wf_O,</span>
+<span id="cb114-18"><a href="#cb114-18" aria-hidden="true" tabindex="-1"></a>  <span class="at">resamples =</span> <span class="fu">vfold_cv</span>(trainingData, <span class="at">v =</span> <span class="dv">10</span>)  <span class="co"># 10-fold cross-validation</span></span>
+<span id="cb114-19"><a href="#cb114-19" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb114-20"><a href="#cb114-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb114-21"><a href="#cb114-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate RMSE and R-squared from the cross-validated results</span></span>
+<span id="cb114-22"><a href="#cb114-22" aria-hidden="true" tabindex="-1"></a>rmse_rf_O <span class="ot">&lt;-</span> rf_res_O <span class="sc">%&gt;%</span></span>
+<span id="cb114-23"><a href="#cb114-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb114-24"><a href="#cb114-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rmse"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb114-25"><a href="#cb114-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(mean)</span>
+<span id="cb114-26"><a href="#cb114-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb114-27"><a href="#cb114-27" aria-hidden="true" tabindex="-1"></a>rsquared_rf_O <span class="ot">&lt;-</span> rf_res_O <span class="sc">%&gt;%</span></span>
+<span id="cb114-28"><a href="#cb114-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb114-29"><a href="#cb114-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(.metric <span class="sc">==</span> <span class="st">"rsq"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb114-30"><a href="#cb114-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pull</span>(mean)</span>
+<span id="cb114-31"><a href="#cb114-31" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb114-32"><a href="#cb114-32" aria-hidden="true" tabindex="-1"></a><span class="co"># Print RMSE and R-squared</span></span>
+<span id="cb114-33"><a href="#cb114-33" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Mean RMSE of Random Forest model:"</span>, rmse_rf_O, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean RMSE of Random Forest model: 3.283404 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"Mean R-squared of Random Forest model:"</span>, rsquared_rf_O, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mean R-squared of Random Forest model: 0.9075254 </code></pre>
+</div>
+</div>
+<p>The random forest model of time duration vs.&nbsp;longitude and latitude has relatively best performance where RMSE is 3.14 and R-square is 0.91. Then it goes with linear model of eclipse time duration vs.&nbsp;longitude and latitude where RMSE is 5.99 and R-square is 0.69. While the SVM model has higher RMSE (12.35) and lower R-square (0.36). RMSE of null model is 10.82. Since I don’t think the relationship between predictors and variables and SVM has higher RMSE than null model, random forest model seems the best choise among the</p>
+</section>
+<section id="model-assessment-using-test-data" class="level3">
+<h3 class="anchored" data-anchor-id="model-assessment-using-test-data">model assessment using test data</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Fit the Random Forest model to the training data</span></span>
+<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a>rf_fit <span class="ot">&lt;-</span> rf_wf_O <span class="sc">%&gt;%</span></span>
+<span id="cb118-3"><a href="#cb118-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(<span class="at">data =</span> trainingData)</span>
+<span id="cb118-4"><a href="#cb118-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb118-5"><a href="#cb118-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Make predictions on the test data</span></span>
+<span id="cb118-6"><a href="#cb118-6" aria-hidden="true" tabindex="-1"></a>rf_pred_test <span class="ot">&lt;-</span> rf_fit <span class="sc">%&gt;%</span></span>
+<span id="cb118-7"><a href="#cb118-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">predict</span>(<span class="at">new_data =</span> testData) <span class="sc">%&gt;%</span></span>
+<span id="cb118-8"><a href="#cb118-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">bind_cols</span>(testData)</span>
+<span id="cb118-9"><a href="#cb118-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb118-10"><a href="#cb118-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Calculate RMSE and R-squared for the test data</span></span>
+<span id="cb118-11"><a href="#cb118-11" aria-hidden="true" tabindex="-1"></a>rmse_rf_test <span class="ot">&lt;-</span> <span class="fu">rmse</span>(rf_pred_test, <span class="at">truth =</span> time_duration_minutes, <span class="at">estimate =</span> .pred)</span>
+<span id="cb118-12"><a href="#cb118-12" aria-hidden="true" tabindex="-1"></a>rsquared_rf_test <span class="ot">&lt;-</span> <span class="fu">rsq</span>(rf_pred_test, <span class="at">truth =</span> time_duration_minutes, <span class="at">estimate =</span> .pred)</span>
+<span id="cb118-13"><a href="#cb118-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb118-14"><a href="#cb118-14" aria-hidden="true" tabindex="-1"></a><span class="co"># Print RMSE and R-squared for the test data</span></span>
+<span id="cb118-15"><a href="#cb118-15" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"RMSE of Random Forest model (Test Data):"</span>, rmse_rf_test<span class="sc">$</span>.estimate, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>RMSE of Random Forest model (Test Data): 3.569498 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"R-squared of Random Forest model (Test Data):"</span>, rsquared_rf_test<span class="sc">$</span>.estimate, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>R-squared of Random Forest model (Test Data): 0.9029704 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb122"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a scatter plot of observed vs. predicted values</span></span>
+<span id="cb122-2"><a href="#cb122-2" aria-hidden="true" tabindex="-1"></a>plot_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb122-3"><a href="#cb122-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">Observed =</span> rf_pred_test<span class="sc">$</span>time_duration_minutes,</span>
+<span id="cb122-4"><a href="#cb122-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Predicted =</span> rf_pred_test<span class="sc">$</span>.pred</span>
+<span id="cb122-5"><a href="#cb122-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb122-6"><a href="#cb122-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb122-7"><a href="#cb122-7" aria-hidden="true" tabindex="-1"></a>plot <span class="ot">&lt;-</span> <span class="fu">ggplot</span>(plot_data, <span class="fu">aes</span>(<span class="at">x =</span> Observed, <span class="at">y =</span> Predicted)) <span class="sc">+</span></span>
+<span id="cb122-8"><a href="#cb122-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb122-9"><a href="#cb122-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_abline</span>(<span class="at">slope =</span> <span class="dv">1</span>, <span class="at">intercept =</span> <span class="dv">0</span>, <span class="at">color =</span> <span class="st">"red"</span>, <span class="at">linetype =</span> <span class="st">"dashed"</span>) <span class="sc">+</span>  <span class="co"># Add 45-degree line</span></span>
+<span id="cb122-10"><a href="#cb122-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Observed"</span>, <span class="at">y =</span> <span class="st">"Predicted"</span>, <span class="at">title =</span> <span class="st">"Observed vs. Predicted Values"</span>) <span class="sc">+</span></span>
+<span id="cb122-11"><a href="#cb122-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span>
+<span id="cb122-12"><a href="#cb122-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb122-13"><a href="#cb122-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the plot</span></span>
+<span id="cb122-14"><a href="#cb122-14" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(plot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="tidytuesday-exercise_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>RMSE of prediction for test data is 3.56 and R-square is 0.91, which indicates the good performance on this random forest model.</p>
+</section>
+<section id="discussion" class="level3">
+<h3 class="anchored" data-anchor-id="discussion">Discussion</h3>
+<p>The hypothesis is to investigate the potential correlation between the time duration of a visible eclipse and the location of observation, specifically longitude and latitude coordinates. Machine learning models, including Random Forest, Linear Regression, and Support Vector Machine (SVM) are used to explore this relationship.</p>
+<p>First, I did data cleaning after looking at them generally by doing descriptive analysis, and generated a new continuous variable by calculating the eclipse time duration. I choose 2 original datasets and combine them together as the final cleaned dataset.</p>
+<p>Then dataset is splitted and training data is applied by cross validation and 3 different models, metrics RMSE and R-square are calculated for each model. Null model is also caculated as the baseline. Last, test data is used to evaluate the performance of the chosen model and new RMSE and R-square are obtained and compared with the result from CV.</p>
+<p>Based on my findings, there appears to be a correlation between the time duration of a visible eclipse and the location of observation, as indicated by the superior performance of the Random Forest model. This suggests that longitude and latitude coordinates have predictive power in estimating eclipse time duration.</p>
 
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

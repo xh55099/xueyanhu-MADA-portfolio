@@ -127,16 +127,16 @@ head(cleaned_eclipse_data)
 save_data_location <- here::here("tidytuesday-exercise","data","processeddata","processeddata.rds")
 saveRDS(cleaned_eclipse_data, file = save_data_location)
 
-# A little bit more of cleaning
+# A little bit more data cleaning
 # Define function to classify geographical areas
 classify_geographical_area <- function(latitude, longitude) {
-  if (latitude >= 25 & latitude <= 50 & longitude >= -125 & longitude <= -67) {
+  if (latitude >= 37 & latitude <= 50 & longitude >= -125 & longitude <= -67) {
     return("Northeast")
-  } else if (latitude >= 24 & latitude <= 38 & longitude >= -97 & longitude <= -76) {
+  } else if (latitude >= 25 & latitude <= 36 & longitude >= -109 & longitude <= -67) {
     return("Southeast")
-  } else if (latitude >= 35 & latitude <= 49 & longitude >= -104 & longitude <= -93) {
+  } else if (latitude >= 35 & latitude <= 41 & longitude >= -109 & longitude <= -93) {
     return("Midwest")
-  } else if (latitude >= 31 & latitude <= 45 & longitude >= -107 & longitude <= -94) {
+  } else if (latitude >= 31 & latitude <= 37 & longitude >= -109 & longitude <= -94) {
     return("Southwest")
   } else if (latitude >= 32 & latitude <= 49 & longitude >= -124 & longitude <= -114) {
     return("West")
@@ -147,9 +147,7 @@ classify_geographical_area <- function(latitude, longitude) {
 
 # Apply the function to generate the new variable
 cleaned_eclipse_data <- cleaned_eclipse_data %>%
-  mutate(area = mapply(classify_geographical_area, 
-                                    lat, 
-                                    lon))
+  mutate(area = mapply(classify_geographical_area, lat, lon))
 
 # View the updated dataset
 print(cleaned_eclipse_data)
@@ -217,43 +215,6 @@ cat("Mean RMSE of linear model:", rmse_lm, "\n")
 cat("Mean Rsquared of linear model:", rsquared_lm, "\n")
 ```
 
-```{r}
-# Calculate residuals and uncertainty
-
-# Initialize empty list to store bootstrap estimates
-bootstrap_results <- list()
-
-# Number of bootstrap resamples
-num_bootstraps <- 1000
-
-# Loop over each fold of cross-validation
-for (i in seq_along(lm_res)) {
-  # Get the training data for the current fold
-  fold_data <- analysis(lm_res[[i]])
-  
-  # Perform bootstrap resampling
-  boot_results <- boot(data = fold_data, statistic = function(data, indices) {
-    fit <- lm(time_duration_minutes ~ lon + lat, data = data[indices, ])
-    coef(fit)  # Extract model coefficients
-  }, R = num_bootstraps)
-  
-  # Store bootstrap results
-  bootstrap_results[[i]] <- boot_results
-}
-
-# Calculate uncertainty from bootstrap results
-# For example, you can calculate confidence intervals for model coefficients
-# Here, we calculate 95% confidence intervals
-confidence_intervals <- lapply(bootstrap_results, function(boot_results) {
-  apply(boot_results$t, 2, function(coefs) quantile(coefs, c(0.025, 0.975)))
-})
-
-# Print confidence intervals for each coefficient
-for (i in seq_along(confidence_intervals)) {
-  cat("Confidence intervals for fold", i, ":\n")
-  print(confidence_intervals[[i]])
-}
-```
 
 Considering longitude and latitude represent coordinate points on a plane or area, I am reminded support vector machine model which is a multi-dimensional model and also can be used for continuous variables. So I choose SVM as the second fitting model for the dataset.
 
@@ -288,18 +249,73 @@ rsquared_svm <- svm_res %>%
 cat("Mean RMSE of SVM model:", rmse_svm, "\n")
 cat("Mean Rsquared of SVM model:", rsquared_svm, "\n")
 ```
+I asked chatGPT why SVM model has worse performance even than null model and it told me SVM model has hyperparameters that could be adjust. So I will try to do some tuning here.
+
+```{r}
+# Define an expanded grid of hyperparameters to search over
+svm_grid <- expand.grid(
+  C = c(0.01, 0.1, 1, 10, 100),  # Expanded range for regularization parameter
+  kernel = c("linear", "radial", "polynomial", "sigmoid")  # Additional kernel functions
+)
+
+# Define a workflow for hyperparameter tuning
+svm_wf_tune <- workflow() %>%
+  add_model(svm_model) %>%
+  add_formula(time_duration_minutes ~ lon + lat)
+
+# Perform grid search cross-validation with hyperparameter tuning
+svm_res_tune <- tune_grid(
+  svm_wf_tune,
+  resamples = vfold_cv(trainingData, v = 10),  # 10-fold cross-validation
+  grid = svm_grid,  # Specify the hyperparameter grid
+  control = control_grid(verbose = TRUE)  # Display progress
+)
+
+# Get the best performing model
+best_model <- select_best(svm_res_tune, "rmse")
+
+# Get the hyperparameters of the best performing model
+best_params <- best_model$workflow$parameters
+
+# Define a new workflow with the best hyperparameters
+final_svm_wf <- workflow() %>%
+  add_model(svm_model %>% set_args(best_params)) %>%
+  add_formula(time_duration_minutes ~ lon + lat)
+
+# Perform k-fold cross-validation with the final model
+final_svm_res <- fit_resamples(
+  final_svm_wf,
+  resamples = vfold_cv(trainingData, v = 10)  # 10-fold cross-validation
+)
+
+# Get RMSE and R-squared from the resamples
+rmse_final <- final_svm_res %>%
+  collect_metrics() %>%
+  filter(.metric == "rmse") %>%
+  pull(mean)
+
+rsquared_final <- final_svm_res %>%
+  collect_metrics() %>%
+  filter(.metric == "rsq") %>%
+  pull(mean)
+
+# Print mean RMSE and R-squared
+cat("Mean RMSE of SVM model with optimized hyperparameters:", rmse_final, "\n")
+cat("Mean Rsquared of SVM model with optimized hyperparameters:", rsquared_final, "\n")
+```
+After tuning, RMSE and R-square only have slight changes.
 
 I can't think of other proper models for the dataset so far with the current predictors. So I wonder if the time duration of eclipse could be a predictor for states. And I will fit the data with random forest model.
 
 After some trials, I found that I have too many categories so that when I do cross validation, there are a lot of subsets missing some categories which will lead to errors occurring. And the this cleaning part will be moved ahead of data splitting.
 
-
+I found that I cannot get the code work
 
 ```{r}
-# Define the Random Forest Classifier model specification
+# Define the Random Forest model specification
 rf_spec <- rand_forest() %>%
   set_mode("classification") %>%
-  set_engine("ranger", importance = "permutation")
+  set_engine("ranger")
 
 # Define the recipe
 rf_recipe <- recipe(area ~ time_duration_minutes, data = trainingData) %>%
@@ -324,6 +340,7 @@ accuracy <- rf_res %>%
 
 # Print accuracy
 cat("Mean accuracy of Random Forest Classifier model:", accuracy, "\n")
+
 
 # Random forest model for lon and lat
 # Define the Random Forest model specification
@@ -361,10 +378,52 @@ cat("Mean RMSE of Random Forest model:", rmse_rf_O, "\n")
 cat("Mean R-squared of Random Forest model:", rsquared_rf_O, "\n")
 ```
 
-The random forest model of time duration vs. longitude and latitude has relatively best performance where RMSE is 3.14 and R-square is 0.91. Then it goes with linear model of eclipse time duration vs. longitude and latitude where RMSE is 5.99 and R-square is 0.69. While the SVM model has higher RMSE (12.35) and lower R-square (0.36). RMSE of null model is 10.82 and R-suare is 
+The random forest model of time duration vs. longitude and latitude has relatively best performance where RMSE is 3.14 and R-square is 0.91. Then it goes with linear model of eclipse time duration vs. longitude and latitude where RMSE is 5.99 and R-square is 0.69. While the SVM model has higher RMSE (12.35) and lower R-square (0.36). RMSE of null model is 10.82. Since I don't think the relationship between predictors and variables and SVM has higher RMSE than null model, random forest model seems the best choise among the 
 
 ### model assessment using test data
 
 ```{r}
+# Fit the Random Forest model to the training data
+rf_fit <- rf_wf_O %>%
+  fit(data = trainingData)
 
+# Make predictions on the test data
+rf_pred_test <- rf_fit %>%
+  predict(new_data = testData) %>%
+  bind_cols(testData)
+
+# Calculate RMSE and R-squared for the test data
+rmse_rf_test <- rmse(rf_pred_test, truth = time_duration_minutes, estimate = .pred)
+rsquared_rf_test <- rsq(rf_pred_test, truth = time_duration_minutes, estimate = .pred)
+
+# Print RMSE and R-squared for the test data
+cat("RMSE of Random Forest model (Test Data):", rmse_rf_test$.estimate, "\n")
+cat("R-squared of Random Forest model (Test Data):", rsquared_rf_test$.estimate, "\n")
+
+# Create a scatter plot of observed vs. predicted values
+plot_data <- data.frame(
+  Observed = rf_pred_test$time_duration_minutes,
+  Predicted = rf_pred_test$.pred
+)
+
+plot <- ggplot(plot_data, aes(x = Observed, y = Predicted)) +
+  geom_point() +
+  geom_abline(slope = 1, intercept = 0, color = "red", linetype = "dashed") +  # Add 45-degree line
+  labs(x = "Observed", y = "Predicted", title = "Observed vs. Predicted Values") +
+  theme_minimal()
+
+# Display the plot
+print(plot)
 ```
+
+RMSE of prediction for test data is 3.56 and R-square is 0.91, which indicates the good performance on this random forest model.
+
+### Discussion
+
+The hypothesis is to investigate the potential correlation between the time duration of a visible eclipse and the location of observation, specifically longitude and latitude coordinates. Machine learning models, including Random Forest, Linear Regression, and Support Vector Machine (SVM) are used to explore this relationship.
+
+First, I did data cleaning after looking at them generally by doing descriptive analysis, and generated a new continuous variable by calculating the eclipse time duration. I choose 2 original datasets and combine them together as the final cleaned dataset.
+
+Then dataset is splitted and training data is applied by cross validation and 3 different models, metrics RMSE and R-square are calculated for each model. Null model is also caculated as the baseline. Last, test data is used to evaluate the performance of the chosen model and new RMSE and R-square are obtained and compared with the result from CV.
+
+Based on my findings, there appears to be a correlation between the time duration of a visible eclipse and the location of observation, as indicated by the superior performance of the Random Forest model. This suggests that longitude and latitude coordinates have predictive power in estimating eclipse time duration. 

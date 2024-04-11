@@ -151,7 +151,7 @@ rf_fit <- rf_wf %>%
   fit(data = mydata)
 rf_fit
 ```
- 
+
 ```{r}
 # Make predictions for linear model
 lm_pred <- predict(lm_fit, new_data = mydata) %>% 
@@ -202,6 +202,7 @@ print(lm_plot)
 print(lasso_plot)
 print(rf_plot)
 ```
+
 I think it is because linear model and lasso model share the similar underlying principles. Both of them assume a linear relationship between the predictors and the outcome variable. And there is no penalty set for lasso model.
 
 ## Tuning the models
@@ -230,7 +231,7 @@ lasso_tune <- tune_grid(
 lasso_tune %>% autoplot()
 ```
 
-When the penalty parameter is low, LASSO behaves similarly to ordinary linear regression because the penalty for larger coefficients is small. So the RMSE is similar to linear model and even lower. However, as the penalty parameter increases, LASSO becomes more constrained, and the coefficients are increasingly forced towards zero.  This can lead to underfitting, where the model is too simple to capture the complexity of the data, resulting in higher RMSE. In the end, the penalty parameter is so large that make coefficient decrease to 0, thus RMSE will not change anymore.
+When the penalty parameter is low, LASSO behaves similarly to ordinary linear regression because the penalty for larger coefficients is small. So the RMSE is similar to linear model and even lower. However, as the penalty parameter increases, LASSO becomes more constrained, and the coefficients are increasingly forced towards zero. This can lead to underfitting, where the model is too simple to capture the complexity of the data, resulting in higher RMSE. In the end, the penalty parameter is so large that make coefficient decrease to 0, thus RMSE will not change anymore.
 
 ```{r}
 # Define the random forest model with fixed parameters
@@ -299,6 +300,4 @@ rf_tune_CV <- tune_grid(
 rf_tune_CV %>% autoplot()
 ```
 
-After CV is applied, there is not much change on LASSO model, while the pattern of RF model changes. When min_n is higher and mtry is at the middle value between 1 and 7, the RMSE has the lowest value.
-Because CV is applied, which can provide a more realistic estimate of model performance compared to use simplly the whole dataset.
-I think LASSO performs better based on RMSE value. And the reason might because LASSO has penalty to reduce overfit compared to RF.
+After CV is applied, there is not much change on LASSO model, while the pattern of RF model changes. When min_n is higher and mtry is at the middle value between 1 and 7, the RMSE has the lowest value. Because CV is applied, which can provide a more realistic estimate of model performance compared to use simplly the whole dataset. I think LASSO performs better based on RMSE value. And the reason might because LASSO has penalty to reduce overfit compared to RF.
