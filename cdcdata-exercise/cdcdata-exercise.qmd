@@ -57,18 +57,49 @@ saveRDS(summary_df, file = summarytable_file)
 ```
 
 ```{r}
-p1 <- ggplot(filtered_mydata2, aes(x = Race.and.Ethnicity, y = Denominator, fill = Race.and.Ethnicity)) + geom_bar(stat = "identity", position = "dodge") + labs(title = "Distribution of Race and Ethnicity in the investigation",
-     x = "Race and Ethnicity",                                               y = "population") +                                                theme_minimal()                          
-plot(p1)
+# Remove commas and other non-numeric characters from Denominator
+filtered_mydata2$Denominator <- as.numeric(gsub("[^0-9]", "", filtered_mydata2$Denominator))
+
+# Summarize the data by Race.and.Ethnicity
+summarized_data <- filtered_mydata2 %>%
+  group_by(Race.and.Ethnicity) %>%
+  summarize(Total_Denominator = sum(Denominator))
+
+# Plot the summarized data
+p1 <- ggplot(summarized_data, aes(x = Race.and.Ethnicity, y = Total_Denominator, fill = Race.and.Ethnicity)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Total Denominator by Race and Ethnicity",
+       x = "Race and Ethnicity",
+       y = "Total Denominator") +
+  theme_minimal()
+
+# Display the plot
+print(p1)
 figure_file = here("cdcdata-exercise","results","figure-files","population_by_RnE.png")
 ggsave(filename = figure_file, plot=p1) 
 ```
 
 ```{r}
-p2 <- ggplot(filtered_mydata1, aes(x = Week_Ending_Date, y = Vaccination.Coverage.Percentage....)) + geom_point() + geom_smooth(method='lm') + labs(title = "The trend of pregnant people get vaccinated as weeks going by",
-     x = "week",                                               
-     y = "vaccination coverage.percentage") +                                theme_minimal()                          
+# Convert Week_Ending_Date to Date object
+filtered_mydata1$Week_Ending_Date <- as.Date(filtered_mydata1$Week_Ending_Date, format = "%m/%d/%Y")
+
+# Define a reference date
+reference_date <- as.Date("12/19/2020", format = "%m/%d/%Y")
+
+# Calculate the week number
+filtered_mydata1$Week_Number <- as.numeric(difftime(filtered_mydata1$Week_Ending_Date, reference_date, units = "weeks")) + 1
+
+p2 <- ggplot(filtered_mydata1, aes(x = Week_Number, y = Vaccination.Coverage.Percentage....)) + 
+  geom_point() +
+  labs(
+    title = "The trend of pregnant people getting vaccinated as weeks go by",
+    x = "Week",
+    y = "Vaccination Coverage Percentage"
+  ) +
+  theme_minimal()                         
 plot(p2)
+
+# save the plot
 figure_file = here("cdcdata-exercise","results","figure-files","vcp_by_week.png")
 ggsave(filename = figure_file, plot=p2) 
 ```
