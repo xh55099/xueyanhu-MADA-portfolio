@@ -20,6 +20,7 @@ library(readxl)
 library(scales)
 library(tidyr)
 library(gt)
+library(lubridate)
 ```
 
 ## load data
@@ -72,13 +73,30 @@ p1 <- ggplot() +
   labs(title = "The proportion of Americans approve of the Biden’s handling of the coronavirus outbreak",
        x = "Investigation Date",
        y = "Percentage") +
+  # Set breaks and labels for quarters (1st of Jan, April, July, Oct)
   scale_x_date(
-    breaks = seq(as.Date("2021-01-22"), as.Date("2024-11-27"), by = "3 months"),
-    labels = date_format("%m-%Y"),
+    breaks = seq(as.Date("2021-01-01"), as.Date("2024-12-31"), by = "quarter"),  # Breaks every quarter
+    # Label format with month number-year for years where Jan 1st is a break
+    labels = function(x) {
+      ifelse(format(x, "%m-%d") == "01-01", format(x, "%e/%e/%Y"), format(x, "%e/%m"))
+    },
     limits = c(as.Date("2021-01-01"), as.Date("2024-01-01"))
   ) +
   scale_color_manual(values = c("orange", "purple")) +
-  theme_minimal()
+  theme_minimal() +
+  guides(color = FALSE) +  # Remove the color legend
+  annotate("text", x = max(data_avg$enddate) + 140, y = max(data_avg$approve_adjusted_avg) - 22, 
+           label = "Approve: 47.8%", color = "orange", size = 4, vjust = -1) +  # Adjusted y coordinate
+  annotate("text", x = max(data_avg$enddate) + 160, y = max(data_avg$disapprove_adjusted_avg) - 10, 
+           label = "Disapprove: 41.8%", color = "purple", size = 4, vjust = 1) +  # Adjusted y coordinate
+  geom_vline(xintercept = as.numeric(as.Date("2021-01-21")), linetype = "dashed", color = "black") +  # Vertical line
+  geom_vline(xintercept = as.numeric(as.Date("2022-11-29")), linetype = "dashed", color = "grey") +  # Vertical line for Nov 29, 2022
+  annotate("text", x = as.Date("2021-01-21") + 70, y = max(data_avg$approve_adjusted_avg), 
+           label = "Biden sworn\ninto office", color = "black", size = 2.5, vjust = +0.5) +  # Annotation for the vline
+  annotate("text", x = as.Date("2022-11-29") + 120, y = max(data_avg$approve_adjusted_avg), 
+           label = "Nov. 29, 2022", color = "grey", size = 4, vjust = 0) +  # Annotation for Nov 29, 2022 with x-offset
+  theme(axis.text.x = element_text(size = 8))  # Adjust x-axis text size
+
 plot(p1)
 ```
 
@@ -104,10 +122,27 @@ p2 <- ggplot() +
   scale_x_date(
     breaks = seq(as.Date("2020-02-15"), as.Date("2021-01-19"), by = "1 month"),
     labels = date_format("%m-%Y"),
-    limits = c(as.Date("2020-02-015"), as.Date("2021-01-19"))
+    limits = c(as.Date("2020-02-15"), as.Date("2021-01-19"))
   ) +
   scale_color_manual(values = c("orange", "purple")) +
-  theme_minimal()
+  theme_minimal() +
+  theme(axis.text.x = element_text(size = 7)) +  # Adjust the character size here
+  geom_vline(xintercept = as.numeric(as.Date("2020-02-29")), linetype = "dashed", color = "black") +  # First vline
+  geom_vline(xintercept = as.numeric(as.Date("2020-05-28")), linetype = "dashed", color = "black") +  # Second vline
+  geom_vline(xintercept = as.numeric(as.Date("2020-10-02")), linetype = "dashed", color = "black") +  # Third vline
+  geom_vline(xintercept = as.numeric(as.Date("2020-11-07")), linetype = "dashed", color = "black") +  # Fourth vline
+  geom_vline(xintercept = as.numeric(as.Date("2021-01-19")), linetype = "dashed", color = "black") +  # Fifth vline
+  annotate("text", x = as.Date("2020-02-29") + 16, y = max(data1_trump$approve_estimate_avg), 
+           label = "First U.S.\ndeath\nreported", color = "black", size = 2.5, vjust = -1.2) +  # Annotation for first vline
+  annotate("text", x = as.Date("2020-05-28") + 18, y = max(data1_trump$approve_estimate_avg), 
+           label = "U.S. death\nsurpass\n100,000", color = "black", size = 2.5, vjust = -1.2) +  # Annotation for second vline
+  annotate("text", x = as.Date("2020-10-02") -18, y = max(data1_trump$approve_estimate_avg), 
+           label = "Trump\ndiagnosed\nwith\nCOVID-19", color = "black", size = 2.5, vjust = -0.6) +  # Annotation for third vline
+  annotate("text", x = as.Date("2020-11-07") + 15, y = max(data1_trump$approve_estimate_avg), 
+           label = "Biden\ndeclared\nelection\nwinner", color = "black", size = 2.5, vjust = -0.6) +  # Annotation for fourth vline
+  annotate("text", x = as.Date("2021-01-19") - 15, y = max(data1_trump$approve_estimate_avg), 
+           label = "Biden\nsworn into\noffice", color = "black", size = 2.5, vjust = -1.2)  # Annotation for fifth vline
+
 plot(p2)
 ```
 

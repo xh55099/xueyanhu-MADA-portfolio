@@ -239,16 +239,26 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(readxl)</span>
 <span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(scales)</span>
 <span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyr)</span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gt)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Attaching package: 'lubridate'</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>The following objects are masked from 'package:base':
+
+    date, intersect, setdiff, union</code></pre>
+</div>
 </div>
 </section>
 <section id="load-data" class="level2">
 <h2 class="anchored" data-anchor-id="load-data">load data</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>data_location <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"presentation-exercise"</span>, <span class="st">"covid-19-polls-master"</span>, <span class="st">"covid_approval_polls_adjusted.csv"</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(data_location) </span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>data_location1 <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"presentation-exercise"</span>, <span class="st">"covid-19-polls-master"</span>, <span class="st">"covid_approval_toplines.csv"</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>data1 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(data_location1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>data_location <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"presentation-exercise"</span>, <span class="st">"covid-19-polls-master"</span>, <span class="st">"covid_approval_polls_adjusted.csv"</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(data_location) </span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>data_location1 <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"presentation-exercise"</span>, <span class="st">"covid-19-polls-master"</span>, <span class="st">"covid_approval_toplines.csv"</span>)</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>data1 <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(data_location1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="regenerate-the-graph" class="level2">
@@ -258,21 +268,21 @@ Attaching package: 'dplyr'</code></pre>
 <p>But the result seemed wired. One was that so many points and lines were overlapped and nothing can be seen clearly. The other was that since the geom_line function just connecting the points simply without any adjustment like broken line graph, but the line on the figure is slightly smooth curve. I asked for fixing the problems by replacint with geom_smooth function and found that the reason for the overlapping was that there were some surveys made in the same day. So I also averaged the percentages from the same day and used the new numbers for the scatterplot.</p>
 <p>But to be honest, I still cannot figure out how I can make the plot wider so that it will look more like the original graph.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># for figure 1</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert the date column to Date type</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>enddate <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(data<span class="sc">$</span>enddate, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>data1<span class="sc">$</span>modeldate <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(data1<span class="sc">$</span>modeldate, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(data<span class="sc">$</span>enddate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># for figure 1</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Convert the date column to Date type</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>data<span class="sc">$</span>enddate <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(data<span class="sc">$</span>enddate, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>data1<span class="sc">$</span>modeldate <span class="ot">&lt;-</span> <span class="fu">as.Date</span>(data1<span class="sc">$</span>modeldate, <span class="at">format =</span> <span class="st">"%m/%d/%Y"</span>)</span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(data<span class="sc">$</span>enddate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Date"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(data1<span class="sc">$</span>modeldate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">class</span>(data1<span class="sc">$</span>modeldate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "Date"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>'data.frame':   1626 obs. of  19 variables:
  $ subject            : chr  "Biden" "Biden" "Biden" "Biden" ...
@@ -295,7 +305,7 @@ Attaching package: 'dplyr'</code></pre>
  $ timestamp          : chr  "02:31:11 27 Nov 2022" "02:31:11 27 Nov 2022" "02:31:11 27 Nov 2022" "02:31:11 27 Nov 2022" ...
  $ url                : chr  "https://docs.cdn.yougov.com/ld46rgtdlz/econTabReport.pdf" "https://poll.qu.edu/national/release-detail?ReleaseID=3688" "https://assets.morningconsult.com/wp-uploads/2021/02/03074817/2101110_crosstabs_POLITICO_RVs_v1.pdf" "https://docs.cdn.yougov.com/460mactkmh/econTabReport.pdf" ...</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   subject           modeldate            party            startdate        
  Length:1626        Length:1626        Length:1626        Length:1626       
@@ -333,30 +343,46 @@ Attaching package: 'dplyr'</code></pre>
  3rd Qu.:54.721                                           
  Max.   :89.173                                           </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Group by date and calculate the average value for each date</span></span>
-<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>data_avg <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
-<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(enddate) <span class="sc">%&gt;%</span></span>
-<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">approve_adjusted_avg =</span> <span class="fu">mean</span>(approve_adjusted, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">disapprove_adjusted_avg =</span> <span class="fu">mean</span>(disapprove_adjusted, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>data1_biden <span class="ot">&lt;-</span> data1 <span class="sc">%&gt;%</span></span>
-<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(subject <span class="sc">==</span> <span class="st">"Biden"</span> <span class="sc">&amp;</span> modeldate <span class="sc">&gt;</span> <span class="fu">as.Date</span>(<span class="st">"2021-01-01"</span>), party <span class="sc">==</span> <span class="st">"all"</span>)</span>
-<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb17-10"><a href="#cb17-10" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb17-11"><a href="#cb17-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> data_avg, <span class="fu">aes</span>(<span class="at">x =</span> enddate, <span class="at">y =</span> approve_adjusted_avg, <span class="at">color =</span> <span class="st">"orange"</span>), <span class="at">size =</span> <span class="dv">1</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
-<span id="cb17-12"><a href="#cb17-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> data_avg, <span class="fu">aes</span>(<span class="at">x =</span> enddate, <span class="at">y =</span> disapprove_adjusted_avg, <span class="at">color =</span> <span class="st">"purple"</span>), <span class="at">size =</span> <span class="dv">1</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
-<span id="cb17-13"><a href="#cb17-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> data1_biden, <span class="fu">aes</span>(<span class="at">x =</span> modeldate, <span class="at">y =</span> approve_estimate), <span class="at">color =</span> <span class="st">"orange"</span>, <span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
-<span id="cb17-14"><a href="#cb17-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> data1_biden, <span class="fu">aes</span>(<span class="at">x =</span> modeldate, <span class="at">y =</span> disapprove_estimate), <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
-<span id="cb17-15"><a href="#cb17-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"The proportion of Americans approve of the Biden’s handling of the coronavirus outbreak"</span>,</span>
-<span id="cb17-16"><a href="#cb17-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Investigation Date"</span>,</span>
-<span id="cb17-17"><a href="#cb17-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Percentage"</span>) <span class="sc">+</span></span>
-<span id="cb17-18"><a href="#cb17-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(</span>
-<span id="cb17-19"><a href="#cb17-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="fu">as.Date</span>(<span class="st">"2021-01-22"</span>), <span class="fu">as.Date</span>(<span class="st">"2024-11-27"</span>), <span class="at">by =</span> <span class="st">"3 months"</span>),</span>
-<span id="cb17-20"><a href="#cb17-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">date_format</span>(<span class="st">"%m-%Y"</span>),</span>
-<span id="cb17-21"><a href="#cb17-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="fu">as.Date</span>(<span class="st">"2021-01-01"</span>), <span class="fu">as.Date</span>(<span class="st">"2024-01-01"</span>))</span>
-<span id="cb17-22"><a href="#cb17-22" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb17-23"><a href="#cb17-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"orange"</span>, <span class="st">"purple"</span>)) <span class="sc">+</span></span>
-<span id="cb17-24"><a href="#cb17-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Group by date and calculate the average value for each date</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>data_avg <span class="ot">&lt;-</span> data <span class="sc">%&gt;%</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(enddate) <span class="sc">%&gt;%</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">approve_adjusted_avg =</span> <span class="fu">mean</span>(approve_adjusted, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">disapprove_adjusted_avg =</span> <span class="fu">mean</span>(disapprove_adjusted, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>data1_biden <span class="ot">&lt;-</span> data1 <span class="sc">%&gt;%</span></span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(subject <span class="sc">==</span> <span class="st">"Biden"</span> <span class="sc">&amp;</span> modeldate <span class="sc">&gt;</span> <span class="fu">as.Date</span>(<span class="st">"2021-01-01"</span>), party <span class="sc">==</span> <span class="st">"all"</span>)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a>p1 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb19-11"><a href="#cb19-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> data_avg, <span class="fu">aes</span>(<span class="at">x =</span> enddate, <span class="at">y =</span> approve_adjusted_avg, <span class="at">color =</span> <span class="st">"orange"</span>), <span class="at">size =</span> <span class="dv">1</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb19-12"><a href="#cb19-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">data =</span> data_avg, <span class="fu">aes</span>(<span class="at">x =</span> enddate, <span class="at">y =</span> disapprove_adjusted_avg, <span class="at">color =</span> <span class="st">"purple"</span>), <span class="at">size =</span> <span class="dv">1</span>, <span class="at">alpha =</span> <span class="fl">0.3</span>) <span class="sc">+</span></span>
+<span id="cb19-13"><a href="#cb19-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> data1_biden, <span class="fu">aes</span>(<span class="at">x =</span> modeldate, <span class="at">y =</span> approve_estimate), <span class="at">color =</span> <span class="st">"orange"</span>, <span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb19-14"><a href="#cb19-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> data1_biden, <span class="fu">aes</span>(<span class="at">x =</span> modeldate, <span class="at">y =</span> disapprove_estimate), <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb19-15"><a href="#cb19-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"The proportion of Americans approve of the Biden’s handling of the coronavirus outbreak"</span>,</span>
+<span id="cb19-16"><a href="#cb19-16" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Investigation Date"</span>,</span>
+<span id="cb19-17"><a href="#cb19-17" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Percentage"</span>) <span class="sc">+</span></span>
+<span id="cb19-18"><a href="#cb19-18" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Set breaks and labels for quarters (1st of Jan, April, July, Oct)</span></span>
+<span id="cb19-19"><a href="#cb19-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(</span>
+<span id="cb19-20"><a href="#cb19-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="fu">as.Date</span>(<span class="st">"2021-01-01"</span>), <span class="fu">as.Date</span>(<span class="st">"2024-12-31"</span>), <span class="at">by =</span> <span class="st">"quarter"</span>),  <span class="co"># Breaks every quarter</span></span>
+<span id="cb19-21"><a href="#cb19-21" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Label format with month number-year for years where Jan 1st is a break</span></span>
+<span id="cb19-22"><a href="#cb19-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="cf">function</span>(x) {</span>
+<span id="cb19-23"><a href="#cb19-23" aria-hidden="true" tabindex="-1"></a>      <span class="fu">ifelse</span>(<span class="fu">format</span>(x, <span class="st">"%m-%d"</span>) <span class="sc">==</span> <span class="st">"01-01"</span>, <span class="fu">format</span>(x, <span class="st">"%e/%e/%Y"</span>), <span class="fu">format</span>(x, <span class="st">"%e/%m"</span>))</span>
+<span id="cb19-24"><a href="#cb19-24" aria-hidden="true" tabindex="-1"></a>    },</span>
+<span id="cb19-25"><a href="#cb19-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="fu">as.Date</span>(<span class="st">"2021-01-01"</span>), <span class="fu">as.Date</span>(<span class="st">"2024-01-01"</span>))</span>
+<span id="cb19-26"><a href="#cb19-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb19-27"><a href="#cb19-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"orange"</span>, <span class="st">"purple"</span>)) <span class="sc">+</span></span>
+<span id="cb19-28"><a href="#cb19-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb19-29"><a href="#cb19-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">guides</span>(<span class="at">color =</span> <span class="cn">FALSE</span>) <span class="sc">+</span>  <span class="co"># Remove the color legend</span></span>
+<span id="cb19-30"><a href="#cb19-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fu">max</span>(data_avg<span class="sc">$</span>enddate) <span class="sc">+</span> <span class="dv">140</span>, <span class="at">y =</span> <span class="fu">max</span>(data_avg<span class="sc">$</span>approve_adjusted_avg) <span class="sc">-</span> <span class="dv">22</span>, </span>
+<span id="cb19-31"><a href="#cb19-31" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"Approve: 47.8%"</span>, <span class="at">color =</span> <span class="st">"orange"</span>, <span class="at">size =</span> <span class="dv">4</span>, <span class="at">vjust =</span> <span class="sc">-</span><span class="dv">1</span>) <span class="sc">+</span>  <span class="co"># Adjusted y coordinate</span></span>
+<span id="cb19-32"><a href="#cb19-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fu">max</span>(data_avg<span class="sc">$</span>enddate) <span class="sc">+</span> <span class="dv">160</span>, <span class="at">y =</span> <span class="fu">max</span>(data_avg<span class="sc">$</span>disapprove_adjusted_avg) <span class="sc">-</span> <span class="dv">10</span>, </span>
+<span id="cb19-33"><a href="#cb19-33" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"Disapprove: 41.8%"</span>, <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">size =</span> <span class="dv">4</span>, <span class="at">vjust =</span> <span class="dv">1</span>) <span class="sc">+</span>  <span class="co"># Adjusted y coordinate</span></span>
+<span id="cb19-34"><a href="#cb19-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">as.numeric</span>(<span class="fu">as.Date</span>(<span class="st">"2021-01-21"</span>)), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span>  <span class="co"># Vertical line</span></span>
+<span id="cb19-35"><a href="#cb19-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">as.numeric</span>(<span class="fu">as.Date</span>(<span class="st">"2022-11-29"</span>)), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"grey"</span>) <span class="sc">+</span>  <span class="co"># Vertical line for Nov 29, 2022</span></span>
+<span id="cb19-36"><a href="#cb19-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fu">as.Date</span>(<span class="st">"2021-01-21"</span>) <span class="sc">+</span> <span class="dv">70</span>, <span class="at">y =</span> <span class="fu">max</span>(data_avg<span class="sc">$</span>approve_adjusted_avg), </span>
+<span id="cb19-37"><a href="#cb19-37" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"Biden sworn</span><span class="sc">\n</span><span class="st">into office"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="fl">2.5</span>, <span class="at">vjust =</span> <span class="sc">+</span><span class="fl">0.5</span>) <span class="sc">+</span>  <span class="co"># Annotation for the vline</span></span>
+<span id="cb19-38"><a href="#cb19-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fu">as.Date</span>(<span class="st">"2022-11-29"</span>) <span class="sc">+</span> <span class="dv">120</span>, <span class="at">y =</span> <span class="fu">max</span>(data_avg<span class="sc">$</span>approve_adjusted_avg), </span>
+<span id="cb19-39"><a href="#cb19-39" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"Nov. 29, 2022"</span>, <span class="at">color =</span> <span class="st">"grey"</span>, <span class="at">size =</span> <span class="dv">4</span>, <span class="at">vjust =</span> <span class="dv">0</span>) <span class="sc">+</span>  <span class="co"># Annotation for Nov 29, 2022 with x-offset</span></span>
+<span id="cb19-40"><a href="#cb19-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">8</span>))  <span class="co"># Adjust x-axis text size</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in geom_line(data = data1_biden, aes(x = modeldate, y =
 approve_estimate), : Ignoring unknown parameters: `method` and `se`</code></pre>
@@ -365,7 +391,11 @@ approve_estimate), : Ignoring unknown parameters: `method` and `se`</code></pre>
 <pre><code>Warning in geom_line(data = data1_biden, aes(x = modeldate, y =
 disapprove_estimate), : Ignoring unknown parameters: `method` and `se`</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(p1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: The `&lt;scale&gt;` argument of `guides()` cannot be `FALSE`. Use "none" instead as
+of ggplot2 3.3.4.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(p1)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -377,27 +407,43 @@ disapprove_estimate), : Ignoring unknown parameters: `method` and `se`</code></p
 <p>And the original graph is showed below.</p>
 <p><img src="../P-E-1.png" class="img-fluid"></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># for figure 2</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>data1_trump <span class="ot">&lt;-</span> data1 <span class="sc">%&gt;%</span></span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(subject <span class="sc">==</span> <span class="st">"Trump"</span>, party <span class="sc">==</span> <span class="st">"all"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(modeldate) <span class="sc">%&gt;%</span></span>
-<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">approve_estimate_avg =</span> <span class="fu">mean</span>(approve_estimate, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">disapprove_estimate_avg =</span> <span class="fu">mean</span>(disapprove_estimate, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
-<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
-<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> data1_trump, <span class="fu">aes</span>(<span class="at">x =</span> modeldate, <span class="at">y =</span> approve_estimate_avg), <span class="at">color =</span> <span class="st">"orange"</span>, <span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
-<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> data1_trump, <span class="fu">aes</span>(<span class="at">x =</span> modeldate, <span class="at">y =</span> disapprove_estimate_avg), <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
-<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"The proportion of Americans approve of the Trump’s handling of the coronavirus outbreak"</span>,</span>
-<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Investigation Date"</span>,</span>
-<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Percentage"</span>) <span class="sc">+</span></span>
-<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(</span>
-<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="fu">as.Date</span>(<span class="st">"2020-02-15"</span>), <span class="fu">as.Date</span>(<span class="st">"2021-01-19"</span>), <span class="at">by =</span> <span class="st">"1 month"</span>),</span>
-<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">date_format</span>(<span class="st">"%m-%Y"</span>),</span>
-<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="fu">as.Date</span>(<span class="st">"2020-02-015"</span>), <span class="fu">as.Date</span>(<span class="st">"2021-01-19"</span>))</span>
-<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"orange"</span>, <span class="st">"purple"</span>)) <span class="sc">+</span></span>
-<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># for figure 2</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>data1_trump <span class="ot">&lt;-</span> data1 <span class="sc">%&gt;%</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(subject <span class="sc">==</span> <span class="st">"Trump"</span>, party <span class="sc">==</span> <span class="st">"all"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(modeldate) <span class="sc">%&gt;%</span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(<span class="at">approve_estimate_avg =</span> <span class="fu">mean</span>(approve_estimate, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">disapprove_estimate_avg =</span> <span class="fu">mean</span>(disapprove_estimate, <span class="at">na.rm =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>p2 <span class="ot">&lt;-</span> <span class="fu">ggplot</span>() <span class="sc">+</span> </span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> data1_trump, <span class="fu">aes</span>(<span class="at">x =</span> modeldate, <span class="at">y =</span> approve_estimate_avg), <span class="at">color =</span> <span class="st">"orange"</span>, <span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">data =</span> data1_trump, <span class="fu">aes</span>(<span class="at">x =</span> modeldate, <span class="at">y =</span> disapprove_estimate_avg), <span class="at">color =</span> <span class="st">"purple"</span>, <span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"The proportion of Americans approve of the Trump’s handling of the coronavirus outbreak"</span>,</span>
+<span id="cb24-13"><a href="#cb24-13" aria-hidden="true" tabindex="-1"></a>       <span class="at">x =</span> <span class="st">"Investigation Date"</span>,</span>
+<span id="cb24-14"><a href="#cb24-14" aria-hidden="true" tabindex="-1"></a>       <span class="at">y =</span> <span class="st">"Percentage"</span>) <span class="sc">+</span></span>
+<span id="cb24-15"><a href="#cb24-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_date</span>(</span>
+<span id="cb24-16"><a href="#cb24-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="fu">as.Date</span>(<span class="st">"2020-02-15"</span>), <span class="fu">as.Date</span>(<span class="st">"2021-01-19"</span>), <span class="at">by =</span> <span class="st">"1 month"</span>),</span>
+<span id="cb24-17"><a href="#cb24-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">labels =</span> <span class="fu">date_format</span>(<span class="st">"%m-%Y"</span>),</span>
+<span id="cb24-18"><a href="#cb24-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">limits =</span> <span class="fu">c</span>(<span class="fu">as.Date</span>(<span class="st">"2020-02-15"</span>), <span class="fu">as.Date</span>(<span class="st">"2021-01-19"</span>))</span>
+<span id="cb24-19"><a href="#cb24-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb24-20"><a href="#cb24-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_color_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="st">"orange"</span>, <span class="st">"purple"</span>)) <span class="sc">+</span></span>
+<span id="cb24-21"><a href="#cb24-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb24-22"><a href="#cb24-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">7</span>)) <span class="sc">+</span>  <span class="co"># Adjust the character size here</span></span>
+<span id="cb24-23"><a href="#cb24-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">as.numeric</span>(<span class="fu">as.Date</span>(<span class="st">"2020-02-29"</span>)), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span>  <span class="co"># First vline</span></span>
+<span id="cb24-24"><a href="#cb24-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">as.numeric</span>(<span class="fu">as.Date</span>(<span class="st">"2020-05-28"</span>)), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span>  <span class="co"># Second vline</span></span>
+<span id="cb24-25"><a href="#cb24-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">as.numeric</span>(<span class="fu">as.Date</span>(<span class="st">"2020-10-02"</span>)), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span>  <span class="co"># Third vline</span></span>
+<span id="cb24-26"><a href="#cb24-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">as.numeric</span>(<span class="fu">as.Date</span>(<span class="st">"2020-11-07"</span>)), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span>  <span class="co"># Fourth vline</span></span>
+<span id="cb24-27"><a href="#cb24-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_vline</span>(<span class="at">xintercept =</span> <span class="fu">as.numeric</span>(<span class="fu">as.Date</span>(<span class="st">"2021-01-19"</span>)), <span class="at">linetype =</span> <span class="st">"dashed"</span>, <span class="at">color =</span> <span class="st">"black"</span>) <span class="sc">+</span>  <span class="co"># Fifth vline</span></span>
+<span id="cb24-28"><a href="#cb24-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fu">as.Date</span>(<span class="st">"2020-02-29"</span>) <span class="sc">+</span> <span class="dv">16</span>, <span class="at">y =</span> <span class="fu">max</span>(data1_trump<span class="sc">$</span>approve_estimate_avg), </span>
+<span id="cb24-29"><a href="#cb24-29" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"First U.S.</span><span class="sc">\n</span><span class="st">death</span><span class="sc">\n</span><span class="st">reported"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="fl">2.5</span>, <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">1.2</span>) <span class="sc">+</span>  <span class="co"># Annotation for first vline</span></span>
+<span id="cb24-30"><a href="#cb24-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fu">as.Date</span>(<span class="st">"2020-05-28"</span>) <span class="sc">+</span> <span class="dv">18</span>, <span class="at">y =</span> <span class="fu">max</span>(data1_trump<span class="sc">$</span>approve_estimate_avg), </span>
+<span id="cb24-31"><a href="#cb24-31" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"U.S. death</span><span class="sc">\n</span><span class="st">surpass</span><span class="sc">\n</span><span class="st">100,000"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="fl">2.5</span>, <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">1.2</span>) <span class="sc">+</span>  <span class="co"># Annotation for second vline</span></span>
+<span id="cb24-32"><a href="#cb24-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fu">as.Date</span>(<span class="st">"2020-10-02"</span>) <span class="sc">-</span><span class="dv">18</span>, <span class="at">y =</span> <span class="fu">max</span>(data1_trump<span class="sc">$</span>approve_estimate_avg), </span>
+<span id="cb24-33"><a href="#cb24-33" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"Trump</span><span class="sc">\n</span><span class="st">diagnosed</span><span class="sc">\n</span><span class="st">with</span><span class="sc">\n</span><span class="st">COVID-19"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="fl">2.5</span>, <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.6</span>) <span class="sc">+</span>  <span class="co"># Annotation for third vline</span></span>
+<span id="cb24-34"><a href="#cb24-34" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fu">as.Date</span>(<span class="st">"2020-11-07"</span>) <span class="sc">+</span> <span class="dv">15</span>, <span class="at">y =</span> <span class="fu">max</span>(data1_trump<span class="sc">$</span>approve_estimate_avg), </span>
+<span id="cb24-35"><a href="#cb24-35" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"Biden</span><span class="sc">\n</span><span class="st">declared</span><span class="sc">\n</span><span class="st">election</span><span class="sc">\n</span><span class="st">winner"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="fl">2.5</span>, <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">0.6</span>) <span class="sc">+</span>  <span class="co"># Annotation for fourth vline</span></span>
+<span id="cb24-36"><a href="#cb24-36" aria-hidden="true" tabindex="-1"></a>  <span class="fu">annotate</span>(<span class="st">"text"</span>, <span class="at">x =</span> <span class="fu">as.Date</span>(<span class="st">"2021-01-19"</span>) <span class="sc">-</span> <span class="dv">15</span>, <span class="at">y =</span> <span class="fu">max</span>(data1_trump<span class="sc">$</span>approve_estimate_avg), </span>
+<span id="cb24-37"><a href="#cb24-37" aria-hidden="true" tabindex="-1"></a>           <span class="at">label =</span> <span class="st">"Biden</span><span class="sc">\n</span><span class="st">sworn into</span><span class="sc">\n</span><span class="st">office"</span>, <span class="at">color =</span> <span class="st">"black"</span>, <span class="at">size =</span> <span class="fl">2.5</span>, <span class="at">vjust =</span> <span class="sc">-</span><span class="fl">1.2</span>)  <span class="co"># Annotation for fifth vline</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in geom_line(data = data1_trump, aes(x = modeldate, y =
 approve_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code></pre>
@@ -406,7 +452,7 @@ approve_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code></
 <pre><code>Warning in geom_line(data = data1_trump, aes(x = modeldate, y =
 disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(p2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(p2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Removed 404 rows containing missing values (`geom_line()`).</code></pre>
 </div>
@@ -427,15 +473,15 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
 <section id="generate-a-table" class="level2">
 <h2 class="anchored" data-anchor-id="generate-a-table">generate a table</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>data_table <span class="ot">&lt;-</span> data1 <span class="sc">%&gt;%</span></span>
-<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(party <span class="sc">!=</span> <span class="st">"all"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(party, subject) <span class="sc">%&gt;%</span></span>
-<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
-<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_approve =</span> <span class="fu">mean</span>(approve_estimate, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_disapprove =</span> <span class="fu">mean</span>(disapprove_estimate, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
-<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span>  <span class="co"># Add this line to drop the grouping</span></span>
-<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(data_table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>data_table <span class="ot">&lt;-</span> data1 <span class="sc">%&gt;%</span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(party <span class="sc">!=</span> <span class="st">"all"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(party, subject) <span class="sc">%&gt;%</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarize</span>(</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_approve =</span> <span class="fu">mean</span>(approve_estimate, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">avg_disapprove =</span> <span class="fu">mean</span>(disapprove_estimate, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">.groups =</span> <span class="st">"drop"</span>  <span class="co"># Add this line to drop the grouping</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(data_table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 6 × 4
   party subject avg_approve avg_disapprove
@@ -447,13 +493,13 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
 5 R     Biden          21.9           73.0
 6 R     Trump          79.0           17.8</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>data_table_pivoted <span class="ot">&lt;-</span> data_table <span class="sc">%&gt;%</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> party,</span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> <span class="fu">c</span>(avg_approve, avg_disapprove),</span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_glue =</span> <span class="st">"{party}_{.value}"</span></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(data_table_pivoted)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>data_table_pivoted <span class="ot">&lt;-</span> data_table <span class="sc">%&gt;%</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_from =</span> party,</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">values_from =</span> <span class="fu">c</span>(avg_approve, avg_disapprove),</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">names_glue =</span> <span class="st">"{party}_{.value}"</span></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(data_table_pivoted)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 7
   subject D_avg_approve I_avg_approve R_avg_approve D_avg_disapprove
@@ -462,9 +508,9 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
 2 Trump            10.3          36.3          79.0             86.6
 # ℹ 2 more variables: I_avg_disapprove &lt;dbl&gt;, R_avg_disapprove &lt;dbl&gt;</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>data_table_pivoted_reordered <span class="ot">&lt;-</span> data_table_pivoted <span class="sc">%&gt;%</span></span>
-<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject, D_avg_approve, D_avg_disapprove, I_avg_approve, I_avg_disapprove, R_avg_approve, R_avg_disapprove)</span>
-<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(data_table_pivoted_reordered)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>data_table_pivoted_reordered <span class="ot">&lt;-</span> data_table_pivoted <span class="sc">%&gt;%</span></span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject, D_avg_approve, D_avg_disapprove, I_avg_approve, I_avg_disapprove, R_avg_approve, R_avg_disapprove)</span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(data_table_pivoted_reordered)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 2 × 7
   subject D_avg_approve D_avg_disapprove I_avg_approve I_avg_disapprove
@@ -473,51 +519,51 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
 2 Trump            10.3             86.6          36.3             56.6
 # ℹ 2 more variables: R_avg_approve &lt;dbl&gt;, R_avg_disapprove &lt;dbl&gt;</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>data_table_pivoted_reordered <span class="sc">%&gt;%</span></span>
-<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_spanner</span>(</span>
-<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="fu">md</span>(<span class="st">'**Democrats**'</span>),</span>
-<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">'D_avg_approve'</span>, <span class="st">'D_avg_disapprove'</span>)</span>
-<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_spanner</span>(</span>
-<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="fu">md</span>(<span class="st">'**Individuals**'</span>),</span>
-<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">'I_avg_approve'</span>, <span class="st">'I_avg_disapprove'</span>)</span>
-<span id="cb33-10"><a href="#cb33-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb33-11"><a href="#cb33-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_spanner</span>(</span>
-<span id="cb33-12"><a href="#cb33-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span>  <span class="fu">md</span>(<span class="st">'**Republicans**'</span>),</span>
-<span id="cb33-13"><a href="#cb33-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">'R_avg_approve'</span>, <span class="st">'R_avg_disapprove'</span>)</span>
-<span id="cb33-14"><a href="#cb33-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb33-15"><a href="#cb33-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
-<span id="cb33-16"><a href="#cb33-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">D_avg_approve =</span> <span class="st">'Approve'</span>,</span>
-<span id="cb33-17"><a href="#cb33-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">D_avg_disapprove =</span> <span class="st">'Disapprove'</span>,</span>
-<span id="cb33-18"><a href="#cb33-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">I_avg_approve =</span> <span class="st">'Approve'</span>,</span>
-<span id="cb33-19"><a href="#cb33-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">I_avg_disapprove =</span> <span class="st">'Disapprove'</span>,</span>
-<span id="cb33-20"><a href="#cb33-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">R_avg_approve =</span> <span class="st">'Approve'</span>,</span>
-<span id="cb33-21"><a href="#cb33-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">R_avg_disapprove =</span> <span class="st">'Disapprove'</span>,</span>
-<span id="cb33-22"><a href="#cb33-22" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb33-23"><a href="#cb33-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(</span>
-<span id="cb33-24"><a href="#cb33-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">'2020-2021 Average Approval and Disapproval Percentages for repsonse to handle the COVID-19'</span>,</span>
-<span id="cb33-25"><a href="#cb33-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">'By Subject and Party'</span></span>
-<span id="cb33-26"><a href="#cb33-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb33-27"><a href="#cb33-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_stylize</span>(<span class="at">style =</span> <span class="dv">6</span>, <span class="at">color =</span> <span class="st">'gray'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>data_table_pivoted_reordered <span class="sc">%&gt;%</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">gt</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_spanner</span>(</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="fu">md</span>(<span class="st">'**Democrats**'</span>),</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">'D_avg_approve'</span>, <span class="st">'D_avg_disapprove'</span>)</span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_spanner</span>(</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span> <span class="fu">md</span>(<span class="st">'**Individuals**'</span>),</span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">'I_avg_approve'</span>, <span class="st">'I_avg_disapprove'</span>)</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_spanner</span>(</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">label =</span>  <span class="fu">md</span>(<span class="st">'**Republicans**'</span>),</span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">columns =</span> <span class="fu">c</span>(<span class="st">'R_avg_approve'</span>, <span class="st">'R_avg_disapprove'</span>)</span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cols_label</span>(</span>
+<span id="cb36-16"><a href="#cb36-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">D_avg_approve =</span> <span class="st">'Approve'</span>,</span>
+<span id="cb36-17"><a href="#cb36-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">D_avg_disapprove =</span> <span class="st">'Disapprove'</span>,</span>
+<span id="cb36-18"><a href="#cb36-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">I_avg_approve =</span> <span class="st">'Approve'</span>,</span>
+<span id="cb36-19"><a href="#cb36-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">I_avg_disapprove =</span> <span class="st">'Disapprove'</span>,</span>
+<span id="cb36-20"><a href="#cb36-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">R_avg_approve =</span> <span class="st">'Approve'</span>,</span>
+<span id="cb36-21"><a href="#cb36-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">R_avg_disapprove =</span> <span class="st">'Disapprove'</span>,</span>
+<span id="cb36-22"><a href="#cb36-22" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb36-23"><a href="#cb36-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tab_header</span>(</span>
+<span id="cb36-24"><a href="#cb36-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">'2020-2021 Average Approval and Disapproval Percentages for repsonse to handle the COVID-19'</span>,</span>
+<span id="cb36-25"><a href="#cb36-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">subtitle =</span> <span class="st">'By Subject and Party'</span></span>
+<span id="cb36-26"><a href="#cb36-26" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb36-27"><a href="#cb36-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">opt_stylize</span>(<span class="at">style =</span> <span class="dv">6</span>, <span class="at">color =</span> <span class="st">'gray'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="xvimquhood" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#xvimquhood table {
+<div id="qyxhcqcvwp" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#qyxhcqcvwp table {
   font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-#xvimquhood thead, #xvimquhood tbody, #xvimquhood tfoot, #xvimquhood tr, #xvimquhood td, #xvimquhood th {
+#qyxhcqcvwp thead, #qyxhcqcvwp tbody, #qyxhcqcvwp tfoot, #qyxhcqcvwp tr, #qyxhcqcvwp td, #qyxhcqcvwp th {
   border-style: none;
 }
 
-#xvimquhood p {
+#qyxhcqcvwp p {
   margin: 0;
   padding: 0;
 }
 
-#xvimquhood .gt_table {
+#qyxhcqcvwp .gt_table {
   display: table;
   border-collapse: collapse;
   line-height: normal;
@@ -543,12 +589,12 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   border-left-color: #D3D3D3;
 }
 
-#xvimquhood .gt_caption {
+#qyxhcqcvwp .gt_caption {
   padding-top: 4px;
   padding-bottom: 4px;
 }
 
-#xvimquhood .gt_title {
+#qyxhcqcvwp .gt_title {
   color: #333333;
   font-size: 125%;
   font-weight: initial;
@@ -560,7 +606,7 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   border-bottom-width: 0;
 }
 
-#xvimquhood .gt_subtitle {
+#qyxhcqcvwp .gt_subtitle {
   color: #333333;
   font-size: 85%;
   font-weight: initial;
@@ -572,7 +618,7 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   border-top-width: 0;
 }
 
-#xvimquhood .gt_heading {
+#qyxhcqcvwp .gt_heading {
   background-color: #FFFFFF;
   text-align: center;
   border-bottom-color: #FFFFFF;
@@ -584,13 +630,13 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   border-right-color: #D3D3D3;
 }
 
-#xvimquhood .gt_bottom_border {
+#qyxhcqcvwp .gt_bottom_border {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
 }
 
-#xvimquhood .gt_col_headings {
+#qyxhcqcvwp .gt_col_headings {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -605,7 +651,7 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   border-right-color: #D3D3D3;
 }
 
-#xvimquhood .gt_col_heading {
+#qyxhcqcvwp .gt_col_heading {
   color: #FFFFFF;
   background-color: #5F5F5F;
   font-size: 100%;
@@ -625,7 +671,7 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   overflow-x: hidden;
 }
 
-#xvimquhood .gt_column_spanner_outer {
+#qyxhcqcvwp .gt_column_spanner_outer {
   color: #FFFFFF;
   background-color: #5F5F5F;
   font-size: 100%;
@@ -637,15 +683,15 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   padding-right: 4px;
 }
 
-#xvimquhood .gt_column_spanner_outer:first-child {
+#qyxhcqcvwp .gt_column_spanner_outer:first-child {
   padding-left: 0;
 }
 
-#xvimquhood .gt_column_spanner_outer:last-child {
+#qyxhcqcvwp .gt_column_spanner_outer:last-child {
   padding-right: 0;
 }
 
-#xvimquhood .gt_column_spanner {
+#qyxhcqcvwp .gt_column_spanner {
   border-bottom-style: solid;
   border-bottom-width: 2px;
   border-bottom-color: #5F5F5F;
@@ -657,11 +703,11 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   width: 100%;
 }
 
-#xvimquhood .gt_spanner_row {
+#qyxhcqcvwp .gt_spanner_row {
   border-bottom-style: hidden;
 }
 
-#xvimquhood .gt_group_heading {
+#qyxhcqcvwp .gt_group_heading {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -687,7 +733,7 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   text-align: left;
 }
 
-#xvimquhood .gt_empty_group_heading {
+#qyxhcqcvwp .gt_empty_group_heading {
   padding: 0.5px;
   color: #333333;
   background-color: #FFFFFF;
@@ -702,15 +748,15 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   vertical-align: middle;
 }
 
-#xvimquhood .gt_from_md > :first-child {
+#qyxhcqcvwp .gt_from_md > :first-child {
   margin-top: 0;
 }
 
-#xvimquhood .gt_from_md > :last-child {
+#qyxhcqcvwp .gt_from_md > :last-child {
   margin-bottom: 0;
 }
 
-#xvimquhood .gt_row {
+#qyxhcqcvwp .gt_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -729,7 +775,7 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   overflow-x: hidden;
 }
 
-#xvimquhood .gt_stub {
+#qyxhcqcvwp .gt_stub {
   color: #333333;
   background-color: #D5D5D5;
   font-size: 100%;
@@ -742,7 +788,7 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   padding-right: 5px;
 }
 
-#xvimquhood .gt_stub_row_group {
+#qyxhcqcvwp .gt_stub_row_group {
   color: #333333;
   background-color: #FFFFFF;
   font-size: 100%;
@@ -756,15 +802,15 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   vertical-align: top;
 }
 
-#xvimquhood .gt_row_group_first td {
+#qyxhcqcvwp .gt_row_group_first td {
   border-top-width: 2px;
 }
 
-#xvimquhood .gt_row_group_first th {
+#qyxhcqcvwp .gt_row_group_first th {
   border-top-width: 2px;
 }
 
-#xvimquhood .gt_summary_row {
+#qyxhcqcvwp .gt_summary_row {
   color: #333333;
   background-color: #FFFFFF;
   text-transform: inherit;
@@ -774,16 +820,16 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   padding-right: 5px;
 }
 
-#xvimquhood .gt_first_summary_row {
+#qyxhcqcvwp .gt_first_summary_row {
   border-top-style: solid;
   border-top-color: #5F5F5F;
 }
 
-#xvimquhood .gt_first_summary_row.thick {
+#qyxhcqcvwp .gt_first_summary_row.thick {
   border-top-width: 2px;
 }
 
-#xvimquhood .gt_last_summary_row {
+#qyxhcqcvwp .gt_last_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -793,7 +839,7 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   border-bottom-color: #5F5F5F;
 }
 
-#xvimquhood .gt_grand_summary_row {
+#qyxhcqcvwp .gt_grand_summary_row {
   color: #333333;
   background-color: #D5D5D5;
   text-transform: inherit;
@@ -803,7 +849,7 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   padding-right: 5px;
 }
 
-#xvimquhood .gt_first_grand_summary_row {
+#qyxhcqcvwp .gt_first_grand_summary_row {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -813,7 +859,7 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   border-top-color: #5F5F5F;
 }
 
-#xvimquhood .gt_last_grand_summary_row_top {
+#qyxhcqcvwp .gt_last_grand_summary_row_top {
   padding-top: 8px;
   padding-bottom: 8px;
   padding-left: 5px;
@@ -823,11 +869,11 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   border-bottom-color: #5F5F5F;
 }
 
-#xvimquhood .gt_striped {
+#qyxhcqcvwp .gt_striped {
   background-color: #F4F4F4;
 }
 
-#xvimquhood .gt_table_body {
+#qyxhcqcvwp .gt_table_body {
   border-top-style: solid;
   border-top-width: 2px;
   border-top-color: #5F5F5F;
@@ -836,7 +882,7 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   border-bottom-color: #5F5F5F;
 }
 
-#xvimquhood .gt_footnotes {
+#qyxhcqcvwp .gt_footnotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -850,7 +896,7 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   border-right-color: #D3D3D3;
 }
 
-#xvimquhood .gt_footnote {
+#qyxhcqcvwp .gt_footnote {
   margin: 0px;
   font-size: 90%;
   padding-top: 4px;
@@ -859,7 +905,7 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   padding-right: 5px;
 }
 
-#xvimquhood .gt_sourcenotes {
+#qyxhcqcvwp .gt_sourcenotes {
   color: #333333;
   background-color: #FFFFFF;
   border-bottom-style: none;
@@ -873,7 +919,7 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   border-right-color: #D3D3D3;
 }
 
-#xvimquhood .gt_sourcenote {
+#qyxhcqcvwp .gt_sourcenote {
   font-size: 90%;
   padding-top: 4px;
   padding-bottom: 4px;
@@ -881,63 +927,63 @@ disapprove_estimate_avg), : Ignoring unknown parameters: `method` and `se`</code
   padding-right: 5px;
 }
 
-#xvimquhood .gt_left {
+#qyxhcqcvwp .gt_left {
   text-align: left;
 }
 
-#xvimquhood .gt_center {
+#qyxhcqcvwp .gt_center {
   text-align: center;
 }
 
-#xvimquhood .gt_right {
+#qyxhcqcvwp .gt_right {
   text-align: right;
   font-variant-numeric: tabular-nums;
 }
 
-#xvimquhood .gt_font_normal {
+#qyxhcqcvwp .gt_font_normal {
   font-weight: normal;
 }
 
-#xvimquhood .gt_font_bold {
+#qyxhcqcvwp .gt_font_bold {
   font-weight: bold;
 }
 
-#xvimquhood .gt_font_italic {
+#qyxhcqcvwp .gt_font_italic {
   font-style: italic;
 }
 
-#xvimquhood .gt_super {
+#qyxhcqcvwp .gt_super {
   font-size: 65%;
 }
 
-#xvimquhood .gt_footnote_marks {
+#qyxhcqcvwp .gt_footnote_marks {
   font-size: 75%;
   vertical-align: 0.4em;
   position: initial;
 }
 
-#xvimquhood .gt_asterisk {
+#qyxhcqcvwp .gt_asterisk {
   font-size: 100%;
   vertical-align: 0;
 }
 
-#xvimquhood .gt_indent_1 {
+#qyxhcqcvwp .gt_indent_1 {
   text-indent: 5px;
 }
 
-#xvimquhood .gt_indent_2 {
+#qyxhcqcvwp .gt_indent_2 {
   text-indent: 10px;
 }
 
-#xvimquhood .gt_indent_3 {
+#qyxhcqcvwp .gt_indent_3 {
   text-indent: 15px;
 }
 
-#xvimquhood .gt_indent_4 {
+#qyxhcqcvwp .gt_indent_4 {
   text-indent: 20px;
 }
 
-#xvimquhood .gt_indent_5 {
+#qyxhcqcvwp .gt_indent_5 {
   text-indent: 25px;
 }
 </style>
